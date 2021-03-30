@@ -1,8 +1,8 @@
 CXX       := i686-elf-g++
-CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -g
+CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -g -O0
 
 ASM       := nasm
-ASM_FLAGS := -felf32
+ASM_FLAGS := -felf32 -g -F dwarf -O0
 
 LINKER       := i686-elf-gcc
 LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc
