@@ -71,9 +71,15 @@ _start:
 	; stack since (pushed 0 bytes so far) and the alignment is thus
 	; preserved and the call is well defined.
         ; note, that if you are building on Windows, C functions may have "_" prefix in assembly: _kernel_main
+	extern _init
+	call _init ; C++ global constructors
+	
 	extern kernel_main
 	call kernel_main
- 
+	
+	extern _fini
+	call _fini ; C++ global destructors
+
 	; If the system has nothing more to do, put the computer into an
 	; infinite loop. To do that:
 	; 1) Disable interrupts with cli (clear interrupt enable in eflags).

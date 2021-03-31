@@ -22,6 +22,15 @@ SOURCES_CPP := $(shell find ${SRC} -type f -name '*.cpp')
 OBJECTS_ASM := $(patsubst %.asm,%.asm.o,${SOURCES_ASM})
 OBJECTS_CPP := $(patsubst %.cpp,%.cpp.o,${SOURCES_CPP})
 
+# Runtime OBJ's
+CRTI_OBJ := ${SRC}/runtime/crti.o
+CRTN_OBJ := ${SRC}/runtime/crtn.o
+CRTBEGIN_OBJ:=$(shell $(CXX) $(CXX_FLAGS) -print-file-name=crtbegin.o)
+CRTEND_OBJ:=$(shell $(CXX) $(CXX_FLAGS) -print-file-name=crtend.o)
+
+# All the object files
+OBJ := $(CRTI_OBJ) $(CRTBEGIN_OBJ) ${OBJECTS_ASM} ${OBJECTS_CPP} $(CRTEND_OBJ) $(CRTN_OBJ)
+
 KERNEL := ${BIN}/kernel.bin
 ISO    := os.iso
 
@@ -39,10 +48,13 @@ ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	cp ${CONFIG}/grub.cfg isodir/boot/grub/grub.cfg
 	grub-mkrescue -o $@ isodir
 
-${KERNEL}: ${OBJECTS_ASM} ${OBJECTS_CPP}
+${KERNEL}: ${OBJ}
 	${LINKER} ${LINKER_FLAGS} -T ${CONFIG}/linker.ld -o $@ $^
 
 %.asm.o: %.asm
+	${ASM} ${ASM_FLAGS} $^ -o $@
+
+%.o: %.s
 	${ASM} ${ASM_FLAGS} $^ -o $@
 
 %.cpp.o: %.cpp
@@ -60,5 +72,5 @@ clean:
 	rm -rf isodir
 	find . -type f -name '*.cpp.o' -delete
 	find . -type f -name '*.asm.o' -delete
-	rm ${ISO}
+	rm -f ${ISO}
 	clear

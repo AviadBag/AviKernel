@@ -93,12 +93,9 @@ void terminal_writestring(const char* data)
 {
 	terminal_write(data, strlen(data));
 }
- 
+
 extern "C" void kernel_main(void) 
 {
-	float a = 2/2;
-	int b = 3;
-
 	/* Initialize terminal interface */
 	terminal_initialize();
  
