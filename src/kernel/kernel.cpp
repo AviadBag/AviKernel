@@ -1,8 +1,8 @@
-#include <cstdint.h>
-#include <null.h>
-#include <size_t.h>
+#include <kernel/terminal/terminal.h>
 
 extern "C" void kernel_main(void) 
 {
-	
+	Terminal t;
+	t.clear();
+	t.print("Hello from the kernel!\n");
 }
