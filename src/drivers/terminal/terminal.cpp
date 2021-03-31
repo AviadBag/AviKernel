@@ -1,4 +1,4 @@
-#include <kernel/terminal/terminal.h>
+#include <drivers/terminal/terminal.h>
 #include <cstdint.h>
 
 #define ROWS 25
