@@ -70,7 +70,6 @@ validate: ${KERNEL}
 clean:
 	rm -f ${BIN}/*
 	rm -rf isodir
-	find . -type f -name '*.cpp.o' -delete
-	find . -type f -name '*.asm.o' -delete
+	find . -type f -name '*.o' -delete
 	rm -f ${ISO}
 	clear
