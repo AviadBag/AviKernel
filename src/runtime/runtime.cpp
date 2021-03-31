@@ -1,4 +1,4 @@
-#include <stddef.h>
+#include <size_t.h>
 
 /* Memory manegmnet functions */
 void *operator new(size_t size)

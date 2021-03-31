@@ -1,5 +1,10 @@
+BIN     := bin
+SRC     := src
+INCLUDE := ${SRC}/include
+CONFIG  := config
+
 CXX       := i686-elf-g++
-CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -g -O0
+CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/standart
 
 ASM       := nasm
 ASM_FLAGS := -felf32 -g -F dwarf -O0
@@ -10,11 +15,6 @@ LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc
 VM             := qemu-system-i386
 VM_FLAGS       :=
 VM_DEBUG_FLAGS := -s -S
-
-BIN     := bin
-SRC     := src
-INCLUDE := include
-CONFIG  := config
 
 SOURCES_ASM := $(shell find ${SRC} -type f -name '*.asm')
 SOURCES_CPP := $(shell find ${SRC} -type f -name '*.cpp')
