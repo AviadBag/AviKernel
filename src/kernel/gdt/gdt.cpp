@@ -22,7 +22,7 @@ void GDT::init_descriptors()
 
 void GDT::install()
 {
-    int size = sizeof(gdt_descriptor) * descriptors_count - 1;
+    uint32_t size = sizeof(gdt_descriptor) * descriptors_count - 1;
     install_gdt((uint32_t) &gdt, size); // Calls the assembly function
 }
 
