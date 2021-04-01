@@ -5,9 +5,11 @@ extern "C" void install_gdt(uint32_t, uint32_t);
 GDT::GDT()
 {
     descriptors_count = 0;
+
+    init_descriptors();
 }
 
-void GDT::init()
+void GDT::init_descriptors()
 {
     add_null_descriptor();
     

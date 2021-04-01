@@ -41,10 +41,10 @@ class GDT
 {
     public:
         GDT();
-        void init();
         void install();
 
     private:
+        void init_descriptors();
         void add_descriptor(uint32_t base, uint32_t limit, uint8_t flags);
         void add_null_descriptor();
 
