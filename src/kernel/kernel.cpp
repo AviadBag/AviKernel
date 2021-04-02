@@ -1,6 +1,9 @@
 #include <drivers/terminal/terminal.h>
+#include <drivers/pic/pic.h>
+
 #include <kernel/gdt/gdt.h>
 #include <kernel/idt/idt.h>
+
 #include <cstdlib.h>
 
 extern "C" void kernel_main(void) 
@@ -14,6 +17,10 @@ extern "C" void kernel_main(void)
 
 	IDT idt;
 	idt.install();
+
+	PIC pic;
+	pic.remap_irq();
+	pic.enable_all_interrupts();
 
 	while (1)
 		;
