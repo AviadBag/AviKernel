@@ -2,14 +2,15 @@ BIN     := bin
 SRC     := src
 INCLUDE := ${SRC}/include
 CONFIG  := config
+CROSS   := /home/aviad/opt/cross/bin
 
-CXX       := i686-elf-g++
+CXX       := ${CROSS}/i686-elf-g++
 CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/kernel/standard
 
 ASM       := nasm
 ASM_FLAGS := -felf32 -g -F dwarf -O0
 
-LINKER       := i686-elf-gcc
+LINKER       := ${CROSS}/i686-elf-gcc
 LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc
 
 VM             := qemu-system-i386
@@ -40,7 +41,7 @@ run: ${ISO}
 	${VM} ${VM_FLAGS} -cdrom $<
 
 debug: ${ISO}
-	${VM} ${VM_FLAGS} ${VM_DEBUG_FLAGS} -cdrom $<
+	${VM} ${VM_FLAGS} ${VM_DEBUG_FLAGS} -cdrom $< &
 
 ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	mkdir -p isodir/boot/grub
@@ -72,4 +73,4 @@ clean:
 	rm -rf isodir
 	find . -type f -name '*.o' -delete
 	rm -f ${ISO}
-	clear
+	#clear
