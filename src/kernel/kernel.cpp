@@ -19,9 +19,8 @@ extern "C" void kernel_main(void)
 	idt.install();
     asm("sti");
 
-	PIC pic;
-	pic.remap_irq();
-	pic.enable_all_interrupts();
+	PIC::remap_irq();
+	PIC::enable_all_interrupts();
 
 	while (1)
 		;
