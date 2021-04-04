@@ -24,9 +24,10 @@ void IDT::init_descriptors()
     }
 }
 
+extern Terminal terminal;
 extern "C" void default_handler()
 {
-    
+    terminal.print("Interrupt!\n");
 }
 
 void IDT::set_descriptor(int index, uint32_t handler, uint16_t selector, uint8_t flags)

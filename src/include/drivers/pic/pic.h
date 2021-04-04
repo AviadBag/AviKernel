@@ -10,5 +10,5 @@ class PIC
     private:
         void send_command(int pic, uint8_t command);
         uint8_t read_data(int pic);
-        uint8_t send_data(int pic, uint8_t data)
+        void send_data(int pic, uint8_t data);
 };

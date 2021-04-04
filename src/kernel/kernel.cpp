@@ -6,9 +6,9 @@
 
 #include <cstdlib.h>
 
+Terminal terminal;
 extern "C" void kernel_main(void) 
 {
-	Terminal terminal;
 	terminal.clear();
 	terminal.print("Hello, Kernel!\n");
 
@@ -17,6 +17,7 @@ extern "C" void kernel_main(void)
 
 	IDT idt;
 	idt.install();
+    asm("sti");
 
 	PIC pic;
 	pic.remap_irq();

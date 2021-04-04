@@ -70,14 +70,14 @@ void PIC::send_command(int pic, uint8_t command)
 uint8_t PIC::read_data(int pic)
 {
 	if (pic > 1)
-		return; // We have only two PIC's...
+		return 0; // We have only two PIC's...
 
 	uint16_t port = (pic == MASTER) ? MASTER_PIC_DATA_PORT : SLAVE_PIC_DATA_PORT;
 	return SerialPorts::inb(port);
 }
 
 // pic=0: master, pic=1: slave
-uint8_t PIC::send_data(int pic, uint8_t data)
+void PIC::send_data(int pic, uint8_t data)
 {
 	if (pic > 1)
 		return; // We have only two PIC's...
