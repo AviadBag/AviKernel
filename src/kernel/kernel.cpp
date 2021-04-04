@@ -6,9 +6,9 @@
 
 #include <cstdlib.h>
 
+Terminal terminal;
 extern "C" void kernel_main(void)
 {
-	Terminal terminal;
 	terminal.clear();
 	terminal.print("Hello, Kernel!\n");
 
@@ -20,6 +20,4 @@ extern "C" void kernel_main(void)
 
 	PIC::remap_irq();
 	PIC::enable_all_interrupts();
-
-	asm("int $128");
 }
