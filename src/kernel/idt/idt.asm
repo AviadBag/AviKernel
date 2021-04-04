@@ -10,3 +10,11 @@ install_idt:
     LIDT  [idtr]
 
     ret
+
+global first_handler
+extern handler
+first_handler:
+    pusha
+    call handler
+    popa
+    iret

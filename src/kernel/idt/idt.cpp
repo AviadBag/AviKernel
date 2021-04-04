@@ -1,9 +1,8 @@
 #include <kernel/idt/idt.h>
 #include <drivers/terminal/terminal.h>
-#include <cstdlib.h>
 
-extern Terminal terminal;
 extern "C" void install_idt(uint32_t, uint32_t);
+extern "C" void first_handler();
 
 IDT::IDT()
 {
@@ -20,12 +19,12 @@ void IDT::init_descriptors()
 {
     for (int i = 0; i < IDT_SIZE; i++)
     {
-        set_descriptor(i, (uint32_t) &default_handler, 0x8, INTERRUPT_IN_USE | PRIVILEGE_KERNEL);
+        set_descriptor(i, (uint32_t) &handler, 0x8, INTERRUPT_IN_USE | PRIVILEGE_KERNEL);
     }
 }
 
 extern Terminal terminal;
-extern "C" void default_handler()
+extern "C" void handler()
 {
     terminal.print("Interrupt!\n");
 }

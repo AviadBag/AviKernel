@@ -34,6 +34,6 @@ class IDT
         idt_descriptor idt[IDT_SIZE];
 };
 
-extern "C" void default_handler();
+extern "C" void handler();
 
 #endif
