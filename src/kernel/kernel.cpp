@@ -20,4 +20,7 @@ extern "C" void kernel_main(void)
 
 	PIC::remap_irq();
 	PIC::enable_all_interrupts();
+	asm("sti");
+
+	while (1) {}
 }
