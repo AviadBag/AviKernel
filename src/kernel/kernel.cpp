@@ -21,11 +21,11 @@ extern "C" void kernel_main(void)
 	terminal.clear();
 	terminal.print("Hello, Kernel!\n");
 
+    GDT gdt;
+    gdt.install();
+
     PIC::remap_irq();
     PIC::enable_all_interrupts();
-
-	GDT gdt;
-	gdt.install();
 
 	IDT idt;
 	idt.install();
