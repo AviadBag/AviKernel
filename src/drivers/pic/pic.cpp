@@ -90,7 +90,7 @@ void PIC::send_data(int pic, uint8_t data)
 void PIC::send_end_of_interrupt(uint8_t irq)
 {
     if (irq >= 8)
-		send_command(MASTER, END_OF_INTERRUPT);
+		send_command(SLAVE, END_OF_INTERRUPT);
  
-	send_command(SLAVE, END_OF_INTERRUPT);
+	send_command(MASTER, END_OF_INTERRUPT);
 }
