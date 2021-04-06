@@ -1,3 +1,6 @@
+#ifndef _PIC_H
+#define _PIC_H
+
 #include <cstdint.h>
 
 class PIC
@@ -12,3 +15,5 @@ class PIC
         static uint8_t read_data(int pic);
         static void send_data(int pic, uint8_t data);
 };
+
+#endif

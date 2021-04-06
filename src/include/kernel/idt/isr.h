@@ -1,7 +1,7 @@
 #ifndef _ISR_H
 #define _ISR_H
 
-#include <stdint.h>
+#include <cstdint.h>
 
 struct registers
 {
