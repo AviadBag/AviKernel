@@ -3,14 +3,14 @@
 
 #include <cstdint.h>
 #include <drivers/serial_ports/serial_ports.h>
+#include <kernel/idt/isr.h>
 
 class PIT
 {
     public:
-        void initialize();
+        static void initialize(uint32_t frequency, isr_ptr on_tick);
 
     private:
-        static void on_tick();
         static uint64_t ticks_count;
 };
 

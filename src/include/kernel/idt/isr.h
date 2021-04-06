@@ -4,7 +4,7 @@
 #include <cstdint.h>
 
 #define NUMBER_OF_INTERRUPTS 256
-typedef void (*isr_ptr)(int error_code);
+typedef void (*isr_ptr)(uint32_t error_code);
 
 struct registers
 {
