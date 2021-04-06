@@ -12,14 +12,14 @@ extern "C" void kernel_main(void)
 	terminal.clear();
 	terminal.print("Hello, Kernel!\n");
 
+    PIC::remap_irq();
+    PIC::enable_all_interrupts();
+
 	GDT gdt;
 	gdt.install();
 
 	IDT idt;
 	idt.install();
-
-	PIC::remap_irq();
-	PIC::enable_all_interrupts();
 	asm("sti");
 
 	while (1) {}
