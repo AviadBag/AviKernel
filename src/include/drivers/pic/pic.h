@@ -1,14 +1,19 @@
+#ifndef _PIC_H
+#define _PIC_H
+
 #include <cstdint.h>
 
 class PIC
 {
     public:
-        void remap_irq();
-        void send_end_of_interrupt(uint8_t irq);
-        void enable_all_interrupts();
+        static void remap_irq();
+        static void send_end_of_interrupt(uint8_t irq);
+        static void enable_all_interrupts();
     
     private:
-        void send_command(int pic, uint8_t command);
-        uint8_t read_data(int pic);
-        uint8_t send_data(int pic, uint8_t data)
+        static void send_command(int pic, uint8_t command);
+        static uint8_t read_data(int pic);
+        static void send_data(int pic, uint8_t data);
 };
+
+#endif

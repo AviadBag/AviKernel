@@ -8,6 +8,5 @@ install_idt:
     MOV   AX, [ESP + 8]
     MOV   [idtr], AX
     LIDT  [idtr]
-    ;sti
 
     ret
