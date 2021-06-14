@@ -2,7 +2,7 @@ BIN     := bin
 SRC     := src
 INCLUDE := ${SRC}/include
 CONFIG  := config
-CROSS   := /home/aviad/opt/cross/bin
+CROSS   := ~/softwares/i686-elf-tools/bin
 
 CXX       := ${CROSS}/i686-elf-g++
 CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/kernel/standard
@@ -50,6 +50,7 @@ ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	grub-mkrescue -o $@ isodir
 
 ${KERNEL}: ${OBJ}
+	mkdir -p ${BIN}
 	${LINKER} ${LINKER_FLAGS} -T ${CONFIG}/linker.ld -o $@ $^
 
 %.asm.o: %.asm
@@ -73,4 +74,4 @@ clean:
 	rm -rf isodir
 	find . -type f -name '*.o' -delete
 	rm -f ${ISO}
-	#clear
+	clear
