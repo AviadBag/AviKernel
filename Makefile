@@ -8,7 +8,7 @@ CXX       := ${CROSS}/i686-elf-g++
 CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/kernel/standard
 
 ASM       := nasm
-ASM_FLAGS := -felf32 -g -F dwarf -O0
+ASM_FLAGS := -felf32 -g -F dwarf -O0 -w-number-overflow
 
 LINKER       := ${CROSS}/i686-elf-gcc
 LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc
