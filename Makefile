@@ -1,6 +1,6 @@
 BIN     := bin
 SRC     := src
-INCLUDE := ${SRC}/include
+INCLUDE := include
 CONFIG  := config
 CROSS   := ~/softwares/i686-elf-tools/bin
 
@@ -14,7 +14,7 @@ LINKER       := ${CROSS}/i686-elf-gcc
 LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc
 
 VM             := qemu-system-i386
-VM_FLAGS       :=
+VM_FLAGS       := -curses
 VM_DEBUG_FLAGS := -s -S
 
 SOURCES_ASM := $(shell find ${SRC} -type f -name '*.asm')
@@ -41,7 +41,7 @@ run: ${ISO}
 	${VM} ${VM_FLAGS} -cdrom $<
 
 debug: ${ISO}
-	${VM} ${VM_FLAGS} ${VM_DEBUG_FLAGS} -cdrom $< &
+	${VM} ${VM_FLAGS} ${VM_DEBUG_FLAGS} -cdrom $<
 
 ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	mkdir -p isodir/boot/grub
