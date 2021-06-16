@@ -1,6 +1,6 @@
 BIN     := bin
 SRC     := src
-INCLUDE := ${SRC}/include
+INCLUDE := include
 CONFIG  := config
 CROSS   := ~/softwares/i686-elf-tools/bin
 
