@@ -1,24 +1,22 @@
 #ifndef _TERMINAL_H
 #define _TERMINAL_H
 
-class Terminal
-{
-    public:
-        void print(char* str);
-        void clear();
-        Terminal();
+class Terminal {
+public:
+    static void putchar(char c);
+    static void clear();
+    static void initialize();
 
-    private:
-        void next_char();
-        void next_line();
-        void scroll();
-        void copy_row(int from, int to);
-        void print_char(char c);
-        void print_regular_char(char c);
-        int XYToOffset();
+private:
+    static void put_regular_char(char c); // Does not treat "\n" etc.
+    static void next_char();
+    static void next_line();
+    static void scroll();
+    static void copy_row(int from, int to);
+    static int XYToOffset();
 
-        int x;
-        int y;
+    static int x;
+    static int y;
 };
 
 #endif
