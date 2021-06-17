@@ -2,7 +2,7 @@ BIN     := bin
 SRC     := src
 INCLUDE := include
 CONFIG  := config
-CROSS   := ~/softwares/i686-elf-tools/bin
+CROSS   := ~/files/programming/softwares/i686-elf/bin
 
 CXX       := ${CROSS}/i686-elf-g++
 CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/kernel/standard
@@ -11,7 +11,7 @@ ASM       := nasm
 ASM_FLAGS := -felf32 -g -F dwarf -O0 -w-number-overflow
 
 LINKER       := ${CROSS}/i686-elf-gcc
-LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc
+LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc 
 
 VM             := qemu-system-i386
 VM_FLAGS       := -curses
@@ -51,7 +51,8 @@ ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 
 ${KERNEL}: ${OBJ}
 	mkdir -p ${BIN}
-	${LINKER} ${LINKER_FLAGS} -T ${CONFIG}/linker.ld -o $@ $^
+	# Caution: ${LINKER_FLAGS} MUST be at the end of the line!
+	${LINKER} -T ${CONFIG}/linker.ld -o $@ $^ ${LINKER_FLAGS}
 
 %.asm.o: %.asm
 	${ASM} ${ASM_FLAGS} $^ -o $@
