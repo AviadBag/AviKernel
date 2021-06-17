@@ -1,5 +1,6 @@
 #include "drivers/pic/pic.h"
 #include "drivers/pit/pit.h"
+#include "drivers/terminal/terminal.h"
 
 #include "kernel/gdt/gdt.h"
 #include "kernel/idt/idt.h"
@@ -20,6 +21,7 @@ void on_tick(uint32_t unused)
 
 extern "C" void kernel_main(void)
 {
+    Terminal::initialize();
 	printf("Hello! Welcome to AviKernel!\n");
 
     GDT gdt;

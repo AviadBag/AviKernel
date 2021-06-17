@@ -4,20 +4,20 @@
 class Terminal
 {
     public:
-        void putchar(char c);
-        void clear();
-        Terminal();
+        static void putchar(char c);
+        static void clear();
+        static void initialize();
 
     private:
-        void put_regular_char(char c); // Does not treat "\n" etc.
-        void next_char();
-        void next_line();
-        void scroll();
-        void copy_row(int from, int to);
-        int XYToOffset();
+        static void put_regular_char(char c); // Does not treat "\n" etc.
+        static void next_char();
+        static void next_line();
+        static void scroll();
+        static void copy_row(int from, int to);
+        static int XYToOffset();
 
-        int x;
-        int y;
+        static int x;
+        static int y;
 };
 
 #endif

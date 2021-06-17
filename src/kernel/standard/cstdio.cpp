@@ -126,11 +126,9 @@ typedef struct
 	void *arg;
 } out_fct_wrap_type;
 
-Terminal terminal;
-
 void _putchar(char c)
 {
-	terminal.putchar(c);
+	Terminal::putchar(c);
 }
 
 // internal buffer output

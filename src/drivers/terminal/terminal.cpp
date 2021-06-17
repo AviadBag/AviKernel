@@ -6,7 +6,10 @@
 #define MEMORY_ADDRESS 0xB8000
 #define	CHAR_ATTRIBUTES 0x07 // White on black
 
-Terminal::Terminal()
+int Terminal::x = 0;
+int Terminal::y = 0;
+
+void Terminal::initialize()
 {
     x = y = 0;
     clear();
