@@ -40,16 +40,16 @@ struct gdt_descriptor
 class GDT
 {
     public:
-        GDT();
-        void install();
+        static void initialize();
 
     private:
-        void init_descriptors();
-        void add_descriptor(uint32_t base, uint32_t limit, uint8_t flags);
-        void add_null_descriptor();
+        static void install();
+        static void init_descriptors();
+        static void add_descriptor(uint32_t base, uint32_t limit, uint8_t flags);
+        static void add_null_descriptor();
 
-        gdt_descriptor gdt[GDT_DESCRIPTORS_LIMIT];
-        int descriptors_count;
+        static gdt_descriptor gdt[GDT_DESCRIPTORS_LIMIT];
+        static int descriptors_count;
         
 };
 

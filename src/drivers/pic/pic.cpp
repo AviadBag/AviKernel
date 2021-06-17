@@ -24,7 +24,8 @@
 #define ICW3_SLAVE  0x02
 #define ICW4        0x01
 
-void PIC::remap_irq()
+// Remaps the IRQ
+void PIC::initialize()
 {
 	// ICW1
 	send_command(MASTER, ICW1);
@@ -54,7 +55,6 @@ void PIC::enable_all_interrupts()
 {
 	send_data(MASTER, 0x0);
 	send_data(SLAVE, 0x0);
-	asm("sti");
 }
 
 // pic=0: master, pic=1: slave

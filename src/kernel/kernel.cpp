@@ -1,5 +1,6 @@
 #include "drivers/pic/pic.h"
 #include "drivers/pit/pit.h"
+#include "drivers/terminal/terminal.h"
 
 #include "kernel/gdt/gdt.h"
 #include "kernel/idt/idt.h"
@@ -18,18 +19,22 @@ void on_tick(uint32_t unused)
     }
 }
 
+void interrupt_3(uint32_t unused)
+{
+    printf("Interrupt 3\n", unused);
+}
+
 extern "C" void kernel_main(void)
 {
+    Terminal::initialize();
 	printf("Hello! Welcome to AviKernel!\n");
 
-    GDT gdt;
-    gdt.install();
+    GDT::initialize();
 
-    PIC::remap_irq();
+    PIC::initialize();
     PIC::enable_all_interrupts();
 
-	IDT idt;
-	idt.install();
+	IDT::initialize();
 	asm("sti");
 
 	PIT::initialize(100, on_tick); // Once every 0.01 second
