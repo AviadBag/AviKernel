@@ -24,14 +24,14 @@ struct idt_descriptor
 class IDT
 {
     public:
-        IDT();
-        void install();
+        static void initialize();
 
     private:
-        void init_descriptors();
-        void set_descriptor(int index, uint32_t handler, uint16_t selector, uint8_t flags);
+        static void install();
+        static void init_descriptors();
+        static void set_descriptor(int index, uint32_t handler, uint16_t selector, uint8_t flags);
 
-        idt_descriptor idt[IDT_SIZE];
+        static idt_descriptor idt[IDT_SIZE];
 };
 
 extern "C" void isr0();

@@ -19,6 +19,11 @@ void on_tick(uint32_t unused)
     }
 }
 
+void interrupt_3(uint32_t unused)
+{
+    printf("Interrupt 3\n", unused);
+}
+
 extern "C" void kernel_main(void)
 {
     Terminal::initialize();
@@ -29,8 +34,7 @@ extern "C" void kernel_main(void)
     PIC::initialize();
     PIC::enable_all_interrupts();
 
-	IDT idt;
-	idt.install();
+	IDT::initialize();
 	asm("sti");
 
 	PIT::initialize(100, on_tick); // Once every 0.01 second

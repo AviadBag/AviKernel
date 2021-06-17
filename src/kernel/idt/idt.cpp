@@ -5,9 +5,12 @@
 extern "C" void install_idt(uint32_t, uint32_t);
 extern "C" void first_handler();
 
-IDT::IDT()
+idt_descriptor IDT::idt[IDT_SIZE];
+
+void IDT::initialize()
 {
     init_descriptors();
+    install();
 }
 
 void IDT::install()
