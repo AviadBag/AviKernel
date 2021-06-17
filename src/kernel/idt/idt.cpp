@@ -1,5 +1,5 @@
-#include <kernel/idt/idt.h>
-#include <drivers/terminal/terminal.h>
+#include "kernel/idt/idt.h"
+#include "drivers/terminal/terminal.h"
 #include <cstring.h>
 
 extern "C" void install_idt(uint32_t, uint32_t);

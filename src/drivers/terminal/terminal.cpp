@@ -1,5 +1,5 @@
-#include <drivers/terminal/terminal.h>
-#include <cstdint.h>
+#include "drivers/terminal/terminal.h"
+#include <stdint.h>
 
 #define ROWS 25
 #define COLUMNS 80

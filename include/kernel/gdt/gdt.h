@@ -1,7 +1,7 @@
 #ifndef _GDT_H
 #define _GDT_H
 
-#include <cstdint.h>
+#include <stdint.h>
 
 #define GDT_DESCRIPTORS_LIMIT 16 // Change if required
 
