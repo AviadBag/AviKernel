@@ -70,7 +70,9 @@ _start:
 	; aligned above and we've since pushed a multiple of 16 bytes to the
 	; stack since (pushed 0 bytes so far) and the alignment is thus
 	; preserved and the call is well defined.
-        ; note, that if you are building on Windows, C functions may have "_" prefix in assembly: _kernel_main
+    ; note, that if you are building on Windows, C functions may have "_" prefix in assembly: _kernel_main
+	push ebx ; Multiboot Data
+	
 	extern _init
 	call _init ; C++ global constructors
 	
