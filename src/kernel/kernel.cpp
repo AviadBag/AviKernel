@@ -24,8 +24,7 @@ extern "C" void kernel_main(void)
     Terminal::initialize();
 	printf("Hello! Welcome to AviKernel!\n");
 
-    GDT gdt;
-    gdt.install();
+    GDT::initialize();
 
     PIC::initialize();
     PIC::enable_all_interrupts();
