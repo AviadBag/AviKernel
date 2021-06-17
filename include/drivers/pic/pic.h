@@ -1,7 +1,7 @@
 #ifndef _PIC_H
 #define _PIC_H
 
-#include <cstdint.h>
+#include <stdint.h>
 
 class PIC
 {

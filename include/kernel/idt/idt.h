@@ -1,7 +1,7 @@
 #ifndef _IDT_H
 #define _IDT_H
 
-#include <cstdint.h>
+#include <stdint.h>
 
 #define IDT_SIZE 256
 

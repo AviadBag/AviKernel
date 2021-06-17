@@ -1,7 +1,7 @@
 #ifndef _SERIAL_PORTS_H
 #define _SERIAL_PORTS_H
 
-#include <cstdint.h>
+#include <stdint.h>
 
 class SerialPorts
 {
