@@ -5,8 +5,8 @@
 #include "kernel/gdt/gdt.h"
 #include "kernel/idt/idt.h"
 
-#include <cstdlib.h>
 #include <cstdio.h>
+#include <cstdlib.h>
 
 void on_tick(uint32_t unused)
 {
@@ -27,17 +27,17 @@ void interrupt_3(uint32_t unused)
 extern "C" void kernel_main(void)
 {
     Terminal::initialize();
-	printf("Hello! Welcome to AviKernel!\n");
+    printf("Hello! Welcome to AviKernel!\n");
 
     GDT::initialize();
 
     PIC::initialize();
     PIC::enable_all_interrupts();
 
-	IDT::initialize();
-	asm("sti");
+    IDT::initialize();
+    asm("sti");
 
-	PIT::initialize(100, on_tick); // Once every 0.01 second
+    PIT::initialize(100, on_tick); // Once every 0.01 second
 
-	while (1) {}
+    while (1) { }
 }

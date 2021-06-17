@@ -15,10 +15,10 @@ void GDT::initialize()
 void GDT::init_descriptors()
 {
     add_null_descriptor();
-    
+
     // Code descriptor
     add_descriptor(0, 0xFFFFFFFF, PRIVILEGE_KERNEL | TYPE_EXECUTABLE | CODE_READ_EXECUTE);
-    
+
     // Data descriptor
     add_descriptor(0, 0xFFFFFFFF, PRIVILEGE_KERNEL | TYPE_DATA | DATA_READ_WRITE);
 }
@@ -26,7 +26,7 @@ void GDT::init_descriptors()
 void GDT::install()
 {
     uint32_t size = sizeof(gdt_descriptor) * descriptors_count - 1;
-    install_gdt((uint32_t) &gdt, size); // Calls the assembly function
+    install_gdt((uint32_t)&gdt, size); // Calls the assembly function
 }
 
 void GDT::add_null_descriptor()
@@ -39,7 +39,7 @@ void GDT::add_null_descriptor()
     descriptor.flags = 0;
     descriptor.l_flags = 0;
     descriptor.base_high = 0;
-    
+
     gdt[descriptors_count++] = descriptor;
 }
 
@@ -55,7 +55,7 @@ void GDT::add_descriptor(uint32_t base, uint32_t limit, uint8_t flags)
     // limit, another flags.
     descriptor.limit_low = limit & 0xFFFF; // Extract lower 16 bits
     descriptor.l_flags = ((limit >> 16) & 0xF);
-    descriptor.l_flags |=  0b11000000;
+    descriptor.l_flags |= 0b11000000;
 
     // flags.
     descriptor.flags = flags | 0b10010000;

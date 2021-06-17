@@ -6,8 +6,7 @@
 #define NUMBER_OF_INTERRUPTS 256
 typedef void (*isr_ptr)(uint32_t error_code);
 
-struct registers
-{
+struct registers {
     uint32_t ds; // Data segment selector
     uint32_t edi, esi, ebp, useless_value, ebx, edx, ecx, eax; // Pushed by pusha.
     uint32_t interrupt_number, err_code; // Interrupt number and error code (if applicable)

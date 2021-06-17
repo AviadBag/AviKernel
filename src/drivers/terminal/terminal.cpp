@@ -4,7 +4,7 @@
 #define ROWS 25
 #define COLUMNS 80
 #define MEMORY_ADDRESS 0xB8000
-#define	CHAR_ATTRIBUTES 0x07 // White on black
+#define CHAR_ATTRIBUTES 0x07 // White on black
 
 int Terminal::x = 0;
 int Terminal::y = 0;
@@ -19,19 +19,17 @@ void Terminal::putchar(char c)
 {
     if (c == '\n')
         next_line();
-    else if (c == '\t')
-    {
-        // A tab is four spaces. 
+    else if (c == '\t') {
+        // A tab is four spaces.
         for (int i = 0; i < 4; i++)
             put_regular_char(' ');
-    }
-    else
+    } else
         put_regular_char(c);
 }
 
 void Terminal::put_regular_char(char c)
 {
-    uint8_t* address = (uint8_t*) (MEMORY_ADDRESS + XYToOffset());
+    uint8_t* address = (uint8_t*)(MEMORY_ADDRESS + XYToOffset());
     *address = c;
     *(++address) = CHAR_ATTRIBUTES;
 
@@ -40,15 +38,16 @@ void Terminal::put_regular_char(char c)
 
 void Terminal::clear()
 {
-    for (int i = 0; i < ROWS * COLUMNS; i++) 
+    for (int i = 0; i < ROWS * COLUMNS; i++)
         putchar(' ');
-    x = y = 0;   
+    x = y = 0;
 }
 
 void Terminal::next_char()
 {
     x++;
-    if (x == COLUMNS) next_line();
+    if (x == COLUMNS)
+        next_line();
 }
 
 void Terminal::next_line()
@@ -56,14 +55,15 @@ void Terminal::next_line()
     x = 0;
     y++;
 
-    if (y == ROWS) scroll();
+    if (y == ROWS)
+        scroll();
 }
 
 void Terminal::scroll()
 {
     for (int row = 1; row < ROWS; row++) // Iterate evey row, from the second.
     {
-        copy_row(row, row-1);
+        copy_row(row, row - 1);
     }
 
     y--;
@@ -76,7 +76,7 @@ void Terminal::copy_row(int from, int to)
     for (int i = 0; i < COLUMNS; i++) // Read from the source line, char by char.
     {
         y = from, x = i;
-        uint8_t* address = (uint8_t*) (MEMORY_ADDRESS + XYToOffset());
+        uint8_t* address = (uint8_t*)(MEMORY_ADDRESS + XYToOffset());
         char c = *address;
 
         y = to, x = i;
