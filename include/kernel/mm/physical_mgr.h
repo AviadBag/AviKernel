@@ -3,13 +3,12 @@
 
 typedef void* physical_addr;
 
-class PhysicalMgr
-{
-    public:
-        PhysicalMgr();
+class PhysicalMgr {
+public:
+    PhysicalMgr();
 
-        physical_addr allocate_block();
-        void free_block(physical_addr);
+    physical_addr allocate_block();
+    void free_block(physical_addr);
 };
 
 #endif
