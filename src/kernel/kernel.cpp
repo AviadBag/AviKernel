@@ -1,8 +1,8 @@
-#include <drivers/pic/pic.h>
-#include <drivers/pit/pit.h>
+#include "drivers/pic/pic.h"
+#include "drivers/pit/pit.h"
 
-#include <kernel/gdt/gdt.h>
-#include <kernel/idt/idt.h>
+#include "kernel/gdt/gdt.h"
+#include "kernel/idt/idt.h"
 
 #include <cstdlib.h>
 #include <cstdio.h>

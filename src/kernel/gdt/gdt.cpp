@@ -1,4 +1,4 @@
-#include <kernel/gdt/gdt.h>
+#include "kernel/gdt/gdt.h"
 
 extern "C" void install_gdt(uint32_t, uint32_t);
 

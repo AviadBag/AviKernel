@@ -1,6 +1,6 @@
-#include <kernel/idt/isr.h>
-#include <drivers/terminal/terminal.h>
-#include <drivers/pic/pic.h>
+#include "kernel/idt/isr.h"
+#include "drivers/terminal/terminal.h"
+#include "drivers/pic/pic.h"
 #include <cstdlib.h>
 
 #define IRQ_START 32

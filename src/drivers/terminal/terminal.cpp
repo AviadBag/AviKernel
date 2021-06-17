@@ -1,4 +1,4 @@
-#include <drivers/terminal/terminal.h>
+#include "drivers/terminal/terminal.h"
 #include <stdint.h>
 
 #define ROWS 25

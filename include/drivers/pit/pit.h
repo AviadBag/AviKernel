@@ -2,8 +2,8 @@
 #define _PIT_H
 
 #include <stdint.h>
-#include <drivers/serial_ports/serial_ports.h>
-#include <kernel/idt/isr.h>
+#include "drivers/serial_ports/serial_ports.h"
+#include "kernel/idt/isr.h"
 
 class PIT
 {
