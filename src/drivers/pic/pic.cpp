@@ -24,7 +24,8 @@
 #define ICW3_SLAVE  0x02
 #define ICW4        0x01
 
-void PIC::remap_irq()
+// Remaps the IRQ
+void PIC::initialize()
 {
 	// ICW1
 	send_command(MASTER, ICW1);

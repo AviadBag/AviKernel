@@ -27,7 +27,7 @@ extern "C" void kernel_main(void)
     GDT gdt;
     gdt.install();
 
-    PIC::remap_irq();
+    PIC::initialize();
     PIC::enable_all_interrupts();
 
 	IDT idt;

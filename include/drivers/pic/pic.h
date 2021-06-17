@@ -6,7 +6,7 @@
 class PIC
 {
     public:
-        static void remap_irq();
+        static void initialize();
         static void send_end_of_interrupt(uint8_t irq);
         static void enable_all_interrupts();
     
