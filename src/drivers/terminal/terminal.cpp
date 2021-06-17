@@ -9,18 +9,36 @@
 Terminal::Terminal()
 {
     x = y = 0;
+    clear();
 }
 
-void Terminal::print(char* str)
+void Terminal::putchar(char c)
 {
-    while (*str) 
-        print_char(*str++);
+    if (c == '\n')
+        next_line();
+    else if (c == '\t')
+    {
+        // A tab is four spaces. 
+        for (int i = 0; i < 4; i++)
+            put_regular_char(' ');
+    }
+    else
+        put_regular_char(c);
+}
+
+void Terminal::put_regular_char(char c)
+{
+    uint8_t* address = (uint8_t*) (MEMORY_ADDRESS + XYToOffset());
+    *address = c;
+    *(++address) = CHAR_ATTRIBUTES;
+
+    next_char();
 }
 
 void Terminal::clear()
 {
     for (int i = 0; i < ROWS * COLUMNS; i++) 
-        print_char(' ');
+        putchar(' ');
     x = y = 0;   
 }
 
@@ -59,32 +77,10 @@ void Terminal::copy_row(int from, int to)
         char c = *address;
 
         y = to, x = i;
-        print_char(c); // Print it in the destination row.
+        putchar(c); // Print it in the destination row.
     }
 
     x = _x, y = _y; // Restore
-}
-
-void Terminal::print_char(char c)
-{
-    switch (c)
-    {
-        case '\n':
-            next_line();
-            break;
-        
-        default:
-            print_regular_char(c);
-    }
-}
-
-void Terminal::print_regular_char(char c)
-{
-    uint8_t* address = (uint8_t*) (MEMORY_ADDRESS + XYToOffset());
-    *address = c;
-    *(++address) = CHAR_ATTRIBUTES;
-
-    next_char();
 }
 
 int Terminal::XYToOffset()
