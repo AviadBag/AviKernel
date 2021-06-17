@@ -4,17 +4,16 @@
 class Terminal
 {
     public:
-        void print(char* str);
+        void putchar(char c);
         void clear();
         Terminal();
 
     private:
+        void put_regular_char(char c); // Does not treat "\n" etc.
         void next_char();
         void next_line();
         void scroll();
         void copy_row(int from, int to);
-        void print_char(char c);
-        void print_regular_char(char c);
         int XYToOffset();
 
         int x;
