@@ -1,7 +1,7 @@
 #ifndef _BITMAP_H
 #define _BITMAP_H
 
-#include <cstdint>
+#include <stdint.h>
 
 class Bitmap
 {
