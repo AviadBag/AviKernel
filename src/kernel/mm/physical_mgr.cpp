@@ -1,0 +1,163 @@
+#include "kernel/mm/physical_mgr.h"
+#include "utils/bitmap.h"
+
+#include <cstdio.h>
+#include <cstring.h>
+
+#define PMMGR_USABLE_MEMORY_START 0x100000 // One MB
+#define PMMGR_PAGE_SIZE (1024 * 4)         // 4 KB
+
+#define PMMGR_BITMAP_PAGE_USED 1
+#define PMMGR_BITMAP_PAGE_FREE 0
+
+#define PMMGR_KERNEL_START_ADDRESS
+
+// How many pages does this chunk occupie (Rounded up)
+#define PMMGR_BYTES_TO_PAGES(chunk) ((chunk) % PMMGR_PAGE_SIZE == 0 ? (chunk) / PMMGR_PAGE_SIZE : (chunk) / PMMGR_PAGE_SIZE + 1)
+
+// Convert an address to it's page number - Rounded down
+#define PMMGR_ADDRESS_TO_PAGE(address) ((address) / PMMGR_PAGE_SIZE)
+
+// The oppesite of PMMGR_ADDRESS_TO_PAGE
+#define PMMGR_PAGE_TO_ADDRESS(address) ((address)*PMMGR_PAGE_SIZE)
+
+uint32_t *PhysicalMgr::bitmap;
+uint64_t PhysicalMgr::number_of_pages;
+uint64_t PhysicalMgr::number_of_cells;
+uint64_t PhysicalMgr::bitmap_size;
+
+extern "C" void *kernelStart; // This variable sits at the beginning of the kernel.
+extern "C" void *kernelEnd;   // This variable sits at end beginning of the kernel.
+
+bool PhysicalMgr::initialize(uint32_t higher_memory_size, uint32_t mmap_addr, uint32_t mmap_length)
+{
+    // Init variables
+    number_of_pages = higher_memory_size / PMMGR_PAGE_SIZE; // higher_memory_size
+    number_of_cells = number_of_pages / 32;
+    bitmap_size = number_of_cells * 4; // Every cell is 32 bits, I need it in 8 bits units.
+
+    if (!find_bitmap_memory(mmap_addr, mmap_length))
+        return false;
+    fill_bitmap(mmap_addr, mmap_length);
+
+    return true;
+}
+
+void PhysicalMgr::mark_memory_as(uint32_t start_address, size_t size, int what)
+{
+    size_t start_page = PMMGR_ADDRESS_TO_PAGE(start_address);
+    size_t end_page = PMMGR_ADDRESS_TO_PAGE(start_address + size);
+    size_t pages_count = end_page - start_page + 1; // There is at least one page
+    for (size_t i = 0; i < pages_count; i++)
+    {
+        if (what == PMMGR_BITMAP_PAGE_USED)
+            Bitmap::set(bitmap, start_page + i);
+        else
+            Bitmap::clear(bitmap, start_page + i);
+    }
+}
+
+void PhysicalMgr::fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
+{
+    // Fill the bitmap with ones. (By default, all the pages are used).
+    memset(bitmap, PMMGR_BITMAP_PAGE_FREE, number_of_pages);
+
+    multiboot_memory_map_t *entry = (multiboot_memory_map_t *)mmap_addr;
+    while ((uint32_t)entry < (mmap_addr + mmap_length))
+    {
+        if (entry->type == MULTIBOOT_MEMORY_AVAILABLE)
+            // Mark this memory region as free
+            mark_memory_as(entry->addr, entry->size, PMMGR_BITMAP_PAGE_FREE);
+
+        // Go to next entry
+        entry = (multiboot_memory_map_t *)((unsigned int)entry + entry->size + sizeof(entry->size));
+    }
+
+    // Mark the first MB as used
+    mark_memory_as(0, PMMGR_USABLE_MEMORY_START, PMMGR_BITMAP_PAGE_USED);
+
+    // Mark the bitmap as used
+    mark_memory_as((uint32_t)bitmap, bitmap_size, PMMGR_BITMAP_PAGE_USED);
+
+    // Mark the kernel area as used
+    uint32_t kernelStartP = (uint32_t)&kernelStart;
+    uint32_t kernelEndP = (uint32_t)&kernelEnd;
+    mark_memory_as(kernelStartP, kernelEndP, PMMGR_BITMAP_PAGE_USED);
+    printf("Kernel start: %x, Kernel end: %x\n", kernelStartP, kernelEndP);
+}
+
+bool PhysicalMgr::find_bitmap_memory(uint32_t mmap_addr, uint32_t mmap_length)
+{
+    multiboot_memory_map_t *entry = (multiboot_memory_map_t *)mmap_addr;
+    while ((uint32_t)entry < (mmap_addr + mmap_length))
+    {
+        if (entry->type == MULTIBOOT_MEMORY_AVAILABLE && entry->addr >= PMMGR_USABLE_MEMORY_START)
+        {
+            if (entry->len >= bitmap_size)
+            {
+                // Make sure that we are not overriding the kernel
+                uint64_t desired_bitmap_start_addr = entry->addr;
+                uint64_t desired_bitmap_end_addr = desired_bitmap_start_addr + bitmap_size;
+                uint64_t kernelStartP = (uint64_t)&kernelStart;
+                uint64_t kernelEndP = (uint64_t)&kernelEnd;
+
+                // Can the bitmap fit before the kernel?
+                if (desired_bitmap_end_addr < kernelStartP)
+                {
+                    bitmap = (uint32_t *)desired_bitmap_start_addr;
+                    return true;
+                }
+                
+                // Can the bitmap fit after the kernel?
+                desired_bitmap_start_addr = kernelEndP + 1;
+                desired_bitmap_end_addr = desired_bitmap_start_addr + bitmap_size;
+                if (desired_bitmap_end_addr < entry->addr + entry->len)
+                {
+                    bitmap = (uint32_t*)desired_bitmap_start_addr;
+                    return true;
+                }
+
+                // We didn't find - try the next entry..
+            }
+        }
+
+        // Go to next entry
+        entry = (multiboot_memory_map_t *)((unsigned int)entry + entry->size + sizeof(entry->size));
+    }
+
+    printf("Error: Not enough memory!\n");
+    return false;
+}
+
+physical_addr PhysicalMgr::allocate_block()
+{
+    // Iterate on each cell, and check where there is a free block.
+    for (uint64_t i = 0; i < number_of_cells; i++)
+    {
+        uint32_t cell = bitmap[i];
+        if (cell != 0xffffffff) // There is one zero here
+        {
+            for (int j = 0; j < 32; j++)
+            {
+                int cell_number = i * 32 + j;
+                if (Bitmap::test(bitmap, cell_number) == PMMGR_BITMAP_PAGE_FREE)
+                {
+                    // We have found a block!
+                    Bitmap::set(bitmap, cell_number);
+                    return (physical_addr)PMMGR_PAGE_TO_ADDRESS(cell_number);
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
+
+void PhysicalMgr::free_block(physical_addr block)
+{
+    if ((uint32_t) block % PMMGR_PAGE_SIZE != 0) // This is not a page size.
+        return;
+
+    size_t page_number = PMMGR_ADDRESS_TO_PAGE((uint32_t) block);
+    Bitmap::clear(bitmap, page_number);
+}
