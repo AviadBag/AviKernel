@@ -13,17 +13,6 @@
 #include <cstdio.h>
 #include <cstdlib.h>
 
-void on_tick(uint32_t unused)
-{
-    static int counter = 0;
-    counter++;
-    if (counter % 100 == 0) // This is a second
-    {
-        int seconds = counter / 100;
-        printf("Second: %d\n", seconds);
-    }
-}
-
 extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 {
     Terminal::initialize();
@@ -34,10 +23,10 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     PIC::enable_all_interrupts();
     IDT::initialize();
     asm("sti");
-    PIT::initialize(100, on_tick); // Once every 0.01 second
+    PIT::initialize(100); // Once every 0.01 second
     if (!PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length))
        goto iLoop;
-        
+    
     iLoop:
     while (1)
     {
