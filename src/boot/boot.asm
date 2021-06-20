@@ -50,6 +50,8 @@ page_directory:
 ; Declare _start as a function symbol with the given symbol size.
 section .text
 load_os:
+	push ebx ; Multiboot Data
+
 	extern _init
 	call _init ; C++ global constructors
 	
@@ -107,7 +109,6 @@ _start:
 	; stack since (pushed 0 bytes so far) and the alignment is thus
 	; preserved and the call is well defined.
     ; note, that if you are building on Windows, C functions may have "_" prefix in assembly: _kernel_main
-	push ebx ; Multiboot Data
 	
 	; Enable PSE
 	mov eax, cr4
