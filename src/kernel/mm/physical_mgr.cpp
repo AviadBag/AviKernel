@@ -5,6 +5,7 @@
 #include <cstring.h>
 
 #define PMMGR_USABLE_MEMORY_START 0x100000 // One MB
+#define PMMGR_MAPPED_MEMORY_END   0x400000 // 4 MB
 #define PMMGR_PAGE_SIZE (1024 * 4)         // 4 KB
 
 #define PMMGR_BITMAP_PAGE_USED 1
@@ -91,7 +92,7 @@ bool PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
     multiboot_memory_map_t *entry = (multiboot_memory_map_t *)mmap_addr;
     while ((uint32_t)entry < (mmap_addr + mmap_length))
     {
-        if (entry->type == MULTIBOOT_MEMORY_AVAILABLE && entry->addr >= PMMGR_USABLE_MEMORY_START)
+        if (entry->type == MULTIBOOT_MEMORY_AVAILABLE && entry->addr >= PMMGR_USABLE_MEMORY_START && entry->addr + bitmap_size < PMMGR_MAPPED_MEMORY_END)
         {
             if (entry->len >= bitmap_size)
             {
