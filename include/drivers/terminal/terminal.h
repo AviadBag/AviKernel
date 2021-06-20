@@ -8,7 +8,7 @@ public:
     static void initialize();
 
 private:
-    static void put_regular_char(char c); // Does not treat "\n" etc.
+    static void put_regular_char(char c, bool next); // Does not treat "\n" etc.
     static void next_char();
     static void next_line();
     static void scroll();
