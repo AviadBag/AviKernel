@@ -4,6 +4,11 @@
 
 #include "kernel/gdt/gdt.h"
 #include "kernel/idt/idt.h"
+#include "kernel/mm/physical_mgr.h"
+
+#include "multiboot/multiboot.h"
+
+#include "utils/bitmap.h"
 
 #include <cstdio.h>
 #include <cstdlib.h>
@@ -19,25 +24,22 @@ void on_tick(uint32_t unused)
     }
 }
 
-void interrupt_3(uint32_t unused)
-{
-    printf("Interrupt 3\n", unused);
-}
-
-extern "C" void kernel_main(void)
+extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 {
     Terminal::initialize();
     printf("Hello! Welcome to AviKernel!\n");
 
     GDT::initialize();
-
     PIC::initialize();
     PIC::enable_all_interrupts();
-
     IDT::initialize();
     asm("sti");
-
     PIT::initialize(100, on_tick); // Once every 0.01 second
-
-    while (1) { }
+    if (!PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length))
+       goto iLoop;
+        
+    iLoop:
+    while (1)
+    {
+    }
 }
