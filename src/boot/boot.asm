@@ -5,6 +5,9 @@ FLAGS    equ  MBALIGN | MEMINFO ; this is the Multiboot 'flag' field
 MAGIC    equ  0x1BADB002        ; 'magic number' lets bootloader find the header
 CHECKSUM equ -(MAGIC + FLAGS)   ; checksum of above, to prove we are multiboot
  
+KERNEL_VIRTUAL_BASE_ADDR equ 0xC0000000
+KERNEL_VIRTUAL_BASE_PAGE equ (KERNEL_VIRTUAL_BASE_ADDR >> 22)
+
 ; Declare a multiboot header that marks the program as a kernel. These are magic
 ; values that are documented in the multiboot standard. The bootloader will
 ; search for this signature in the first 8 KiB of the kernel file, aligned at a
@@ -31,12 +34,45 @@ align 16
 stack_bottom:
 resb 16384 ; 16 KiB
 stack_top:
- 
+
+section .data:
+align 0x1000
+page_directory:
+	dd 00000000000000000000000010000011b ; 4 mb page, read-write, present. Virtual first 4 mb -> first 4 mb.
+	times (KERNEL_VIRTUAL_BASE_PAGE - 1) dd 0
+	dd 00000000000000000000000010000011b ; 4 mb page, read-write, present. Virtual kernel first 4 mb -> first 4 mb.
+	times (1024 - KERNEL_VIRTUAL_BASE_PAGE - 1) dd 0 ; The rest of the pages.
+
+
 ; The linker script specifies _start as the entry point to the kernel and the
 ; bootloader will jump to this position once the kernel has been loaded. It
 ; doesn't make sense to return from this function as the bootloader is gone.
 ; Declare _start as a function symbol with the given symbol size.
 section .text
+load_os:
+	extern _init
+	call _init ; C++ global constructors
+	
+	extern kernel_main
+	call kernel_main
+	
+	extern _fini
+	call _fini ; C++ global destructors
+
+	; If the system has nothing more to do, put the computer into an
+	; infinite loop. To do that:
+	; 1) Disable interrupts with cli (clear interrupt enable in eflags).
+	;    They are already disabled by the bootloader, so this is not needed.
+	;    Mind that you might later enable interrupts and return from
+	;    kernel_main (which is sort of nonsensical to do).
+	; 2) Wait for the next interrupt to arrive with hlt (halt instruction).
+	;    Since they are disabled, this will lock up the computer.
+	; 3) Jump to the hlt instruction if it ever wakes up due to a
+	;    non-maskable interrupt occurring or due to system management mode.
+	cli
+.hang:	hlt
+	jmp .hang
+
 global _start:function (_start.end - _start)
 _start:
 	; The bootloader has loaded us into 32-bit protected mode on a x86
@@ -73,26 +109,20 @@ _start:
     ; note, that if you are building on Windows, C functions may have "_" prefix in assembly: _kernel_main
 	push ebx ; Multiboot Data
 	
-	extern _init
-	call _init ; C++ global constructors
-	
-	extern kernel_main
-	call kernel_main
-	
-	extern _fini
-	call _fini ; C++ global destructors
+	; Enable PSE
+	mov eax, cr4
+ 	or eax, 0x00000010
+ 	mov cr4, eax
 
-	; If the system has nothing more to do, put the computer into an
-	; infinite loop. To do that:
-	; 1) Disable interrupts with cli (clear interrupt enable in eflags).
-	;    They are already disabled by the bootloader, so this is not needed.
-	;    Mind that you might later enable interrupts and return from
-	;    kernel_main (which is sort of nonsensical to do).
-	; 2) Wait for the next interrupt to arrive with hlt (halt instruction).
-	;    Since they are disabled, this will lock up the computer.
-	; 3) Jump to the hlt instruction if it ever wakes up due to a
-	;    non-maskable interrupt occurring or due to system management mode.
-	cli
-.hang:	hlt
-	jmp .hang
+	; Enable paging
+	mov eax, (page_directory - KERNEL_VIRTUAL_BASE_ADDR)
+	mov cr3, eax
+	mov eax, cr0
+ 	or eax, 0x80000001
+ 	mov cr0, eax
+
+	; Far jump to 3GB + 1MB.
+	lea ecx, [load_os]
+	jmp ecx
+
 .end:
