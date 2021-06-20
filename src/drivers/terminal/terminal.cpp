@@ -6,8 +6,8 @@
 #define MEMORY_ADDRESS 0xB8000
 #define CHAR_ATTRIBUTES 0x07 // White on black
 
-int Terminal::x = 0;
-int Terminal::y = 0;
+int Terminal::x;
+int Terminal::y;
 
 void Terminal::initialize()
 {
@@ -23,26 +23,31 @@ void Terminal::putchar(char c)
     {
         // A tab is four spaces.
         for (int i = 0; i < 4; i++)
-            put_regular_char(' ');
+            put_regular_char(' ', true);
     }
     else
-        put_regular_char(c);
-
-    next_char();
+        put_regular_char(c, true);
 }
 
-void Terminal::put_regular_char(char c)
+void Terminal::put_regular_char(char c, bool next)
 {
+    if (y == ROWS)
+        scroll();
+    
     uint8_t *address = (uint8_t *)(MEMORY_ADDRESS + XYToOffset());
     *address = c;
     *(++address) = CHAR_ATTRIBUTES;
+
+    if (next) next_char();
 }
 
 void Terminal::clear()
 {
-    for (int i = 0; i < ROWS * COLUMNS; i++)
-        putchar(' ');
-    x = y = 0;
+    for (int i = 0; i < ROWS * COLUMNS - 1; i++)
+        put_regular_char(' ', true);
+    put_regular_char(' ', false);
+    x = 0;
+    y = 0;
 }
 
 void Terminal::next_char()
@@ -56,9 +61,6 @@ void Terminal::next_line()
 {
     x = 0;
     y++;
-
-    if (y == ROWS)
-        scroll();
 }
 
 void Terminal::scroll()
@@ -68,11 +70,12 @@ void Terminal::scroll()
         copy_row(row, row - 1);
     }
 
-    int _x = x; // Backup
+    x = 0;
     y--;
-    for (int col = 0; col < COLUMNS; col++) // Fill the last row with zeros
-        put_regular_char(' ');
-    x = _x;
+    for (int col = 0; col < COLUMNS - 1; col++) // Fill the last row with zeros
+        put_regular_char(' ', true);
+    put_regular_char(' ', false);
+    x = 0; // Go to the start of the last row.
 }
 
 void Terminal::copy_row(int from, int to)
