@@ -18,7 +18,11 @@ void Terminal::initialize()
 void Terminal::putchar(char c)
 {
     if (c == '\n')
+    {
         next_line();
+        if (y == ROWS)
+            scroll();
+    }
     else if (c == '\t')
     {
         // A tab is four spaces.
