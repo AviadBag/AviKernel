@@ -20,7 +20,7 @@ void on_tick(uint32_t unused)
     if (counter % 100 == 0) // This is a second
     {
         int seconds = counter / 100;
-        //printf("Second: %d\n", seconds);
+        printf("Second: %d\n", seconds);
     }
 }
 
@@ -36,16 +36,8 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     asm("sti");
     PIT::initialize(100, on_tick); // Once every 0.01 second
     if (!PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length))
-        goto iLoop;
-
-    // physical_addr block1 = PhysicalMgr::allocate_block();
-    // physical_addr block2 = PhysicalMgr::allocate_block();
-    // physical_addr block3 = PhysicalMgr::allocate_block();
-    // printf("Block1 = %p, Block2 = %p, Block3 = %p\n", block1, block2, block3);
-    // PhysicalMgr::free_block(block2);
-    // physical_addr block4 = PhysicalMgr::allocate_block();
-    // printf("Block4 = %p\n", block4);
-
+       goto iLoop;
+        
     iLoop:
     while (1)
     {

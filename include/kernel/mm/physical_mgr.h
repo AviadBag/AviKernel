@@ -19,7 +19,7 @@ public:
 
 private:
     // Finds a memory location for the bitmap
-    static bool find_bitmap_memory(uint32_t mmap_addr, uint32_t mmap_length);
+    static bool find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_length);
     static void fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length);
 
 private:
