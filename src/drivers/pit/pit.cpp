@@ -6,10 +6,31 @@
 
 #define IRQ0 32 // IRQ 0
 
-uint64_t PIT::ticks_count = 0;
+uint64_t PIT::ticks_count;
+on_tick_ptr PIT::on_tick_ptrs_arr[];
+int PIT::on_tick_ptrs_arr_next;
 
-void PIT::initialize(uint32_t frequency, isr_ptr on_tick)
+void PIT::on_tick(uint32_t unsued)
 {
+    ticks_count++;
+    for (int i = 0; i < on_tick_ptrs_arr_next; i++)
+        on_tick_ptrs_arr[i](ticks_count);
+}
+
+bool PIT::add_on_tick_listener(on_tick_ptr ptr)
+{
+    if (on_tick_ptrs_arr_next == PIT_ON_TICK_PTRS_MAX)
+        return false;
+
+    on_tick_ptrs_arr[on_tick_ptrs_arr_next++] = ptr;
+    return true;
+}
+
+void PIT::initialize(uint32_t frequency)
+{
+    ticks_count = 0;
+    on_tick_ptrs_arr_next = 0;
+
     // First, program the PIT to the desired frequency
     uint32_t divisor = 1193180 / frequency;
 
