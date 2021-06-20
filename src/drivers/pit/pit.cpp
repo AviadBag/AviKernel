@@ -23,6 +23,7 @@ bool PIT::add_on_tick_listener(on_tick_ptr ptr)
         return false;
 
     on_tick_ptrs_arr[on_tick_ptrs_arr_next++] = ptr;
+    return true;
 }
 
 void PIT::initialize(uint32_t frequency)

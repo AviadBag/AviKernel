@@ -8,7 +8,7 @@
 
 #include "multiboot/multiboot.h"
 
-#include "utils/bitmap.h"
+#include "utils/time.h"
 
 #include <cstdio.h>
 #include <cstdlib.h>
@@ -25,10 +25,11 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     asm("sti");
     PIT::initialize(100); // Once every 0.01 second
     if (!PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length))
-       goto iLoop;
-    
+        goto iLoop;
+    Time::initialize();
+
     iLoop:
-    while (1)
+    while (true)
     {
     }
 }
