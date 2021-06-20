@@ -19,21 +19,23 @@ void Terminal::putchar(char c)
 {
     if (c == '\n')
         next_line();
-    else if (c == '\t') {
+    else if (c == '\t')
+    {
         // A tab is four spaces.
         for (int i = 0; i < 4; i++)
             put_regular_char(' ');
-    } else
+    }
+    else
         put_regular_char(c);
+
+    next_char();
 }
 
 void Terminal::put_regular_char(char c)
 {
-    uint8_t* address = (uint8_t*)(MEMORY_ADDRESS + XYToOffset());
+    uint8_t *address = (uint8_t *)(MEMORY_ADDRESS + XYToOffset());
     *address = c;
     *(++address) = CHAR_ATTRIBUTES;
-
-    next_char();
 }
 
 void Terminal::clear()
@@ -66,7 +68,11 @@ void Terminal::scroll()
         copy_row(row, row - 1);
     }
 
+    int _x = x; // Backup
     y--;
+    for (int col = 0; col < COLUMNS; col++) // Fill the last row with zeros
+        put_regular_char(' ');
+    x = _x;
 }
 
 void Terminal::copy_row(int from, int to)
@@ -76,7 +82,7 @@ void Terminal::copy_row(int from, int to)
     for (int i = 0; i < COLUMNS; i++) // Read from the source line, char by char.
     {
         y = from, x = i;
-        uint8_t* address = (uint8_t*)(MEMORY_ADDRESS + XYToOffset());
+        uint8_t *address = (uint8_t *)(MEMORY_ADDRESS + XYToOffset());
         char c = *address;
 
         y = to, x = i;
