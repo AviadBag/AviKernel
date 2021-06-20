@@ -15,21 +15,22 @@
 
 extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 {
-  Terminal::initialize();
-  printf("Hello! Welcome to AviKernel!\n");
+	Terminal::initialize();
+	printf("Hello! Welcome to AviKernel!\n");
 
-  GDT::initialize();
-  PIC::initialize();
-  PIC::enable_all_interrupts();
-  IDT::initialize();
-  asm("sti");
-  PIT::initialize(100); // Once every 0.01 second
-  if (!PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length))
-    goto iLoop;
-  Time::initialize();
+	GDT::initialize();
+	PIC::initialize();
+	PIC::enable_all_interrupts();
+	IDT::initialize();
+	asm("sti");
+	PIT::initialize(100); // Once every 0.01 second
+	if (!PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length))
+		goto iLoop;
+
+	Time::initialize();
 
 iLoop:
-  while (true)
-  {
-  }
+	while (true)
+	{
+	}
 }

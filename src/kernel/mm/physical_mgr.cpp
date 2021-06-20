@@ -19,6 +19,8 @@
 // The oppesite of PMMGR_ADDRESS_TO_PAGE
 #define PMMGR_PAGE_TO_ADDRESS(address) ((address)*PMMGR_PAGE_SIZE)
 
+#define PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(v) ((v) - 0xC0000000)
+
 uint32_t *PhysicalMgr::bitmap;
 uint64_t PhysicalMgr::number_of_pages;
 uint64_t PhysicalMgr::number_of_cells;
@@ -78,10 +80,10 @@ void PhysicalMgr::fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
     mark_memory_as((uint32_t)bitmap, bitmap_size, PMMGR_BITMAP_PAGE_USED);
 
     // Mark the kernel area as used
-    uint32_t kernelStartP = (uint32_t)&kernelStart;
-    uint32_t kernelEndP = (uint32_t)&kernelEnd;
+    uint32_t kernelStartP =  PMMGR_VIRTUAL_TO_PHYSICAL_ADDR((uint32_t)&kernelStart);
+    uint32_t kernelEndP = PMMGR_VIRTUAL_TO_PHYSICAL_ADDR((uint32_t)&kernelEnd);
     mark_memory_as(kernelStartP, kernelEndP - kernelStartP, PMMGR_BITMAP_PAGE_USED);
-    printf("Kernel start: %x, Kernel end: %x\n", kernelStartP, kernelEndP);
+    printf("Kernel start: 0x%x, Kernel end: 0x%x\n", kernelStartP, kernelEndP);
 }
 
 bool PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
@@ -96,13 +98,14 @@ bool PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
                 // Make sure that we are not overriding the kernel
                 uint64_t desired_bitmap_start_addr = entry->addr;
                 uint64_t desired_bitmap_end_addr = desired_bitmap_start_addr + bitmap_size;
-                uint64_t kernelStartP = (uint64_t)&kernelStart;
-                uint64_t kernelEndP = (uint64_t)&kernelEnd;
+                uint64_t kernelStartP = PMMGR_VIRTUAL_TO_PHYSICAL_ADDR((uint64_t)&kernelStart);
+                uint64_t kernelEndP = PMMGR_VIRTUAL_TO_PHYSICAL_ADDR((uint64_t)&kernelEnd);
 
                 // Can the bitmap fit before the kernel?
                 if (desired_bitmap_end_addr < kernelStartP)
                 {
                     bitmap = (uint32_t *)desired_bitmap_start_addr;
+                    printf("Placing bitmap before kernel, on address 0x%x\n", desired_bitmap_start_addr);
                     return true;
                 }
                 
@@ -112,6 +115,7 @@ bool PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
                 if (desired_bitmap_end_addr < entry->addr + entry->len)
                 {
                     bitmap = (uint32_t*)desired_bitmap_start_addr;
+                    printf("Placing bimap before kernel, on address 0x%x\n", desired_bitmap_start_addr);
                     return true;
                 }
 
