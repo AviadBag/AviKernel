@@ -5,7 +5,6 @@
 #include "kernel/gdt/gdt.h"
 #include "kernel/idt/idt.h"
 #include "kernel/mm/physical_mgr/physical_mgr.h"
-#include "kernel/mm/virtual_mgr/page_table_entry.h""
 
 #include "multiboot/multiboot.h"
 
