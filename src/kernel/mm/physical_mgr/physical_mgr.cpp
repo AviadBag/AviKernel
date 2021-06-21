@@ -1,4 +1,4 @@
-#include "kernel/mm/physical_mgr.h"
+#include "kernel/mm/physical_mgr/physical_mgr.h"
 #include "utils/bitmap.h"
 
 #include <cstdio.h>
