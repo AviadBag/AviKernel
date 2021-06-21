@@ -5,6 +5,7 @@
 #include "kernel/gdt/gdt.h"
 #include "kernel/idt/idt.h"
 #include "kernel/mm/physical_mgr/physical_mgr.h"
+#include "kernel/mm/virtual_mgr/page_table_entry.h""
 
 #include "multiboot/multiboot.h"
 
@@ -12,6 +13,7 @@
 
 #include <cstdio.h>
 #include <cstdlib.h>
+#include <stdint.h>
 
 extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 {

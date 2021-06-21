@@ -40,7 +40,6 @@ bool PhysicalMgr::initialize(uint32_t higher_memory_size, uint32_t mmap_addr, ui
     if (!find_memory_for_bitmap(mmap_addr, mmap_length))
         return false;
     fill_bitmap(mmap_addr, mmap_length);
-
     return true;
 }
 
