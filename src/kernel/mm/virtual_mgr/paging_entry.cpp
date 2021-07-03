@@ -69,10 +69,3 @@ physical_addr PagingEntry::get_frame()
 {
     return (physical_addr)(entry & PE_FRAME_MASK); // Make the lower 12 bits zero.
 }
-
-PagingEntry PagingEntry::from_bytes(uint32_t bytes)
-{
-    PagingEntry e;
-    e.entry = bytes;
-    return e;
-}

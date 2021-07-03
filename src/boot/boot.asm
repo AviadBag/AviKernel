@@ -35,9 +35,17 @@ stack_bottom:
 resb 16384 ; 16 KiB
 stack_top:
 
+
+global page_directory:data
+global page_etable:data
+
+align 0x1000
+page_directory: resb 1000h ; 4 KB
+page_etable:    resb 1000h ; 4 KB
+
 section .data:
 align 0x1000
-page_directory:
+temp_page_directory:
 	dd 00000000000000000000000010000011b ; 4 mb page, read-write, present. Virtual first 4 mb -> first 4 mb.
 	times (KERNEL_VIRTUAL_BASE_PAGE - 1) dd 0
 	dd 00000000000000000000000010000011b ; 4 mb page, read-write, present. Virtual kernel first 4 mb -> first 4 mb.
@@ -116,7 +124,7 @@ _start:
  	mov cr4, eax
 
 	; Enable paging
-	mov eax, (page_directory - KERNEL_VIRTUAL_BASE_ADDR)
+	mov eax, (temp_page_directory - KERNEL_VIRTUAL_BASE_ADDR)
 	mov cr3, eax
 	mov eax, cr0
  	or eax, 0x80000001

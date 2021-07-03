@@ -11,6 +11,8 @@ class PageTableEntry : public PagingEntry
 public:
     PageTableEntry();
     bool get_dirty();  // Dirty flag
+
+    static PageTableEntry from_bytes(uint32_t);
 };
 
 #endif

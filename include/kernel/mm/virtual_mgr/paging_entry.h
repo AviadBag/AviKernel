@@ -22,8 +22,6 @@ public:
     bool get_accessed(); // Access flag
     physical_addr get_frame();
 
-    static PagingEntry from_bytes(uint32_t);
-
 protected:
     uint32_t entry;
 };

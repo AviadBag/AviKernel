@@ -18,3 +18,10 @@ bool PageDirectoryEntry::get_4mb_page_size()
 {
     return Bitmap::test(&entry, PDE_FLAGS_4MB);
 }
+
+PageDirectoryEntry PageDirectoryEntry::from_bytes(uint32_t bytes)
+{
+    PageDirectoryEntry e;
+    e.entry = bytes;
+    return e;
+}

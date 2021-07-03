@@ -13,3 +13,10 @@ bool PageTableEntry::get_dirty()
 {
     return Bitmap::test(&entry, PTE_FLAGS_DIRTY);
 }
+
+PageTableEntry PageTableEntry::from_bytes(uint32_t bytes)
+{
+    PageTableEntry e;
+    e.entry = bytes;
+    return e;
+}

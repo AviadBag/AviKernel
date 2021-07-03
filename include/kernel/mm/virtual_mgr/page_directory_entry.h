@@ -10,6 +10,8 @@ public:
     
     void set_4mb_page_size(bool);
     bool get_4mb_page_size();
+
+    static PageDirectoryEntry from_bytes(uint32_t);
 };
 
 #endif // __PAGE_DIRECTORY_ENTRY_H__
