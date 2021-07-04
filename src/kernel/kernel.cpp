@@ -6,6 +6,7 @@
 #include "kernel/idt/idt.h"
 #include "kernel/mm/physical_mgr/physical_mgr.h"
 #include "kernel/mm/virtual_mgr/virtual_mgr.h"
+#include "kernel/panic.h"
 
 #include "multiboot/multiboot.h"
 
@@ -26,13 +27,10 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 	IDT::initialize();
 	asm volatile ("sti");
 	PIT::initialize(100); // Once every 0.01 second
-	if (!PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length))
-		goto iLoop;
-
+	PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
 	Time::initialize();
 	VirtualMgr::initialize();
 
-iLoop:
 	while (true)
 	{
 	}

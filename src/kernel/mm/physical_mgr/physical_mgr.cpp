@@ -1,4 +1,5 @@
 #include "kernel/mm/physical_mgr/physical_mgr.h"
+#include "kernel/panic.h"
 #include "utils/bitmap.h"
 
 #include <cstdio.h>
@@ -30,17 +31,15 @@ uint64_t PhysicalMgr::bitmap_size;
 extern "C" void *kernelStart; // This variable sits at the beginning of the kernel.
 extern "C" void *kernelEnd;   // This variable sits at the end of the kernel.
 
-bool PhysicalMgr::initialize(uint32_t higher_memory_size, uint32_t mmap_addr, uint32_t mmap_length)
+void PhysicalMgr::initialize(uint32_t higher_memory_size, uint32_t mmap_addr, uint32_t mmap_length)
 {
     // Init variables
     number_of_pages = higher_memory_size / PMMGR_PAGE_SIZE; // higher_memory_size
     number_of_cells = number_of_pages / 32;
     bitmap_size = number_of_cells * 4; // Every cell is 32 bits, I need it in 8 bits units.
 
-    if (!find_memory_for_bitmap(mmap_addr, mmap_length))
-        return false;
+    find_memory_for_bitmap(mmap_addr, mmap_length);
     fill_bitmap(mmap_addr, mmap_length);
-    return true;
 }
 
 void PhysicalMgr::mark_memory_as(uint32_t start_address, size_t size, int what)
@@ -86,7 +85,7 @@ void PhysicalMgr::fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
     printf("Kernel start: 0x%x, Kernel end: 0x%x\n", kernelStartP, kernelEndP);
 }
 
-bool PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
+void PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
 {
     multiboot_memory_map_t *entry = (multiboot_memory_map_t *)mmap_addr;
     while ((uint32_t)entry < (mmap_addr + mmap_length))
@@ -106,7 +105,7 @@ bool PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
                 {
                     bitmap = (uint32_t *)desired_bitmap_start_addr;
                     printf("Placing bitmap before kernel, on address 0x%x\n", desired_bitmap_start_addr);
-                    return true;
+                    return;
                 }
                 
                 // Can the bitmap fit after the kernel?
@@ -116,7 +115,7 @@ bool PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
                 {
                     bitmap = (uint32_t*)desired_bitmap_start_addr;
                     printf("Placing bimap before kernel, on address 0x%x\n", desired_bitmap_start_addr);
-                    return true;
+                    return;
                 }
 
                 // We didn't find - try the next entry..
@@ -127,8 +126,7 @@ bool PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
         entry = (multiboot_memory_map_t *)((unsigned int)entry + entry->size + sizeof(entry->size));
     }
 
-    printf("Error: Not enough memory!\n");
-    return false;
+    panic("Not enough memory! Could not find enough place for the physical allocator bitmap");
 }
 
 physical_addr PhysicalMgr::allocate_block()

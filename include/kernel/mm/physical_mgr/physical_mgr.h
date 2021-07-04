@@ -11,7 +11,7 @@ typedef void* physical_addr;
 class PhysicalMgr {
 public:
     // higher_memory_size is in bytes!
-    static bool initialize(uint32_t higher_memory_size, uint32_t mmap_addr, uint32_t mmap_length);
+    static void initialize(uint32_t higher_memory_size, uint32_t mmap_addr, uint32_t mmap_length);
 
     static physical_addr allocate_block();
     // Must be a block address. If it is not - nothing will happen.
@@ -19,7 +19,7 @@ public:
 
 private:
     // Finds a memory location for the bitmap
-    static bool find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_length);
+    static void find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_length);
     static void fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length);
 
 private:
