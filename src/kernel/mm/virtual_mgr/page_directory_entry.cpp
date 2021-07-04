@@ -9,6 +9,12 @@ enum PDE_FLAGS_INDEXES
 
 PageDirectoryEntry::PageDirectoryEntry() : PagingEntry() {}
 
+PageDirectoryEntry::PageDirectoryEntry(bool present, bool writeable, bool requires_supervisor, bool mb4_page_size, physical_addr frame)
+    : PagingEntry(present, writeable, requires_supervisor, frame)
+{
+    set_4mb_page_size(mb4_page_size);
+}
+
 void PageDirectoryEntry::set_4mb_page_size(bool b)
 {
     Bitmap::put(&entry, PDE_FLAGS_4MB, b);

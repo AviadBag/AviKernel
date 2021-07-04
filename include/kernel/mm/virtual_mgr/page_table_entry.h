@@ -10,6 +10,8 @@ class PageTableEntry : public PagingEntry
 {
 public:
     PageTableEntry();
+    PageTableEntry(bool present, bool writeable, bool requires_supervisor, physical_addr frame);
+
     bool get_dirty();  // Dirty flag
 
     static PageTableEntry from_bytes(uint32_t);

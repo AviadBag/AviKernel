@@ -16,6 +16,14 @@ PagingEntry::PagingEntry() : entry(0)
 {
 }
 
+PagingEntry::PagingEntry(bool present, bool writeable, bool requires_supervisor, physical_addr frame) : entry(0)
+{
+    set_present(present);
+    set_writeable(writeable);
+    set_requires_supervisor(requires_supervisor);
+    set_frame(frame);
+}
+
 uint32_t PagingEntry::to_bytes()
 {
     return entry;

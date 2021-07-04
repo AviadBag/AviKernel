@@ -9,6 +9,8 @@ class PagingEntry
 {
 public:
     PagingEntry(); // By default, all the values are zero.
+    PagingEntry(bool present, bool writeable, bool requires_supervisor, physical_addr frame);
+
     uint32_t to_bytes();
 
     void set_frame(physical_addr addr); // Must be page aligned!

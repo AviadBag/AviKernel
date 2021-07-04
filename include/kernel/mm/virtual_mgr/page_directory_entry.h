@@ -8,6 +8,8 @@ class PageDirectoryEntry : public PagingEntry
 public:
     PageDirectoryEntry();
     
+    PageDirectoryEntry(bool present, bool writeable, bool requires_supervisor, bool mb4_page_size, physical_addr frame);
+
     void set_4mb_page_size(bool);
     bool get_4mb_page_size();
 

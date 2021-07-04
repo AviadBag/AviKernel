@@ -9,6 +9,10 @@ enum PTE_FLAGS_INDEXES
 
 PageTableEntry::PageTableEntry() : PagingEntry() {}
 
+PageTableEntry::PageTableEntry(bool present, bool writeable, bool requires_supervisor, physical_addr frame) : PagingEntry(present, writeable, requires_supervisor, frame)
+{
+}
+
 bool PageTableEntry::get_dirty()
 {
     return Bitmap::test(&entry, PTE_FLAGS_DIRTY);
