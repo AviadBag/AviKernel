@@ -15,6 +15,14 @@ void Bitmap::clear(uint32_t* bitmap, int index)
     bitmap[INDEX_TO_OFFSET(index)] &= ~(1 << INDEX_TO_BIT(index));
 }
 
+void Bitmap::put(uint32_t* bitmap, int index, bool what) 
+{
+    if (what)
+        set(bitmap, index);
+    else
+        clear(bitmap, index);
+}
+
 bool Bitmap::test(uint32_t* bitmap, int index)
 {
     int result = bitmap[INDEX_TO_OFFSET(index)] & (1 << INDEX_TO_BIT(index));

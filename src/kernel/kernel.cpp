@@ -4,7 +4,8 @@
 
 #include "kernel/gdt/gdt.h"
 #include "kernel/idt/idt.h"
-#include "kernel/mm/physical_mgr.h"
+#include "kernel/mm/physical_mgr/physical_mgr.h"
+#include "kernel/mm/virtual_mgr/virtual_mgr.h"
 
 #include "multiboot/multiboot.h"
 
@@ -12,25 +13,27 @@
 
 #include <cstdio.h>
 #include <cstdlib.h>
-
+#include <stdint.h>
 
 extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 {
-    Terminal::initialize();
-    printf("Hello! Welcome to AviKernel!\n");
+	Terminal::initialize();
+	printf("Hello! Welcome to AviKernel!\n");
 
-    GDT::initialize();
-    PIC::initialize();
-    PIC::enable_all_interrupts();
-    IDT::initialize();
-    asm("sti");
-    PIT::initialize(100); // Once every 0.01 second
-    if (!PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length))
-      goto iLoop;
-    Time::initialize();
+	GDT::initialize();
+	PIC::initialize();
+	PIC::enable_all_interrupts();
+	IDT::initialize();
+	asm volatile ("sti");
+	PIT::initialize(100); // Once every 0.01 second
+	if (!PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length))
+		goto iLoop;
 
-    iLoop:
-    while (true)
-    {
-    }
+	Time::initialize();
+	VirtualMgr::initialize();
+
+iLoop:
+	while (true)
+	{
+	}
 }
