@@ -20,6 +20,9 @@ class VirtualMgr
 
         // Converts a page table to it's actual address, given the index of the page table in the page directory.
         static virtual_addr get_page_table_virtual_address(int index);
+
+        // Maps the page etable to the bootloader's page directory.
+        static void early_put_page_etable();
 };
 
 #endif // __VIRTUAL_MGR_H__
