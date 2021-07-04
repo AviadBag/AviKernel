@@ -33,7 +33,7 @@ void PagingEntry::set_frame(physical_addr addr)
 {
     entry &= ~PE_FRAME_MASK; // Make the entry's address zero.
     uint32_t addr_p = (uint32_t)addr;
-    addr_p &= PE_FRAME_MASK;
+    addr_p &= PE_FRAME_MASK; // Make the address's lower bits zero.
 
     entry |= addr_p;
 }

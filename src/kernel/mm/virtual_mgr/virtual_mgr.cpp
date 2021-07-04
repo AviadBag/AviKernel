@@ -2,6 +2,7 @@
 #include "kernel/mm/physical_mgr/physical_mgr.h"
 #include "utils/registers.h"
 
+#include <cstdio.h>
 #include <cstring.h>
 
 // Extracts the page table index from a virtual address
@@ -17,6 +18,7 @@
 #define VMMGR_SET_PAGE_DIRECTORY_INDEX(v_address, d_index) ((virtual_addr)((uint32_t)(v_address) | ((d_index) << 22)))
 
 #define VMMGR_KERNEL_VIRTUAL_BASE_ADDR 0xC0000000
+#define VMMGR_4_MB                     0x400000
 
 // Converts a kernel virtual address to it's physical form.
 #define KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(v_addr) ( (physical_addr) ((uint32_t)(v_addr) - VMMGR_KERNEL_VIRTUAL_BASE_ADDR))
@@ -62,9 +64,9 @@ void VirtualMgr::map(virtual_addr v_addr, physical_addr p_addr, bool requires_su
         // Put the newly created page table in the page directory
         PageDirectoryEntry page_table_directory_entry(true, true, true, false, page_table_addr);
         page_directory[index_in_page_directory] = page_table_directory_entry.to_bytes(); // No need to do invaldiation, because it was just created.
-
+        Registers::set_cr3(Registers::get_cr3());
         // Fil the newly created page table with zero's.
-        memset(page_table_virtual_addr, 0, 4096);
+        memset(page_table_virtual_addr, 0, VMMGR_PAGE_SIZE);
     }
 
     // Map the desired page in the page table
@@ -73,16 +75,31 @@ void VirtualMgr::map(virtual_addr v_addr, physical_addr p_addr, bool requires_su
     invalidate(v_addr);
 }
 
-void VirtualMgr::early_put_page_etable()
+void VirtualMgr::put_page_etable()
 {
-    PageDirectoryEntry page_etable_directory_entry(true, true, true, false, KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(page_etable));
+    physical_addr page_etable_physcical_addr = KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(page_etable);
+    PageDirectoryEntry page_etable_directory_entry(true, true, true, false, page_etable_physcical_addr);
 
-    // The page directory is stored in cr3
-    uint32_t (*early_page_directory)[1024] = (uint32_t (*)[1024]) Registers::get_cr3();
-    (*early_page_directory)[VMMGRE_PAGE_ETABLE_DIRECTORY_INDEX] = page_etable_directory_entry.to_bytes();
+    // The page directory is stored in cr3. It's a physical address, but I have identity mapping there.
+    uint32_t (*page_directory)[1024] = (uint32_t (*)[1024]) Registers::get_cr3();
+    (*page_directory)[VMMGRE_PAGE_ETABLE_DIRECTORY_INDEX] = page_etable_directory_entry.to_bytes();
 }
 
+void VirtualMgr::map_range(virtual_addr v_addr, physical_addr p_addr, size_t count, bool requires_supervisor) 
+{
+    for (int i = 0; i < count; i++)
+    {
+        map(v_addr, p_addr, requires_supervisor);
+        v_addr = (virtual_addr) ((uint32_t) (v_addr) + VMMGR_PAGE_SIZE);
+        p_addr = (physical_addr) ((uint32_t) (p_addr) + VMMGR_PAGE_SIZE);
+    }
+}
+extern "C" void set_cr3(uint32_t);
 void VirtualMgr::initialize()
 {
-    early_put_page_etable();
+    put_page_etable(); // Put the etable in the boot directory.
+    map_range((virtual_addr) VMMGR_KERNEL_VIRTUAL_BASE_ADDR, 0, VMMGR_4_MB / VMMGR_PAGE_SIZE, true); // Map kernel
+    map_range(0, 0, VMMGR_4_MB / VMMGR_PAGE_SIZE, true); // First 4 mb identity mapping
+    Registers::set_cr3((uint32_t) KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(page_directory)); // Switch to MY page directory
+    put_page_etable(); // Put the etable in MY directory.
 }
