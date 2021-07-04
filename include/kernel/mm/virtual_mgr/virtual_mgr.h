@@ -23,6 +23,8 @@ class VirtualMgr
 
         // Maps the page etable to the bootloader's page directory.
         static void early_put_page_etable();
+
+        static inline void invalidate(virtual_addr);
 };
 
 #endif // __VIRTUAL_MGR_H__
