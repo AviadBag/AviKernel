@@ -35,14 +35,6 @@ stack_bottom:
 resb 16384 ; 16 KiB
 stack_top:
 
-
-global page_directory:data
-global page_etable:data
-
-align 0x1000
-page_directory: resb 1000h ; 4 KB
-page_etable:    resb 1000h ; 4 KB
-
 section .data:
 align 0x1000
 temp_page_directory:
