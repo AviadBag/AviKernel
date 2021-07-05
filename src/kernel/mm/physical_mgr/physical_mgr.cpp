@@ -21,7 +21,7 @@
 // The oppesite of PMMGR_ADDRESS_TO_PAGE
 #define PMMGR_PAGE_TO_ADDRESS(address) ((address)*PMMGR_PAGE_SIZE)
 
-#define PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(v) ((v) - 0xC0000000)
+#define PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(v) ((physical_addr) ((uint32_t) (v) - 0xC0000000))
 
 uint32_t *PhysicalMgr::bitmap;
 uint64_t PhysicalMgr::number_of_pages;
@@ -79,8 +79,8 @@ void PhysicalMgr::fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
     mark_memory_as((uint32_t)bitmap, bitmap_size, PMMGR_BITMAP_PAGE_USED);
 
     // Mark the kernel area as used
-    uint32_t kernelStartP =  PMMGR_VIRTUAL_TO_PHYSICAL_ADDR((uint32_t)&kernelStart);
-    uint32_t kernelEndP = PMMGR_VIRTUAL_TO_PHYSICAL_ADDR((uint32_t)&kernelEnd);
+    uint32_t kernelStartP = (uint32_t) PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(&kernelStart);
+    uint32_t kernelEndP = (uint32_t) PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(&kernelEnd);
     mark_memory_as(kernelStartP, kernelEndP - kernelStartP, PMMGR_BITMAP_PAGE_USED);
     printf("Kernel start: 0x%x, Kernel end: 0x%x\n", kernelStartP, kernelEndP);
 }
@@ -88,8 +88,13 @@ void PhysicalMgr::fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
 void PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
 {
     multiboot_memory_map_t *entry = (multiboot_memory_map_t *)mmap_addr;
+    printf("Memory Map:\n");
     while ((uint32_t)entry < (mmap_addr + mmap_length))
     {
+        printf("Base address: 0x%p", entry->addr);
+        printf(", End address: 0x%p", entry->addr + entry->len);
+        printf(", Entry Type: %x\n", entry->type);
+
         if (entry->type == MULTIBOOT_MEMORY_AVAILABLE && entry->addr >= PMMGR_USABLE_MEMORY_START && entry->addr + bitmap_size < PMMGR_MAPPED_MEMORY_END)
         {
             if (entry->len >= bitmap_size)
@@ -97,14 +102,15 @@ void PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
                 // Make sure that we are not overriding the kernel
                 uint64_t desired_bitmap_start_addr = entry->addr;
                 uint64_t desired_bitmap_end_addr = desired_bitmap_start_addr + bitmap_size;
-                uint64_t kernelStartP = PMMGR_VIRTUAL_TO_PHYSICAL_ADDR((uint64_t)&kernelStart);
-                uint64_t kernelEndP = PMMGR_VIRTUAL_TO_PHYSICAL_ADDR((uint64_t)&kernelEnd);
+                uint64_t kernelStartP = (uint64_t) PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(&kernelStart);
+                uint64_t kernelEndP = (uint64_t) PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(&kernelEnd);
 
                 // Can the bitmap fit before the kernel?
                 if (desired_bitmap_end_addr < kernelStartP)
                 {
                     bitmap = (uint32_t *)desired_bitmap_start_addr;
-                    printf("Placing bitmap before kernel, on address 0x%x\n", desired_bitmap_start_addr);
+                    printf("Placing bitmap before kernel, on address 0x%x", desired_bitmap_start_addr);
+                    printf(", Bitmap end = 0x%x\n", desired_bitmap_end_addr);
                     return;
                 }
                 
@@ -114,7 +120,8 @@ void PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
                 if (desired_bitmap_end_addr < entry->addr + entry->len)
                 {
                     bitmap = (uint32_t*)desired_bitmap_start_addr;
-                    printf("Placing bimap before kernel, on address 0x%x\n", desired_bitmap_start_addr);
+                    printf("Placing bitmap after kernel, on address 0x%x", desired_bitmap_start_addr);
+                    printf(", Bitmap end = 0x%x\n", desired_bitmap_end_addr);
                     return;
                 }
 
