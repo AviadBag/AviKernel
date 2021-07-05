@@ -19,7 +19,7 @@
 extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 {
 	Terminal::initialize();
-	printf("Hello! Welcome to AviKernel!\n");
+	kprintf("Hello! Welcome to AviKernel!\n");
 
 	GDT::initialize();
 	PIC::initialize();
