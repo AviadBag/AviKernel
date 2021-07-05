@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <cstdio.h>
 
-void panic(char* format, ...) 
+void panic(const char* format, ...) 
 {
     va_list args;
     va_start(args, format);
