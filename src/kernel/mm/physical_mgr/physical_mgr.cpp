@@ -126,7 +126,7 @@ void PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
         entry = (multiboot_memory_map_t *)((unsigned int)entry + entry->size + sizeof(entry->size));
     }
 
-    panic("Not enough memory! Could not find enough place for the physical allocator bitmap");
+    panic("Physical Memory Manager: Not enough memory! Could not find enough place for the physical allocator bitmap");
 }
 
 physical_addr PhysicalMgr::allocate_block()

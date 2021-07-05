@@ -1,5 +1,6 @@
 #include "kernel/mm/virtual_mgr/virtual_mgr.h"
 #include "kernel/mm/physical_mgr/physical_mgr.h"
+#include "kernel/panic.h"
 #include "utils/registers.h"
 
 #include <cstdio.h>
@@ -44,6 +45,12 @@ void VirtualMgr::invalidate(virtual_addr v_addr)
 
 void VirtualMgr::map(virtual_addr v_addr, physical_addr p_addr, bool requires_supervisor)
 {
+    if ((uint32_t) v_addr % VMMGR_PAGE_SIZE != 0)
+        panic("Virtual Memory Manager: Cannot map a non page aligned virtual address = %d!\n", v_addr);
+
+    if ((uint32_t) p_addr % VMMGR_PAGE_SIZE != 0)
+        panic("Virtual Memory Manager: Cannot map a non page aligned physical address = %d!\n", p_addr);
+
     uint32_t index_in_page_directory = VMMGR_GET_PAGE_DIRECTORY_INDEX(v_addr);
     uint32_t index_in_page_table     = VMMGR_GET_PAGE_TABLE_INDEX(v_addr);
 
@@ -87,7 +94,7 @@ void VirtualMgr::put_page_etable()
 
 void VirtualMgr::map_range(virtual_addr v_addr, physical_addr p_addr, size_t count, bool requires_supervisor) 
 {
-    for (int i = 0; i < count; i++)
+    for (size_t i = 0; i < count; i++)
     {
         map(v_addr, p_addr, requires_supervisor);
         v_addr = (virtual_addr) ((uint32_t) (v_addr) + VMMGR_PAGE_SIZE);
