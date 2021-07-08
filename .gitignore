@@ -5,3 +5,4 @@ os.iso
 .vscode/
 .vimrc
 compile_commands.json
+.cache/
