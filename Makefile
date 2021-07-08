@@ -70,6 +70,9 @@ validate: ${KERNEL}
 		echo the file is not multiboot; \
 	fi
 
+compiledb: clean
+	compiledb make
+
 format:
 	find ${SRC} -iname *.h -o -iname *.cpp | xargs clang-format -i --style=Webkit
 	find ${INCLUDE} -iname *.h -o -iname *.cpp | xargs clang-format -i --style=Webkit

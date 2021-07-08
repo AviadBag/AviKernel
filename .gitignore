@@ -4,3 +4,4 @@ os.iso
 **/*.o
 .vscode/
 .vimrc
+compile_commands.json
