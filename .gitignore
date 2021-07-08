@@ -3,3 +3,4 @@ isodir/
 os.iso
 **/*.o
 .vscode/
+.vimrc
