@@ -2,7 +2,6 @@
 #include "drivers/keyboard/extended_char.h"
 
 template class FixedQueue<ExtendedChar>;
-template class FixedQueue<int>;
 
 template <class T>
 FixedQueue<T>::FixedQueue()
@@ -39,6 +38,10 @@ T FixedQueue<T>::dequeue()
 	T data = arr[head];
 	head++;
 	head %= QUEUE_SIZE;
+
+	if (empty())
+		head = tail = -1; // Re-initialize the pointers.
+
 	return data;
 }
 
