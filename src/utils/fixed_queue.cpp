@@ -22,7 +22,7 @@ void FixedQueue<T>::enqueue(T data)
 
 	if (head == -1)
 		head = 0; // Initialize head
-	if (head == tail) // We have just overriden the first data
+	else if (head == tail) // We have just overriden the first data
 	{
 		head++;
 		head %= QUEUE_SIZE;
