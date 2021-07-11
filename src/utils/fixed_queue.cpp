@@ -1,12 +1,14 @@
 #include "utils/fixed_queue.h"
+#include "drivers/keyboard/extended_char.h"
 
+template class FixedQueue<ExtendedChar>;
 template class FixedQueue<int>;
 
 template <class T>
 FixedQueue<T>::FixedQueue()
 {
 	head = tail = -1;
-	is_empty = false;
+	is_empty = true;
 }
 
 template <class T>
