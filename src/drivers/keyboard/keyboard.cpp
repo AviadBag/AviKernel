@@ -47,12 +47,8 @@ void log(const char* s)
 void Keyboard::on_ke_data(uint32_t unused)
 {
 	uint8_t data = ke_read_data();
-	bool is_break;
+	bool is_break = false;
 	
-	char buf[500];
-	skprintf(buf, "%x\n", data);
-	log(buf);
-
 	// Is it a break scan code?
 	if (data >= BREAK_SCAN_CODE_START && data <= BREAK_SCAN_CODE_END)
 	{
@@ -73,9 +69,6 @@ void Keyboard::on_ke_data(uint32_t unused)
 void Keyboard::on_make_scan_code(uint8_t scan_code)
 {
 	ExtendedChar ec(scan_code);
-	char buf[500];
-	skprintf(buf, "Press: %s\n", avi_charcode_to_string(ec.as_avi_charcode()));
-	log(buf);
 	if (press_listener) press_listener(ec);
 }
 
