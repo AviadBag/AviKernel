@@ -44,7 +44,7 @@ typedef enum avi_charcode_e {
 	KEY_Y                 = 'y',
 	KEY_Z                 = 'z',
 
-	KEY_RETURN            = '\r',
+	KEY_RETURN            = '\n',
 	KEY_ESCAPE            = 0x1001,
 	KEY_BACKSPACE         = '\b',
     KEY_TAB               = '\t',
