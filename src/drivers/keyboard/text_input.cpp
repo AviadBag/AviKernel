@@ -33,6 +33,7 @@ char TextInput::apply_caps_lock(char c)
 	if (!shift) // Shift disables me.
 		if (islower(c)) // We can make this char upper!
 			c = toupper(c);
+	
 
 	return c;
 }
@@ -41,8 +42,79 @@ char TextInput::apply_shift(char c)
 {
 	// For a-z, shift is like caps-lock. But when caps lock is on, then shift disables caps lock.
 	if (islower(c)) // We can make this char upper!
+	{
 		if (!caps_lock) 
 			c = toupper(c);
+	}
+	else
+	{
+		switch (c)
+		{
+		case '1':
+			c = '!';
+			break;
+		case '2':
+			c = '@';
+			break;
+		case '3':
+			c = '#';
+			break;
+		case '4':
+			c = '$';
+			break;
+		case '5':
+			c = '%';
+			break;
+		case '6':
+			c = '^';
+			break;
+		case '7':
+			c = '&';
+			break;
+		case '8':
+			c = '*';
+			break;
+		case '9':
+			c = '(';
+			break;
+		case '0':
+			c = ')';
+			break;
+		case '-':
+			c = '_';
+			break;
+		case '=':
+			c = '+';
+			break;
+		case '`':
+			c = '~';
+			break;
+		case ',':
+			c = '<';
+			break;
+		case '.':
+			c = '>';
+			break;
+		case '/':
+			c = '?';
+			break;
+		case '\'':
+			c = '"';
+			break;
+		case '\\':
+			c = '|';
+			break;
+		case '[':
+			c = '{';
+			break;
+		case ']':
+			c = '}';
+			break;
+		case ';':
+			c = ':';
+			break;
+		}
+	}
 
 	return c;
 }
