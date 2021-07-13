@@ -9,11 +9,15 @@ class TextInput
 public:
 	static void initialize();
 	static char getchar();
-	static void on_new_extended_char(ExtendedChar);	
+	static void on_press_extended_char(ExtendedChar);
+	static void on_release_extended_char(ExtendedChar);
 	
 private:
-	static FixedQueue<ExtendedChar> queue;	
+	static char apply_shift(char);
+	static char apply_caps_lock(char);
 
+	static FixedQueue<char> queue;	
+	static bool shift, caps_lock;
 };
 
 #endif
