@@ -29,8 +29,28 @@ void Terminal::putchar(char c)
         for (int i = 0; i < 4; i++)
             put_regular_char(' ', true);
     }
+    else if (c == '\b')
+    {
+        backspace();
+    }
     else
         put_regular_char(c, true);
+}
+
+void Terminal::backspace() 
+{
+    x--;
+    if (x == -1)
+    {
+        if (y != 0) 
+        {
+            y--;
+            x = COLUMNS-1;
+        }
+        else
+            x = 0;
+    }
+    put_regular_char(' ', false);
 }
 
 void Terminal::put_regular_char(char c, bool next)
