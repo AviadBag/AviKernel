@@ -1,7 +1,6 @@
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/keyboard/text_input.h"
 
-#include <cstdio.h>
 #include <cctype.h>
 
 FixedQueue<char> TextInput::queue;
@@ -31,17 +30,21 @@ char TextInput::getchar()
 
 char TextInput::apply_caps_lock(char c)
 {
-	if (islower(c)) // We can make this char upper!
-	{
-		c = toupper(c);
-	}
+	if (!shift) // Shift disables me.
+		if (islower(c)) // We can make this char upper!
+			c = toupper(c);
 
 	return c;
 }
 
 char TextInput::apply_shift(char c)
 {
-	apply_caps_lock(c); // For a-z, shift is like caps-lock.
+	// For a-z, shift is like caps-lock. But when caps lock is on, then shift disables caps lock.
+	if (islower(c)) // We can make this char upper!
+		if (!caps_lock) 
+			c = toupper(c);
+
+	return c;
 }
 
 void TextInput::on_press_extended_char(ExtendedChar ec)

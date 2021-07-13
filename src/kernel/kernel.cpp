@@ -1,6 +1,9 @@
 #include "drivers/pic/pic.h"
 #include "drivers/pit/pit.h"
 #include "drivers/terminal/terminal.h"
+#include "drivers/keyboard/keyboard.h"
+#include "drivers/keyboard/text_input.h"
+#include "drivers/serial_ports/serial_ports.h"
 
 #include "kernel/gdt/gdt.h"
 #include "kernel/idt/idt.h"
@@ -11,6 +14,7 @@
 #include "multiboot/multiboot.h"
 
 #include "utils/time.h"
+#include "utils/fixed_queue.h"
 
 #include <cstdio.h>
 #include <cstdlib.h>
@@ -30,8 +34,12 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 	PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
 	Time::initialize();
 	VirtualMgr::initialize();
+	Keyboard::initialize();
+	TextInput::initialize();
 
 	while (true)
 	{
+		char c = TextInput::getchar();
+		kprintf("%c", c);
 	}
 }
