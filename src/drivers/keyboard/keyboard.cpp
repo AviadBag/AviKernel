@@ -3,8 +3,6 @@
 #include "drivers/serial_ports/serial_ports.h"
 #include "kernel/idt/isr.h"
 
-#include <cstdio.h>
-
 #define KEYBOARD_INTERRUPT_NUBMER 33
 
 #define KE_PORT 0x60
@@ -19,12 +17,12 @@
 #define SCAN_CODE_WAIT_FOR_SECOND 0xE0
 
 new_extended_char_listener Keyboard::press_listener, Keyboard::release_listener;
-
-const char *avi_charcode_to_string(avi_charcode c);
+bool Keyboard::wait_for_second_scan_code;
 
 void Keyboard::initialize()
 {
 	register_isr(KEYBOARD_INTERRUPT_NUBMER, Keyboard::on_ke_data);
+	wait_for_second_scan_code = false;
 }
 
 void Keyboard::set_press_extended_char_listener(new_extended_char_listener l)
@@ -49,8 +47,13 @@ void log(const char *s)
 void Keyboard::on_ke_data(uint32_t unused)
 {
 	uint8_t data = ke_read_data();
-	// kprintf("\n%x\n", data);
 	bool is_break = false;
+
+	if (data == SCAN_CODE_WAIT_FOR_SECOND)
+	{
+		wait_for_second_scan_code = true;
+		return; /* No need more checking */
+	}
 
 	// Is it a break scan code?
 	if (data >= BREAK_SCAN_CODE_START && data <= BREAK_SCAN_CODE_END)
@@ -71,17 +74,10 @@ void Keyboard::on_ke_data(uint32_t unused)
 
 void Keyboard::on_make_scan_code(uint8_t scan_code)
 {
-	static bool wait_for_second = false;
-	if (scan_code == SCAN_CODE_WAIT_FOR_SECOND)
-	{
-		wait_for_second = true;
-		return;
-	}
-
-	if (wait_for_second)
+	if (wait_for_second_scan_code)
 	{
 		ExtendedChar ec(SCAN_CODE_WAIT_FOR_SECOND, scan_code);
-		wait_for_second = false;
+		wait_for_second_scan_code = false;
 		if (press_listener)
 			press_listener(ec);
 	}
@@ -95,14 +91,10 @@ void Keyboard::on_make_scan_code(uint8_t scan_code)
 
 void Keyboard::on_break_scan_code(uint8_t scan_code)
 {
-	static bool wait_for_second = false;
-	if (scan_code == SCAN_CODE_WAIT_FOR_SECOND)
-		wait_for_second = true;
-
-	if (wait_for_second)
+	if (wait_for_second_scan_code)
 	{
 		ExtendedChar ec(SCAN_CODE_WAIT_FOR_SECOND, scan_code);
-		wait_for_second = false;
+		wait_for_second_scan_code = false;
 		if (press_listener)
 			release_listener(ec);
 	}

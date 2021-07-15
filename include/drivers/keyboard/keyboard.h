@@ -22,6 +22,7 @@ public:
 
 private:
 	static new_extended_char_listener press_listener, release_listener;
+	static bool wait_for_second_scan_code; /* Shall I wait for a second scan code? */
 };
 
 #endif
