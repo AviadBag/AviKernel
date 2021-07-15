@@ -179,6 +179,8 @@ public:
 	avi_charcode as_avi_charcode();
 	char as_regular_char(); // If this char is not printable, then '\0' is returned.
 
+	static const char* avi_charcode_to_string(avi_charcode c);
+
 private:
 	avi_charcode _avi_charcode;
 };
