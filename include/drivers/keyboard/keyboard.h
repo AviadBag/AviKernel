@@ -17,12 +17,14 @@ public:
 	static void on_ke_data(uint32_t unused); 
 	static void on_make_scan_code(uint8_t scan_code);
 	static void on_break_scan_code(uint8_t scan_code); 
+	static bool ignore(uint8_t scan_code); /* Shall I ignore this scan code? */
 
 	static uint8_t ke_read_data(); // Reads a byte from the keyboard encoder
 
 private:
 	static new_extended_char_listener press_listener, release_listener;
-	static bool wait_for_second_scan_code; /* Shall I wait for a second scan code? */
+	static bool wait_for_second_scan_code;           /* Shall I wait for a second scan code? */
+	static bool wait_for_second_and_third_scan_code; /* Shall I wait for a second and a third scan code? */
 };
 
 #endif

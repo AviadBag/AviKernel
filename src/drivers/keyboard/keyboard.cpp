@@ -3,6 +3,8 @@
 #include "drivers/serial_ports/serial_ports.h"
 #include "kernel/idt/isr.h"
 
+#include <cstdio.h>
+
 #define KEYBOARD_INTERRUPT_NUBMER 33
 
 #define KE_PORT 0x60
@@ -14,15 +16,18 @@
 #define BREAK_SCAN_CODE_START (MAKE_SCAN_CODES_START | 0x80)
 #define BREAK_SCAN_CODE_END (MAKE_SCAN_CODES_END | 0x80)
 
-#define SCAN_CODE_WAIT_FOR_SECOND 0xE0
+#define SCAN_CODE_WAIT_FOR_SECOND           0xE0
+#define SCAN_CODE_WAIT_FOR_SECOND_AND_THIRD 0xE1
 
 new_extended_char_listener Keyboard::press_listener, Keyboard::release_listener;
+
 bool Keyboard::wait_for_second_scan_code;
+bool Keyboard::wait_for_second_and_third_scan_code;
 
 void Keyboard::initialize()
 {
 	register_isr(KEYBOARD_INTERRUPT_NUBMER, Keyboard::on_ke_data);
-	wait_for_second_scan_code = false;
+	wait_for_second_scan_code = wait_for_second_and_third_scan_code = false;
 }
 
 void Keyboard::set_press_extended_char_listener(new_extended_char_listener l)
@@ -54,6 +59,13 @@ void Keyboard::on_ke_data(uint32_t unused)
 		wait_for_second_scan_code = true;
 		return; /* No need more checking */
 	}
+	if (data == SCAN_CODE_WAIT_FOR_SECOND_AND_THIRD)
+	{
+		wait_for_second_and_third_scan_code = true;
+		return; /* No need more checking */
+	}
+
+	if (ignore(data)) return;
 
 	// Is it a break scan code?
 	if (data >= BREAK_SCAN_CODE_START && data <= BREAK_SCAN_CODE_END)
@@ -70,6 +82,30 @@ void Keyboard::on_ke_data(uint32_t unused)
 		else
 			on_make_scan_code(data);
 	}
+}
+
+
+bool Keyboard::ignore(uint8_t scan_code) 
+{
+	// Ignore Print Screen
+	if (wait_for_second_scan_code && (scan_code == 0x2A || scan_code == 0xB7))
+		return true;
+	if (wait_for_second_scan_code && (scan_code == 0x37 || scan_code == 0xAA))
+	{
+		wait_for_second_scan_code = false;
+		return true;
+	}
+	
+	// Ignore PAUSE
+	if (wait_for_second_and_third_scan_code && (scan_code == 0x1D || scan_code == 0x9D))
+		return true;
+	if (wait_for_second_and_third_scan_code && (scan_code == 0x45 || scan_code == 0xC5))
+	{
+		wait_for_second_and_third_scan_code = false;
+		return true;
+	}
+
+	return false;
 }
 
 void Keyboard::on_make_scan_code(uint8_t scan_code)
