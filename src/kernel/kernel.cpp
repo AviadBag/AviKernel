@@ -1,6 +1,6 @@
 #include "drivers/pic/pic.h"
 #include "drivers/pit/pit.h"
-#include "drivers/terminal/terminal.h"
+#include "drivers/screen/vga_text.h"
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/keyboard/text_input.h"
 #include "drivers/serial_ports/serial_ports.h"
@@ -22,7 +22,7 @@
 
 extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 {
-	Terminal::initialize();
+	VgaText::initialize();
 	kprintf("Hello! Welcome to AviKernel!\n");
 
 	GDT::initialize();

@@ -1,4 +1,5 @@
-#include "drivers/terminal/terminal.h"
+#include "drivers/screen/vga_text.h"
+
 #include <stdint.h>
 
 #define ROWS 25
@@ -6,16 +7,16 @@
 #define MEMORY_ADDRESS 0xB8000
 #define CHAR_ATTRIBUTES 0x07 // White on black
 
-int Terminal::x;
-int Terminal::y;
+int VgaText::x;
+int VgaText::y;
 
-void Terminal::initialize()
+void VgaText::initialize()
 {
     x = y = 0;
     clear();
 }
 
-void Terminal::putchar(char c)
+void VgaText::putchar(char c)
 {
     if (c == '\n')
     {
@@ -37,7 +38,7 @@ void Terminal::putchar(char c)
         put_regular_char(c, true);
 }
 
-void Terminal::backspace() 
+void VgaText::backspace() 
 {
     x--;
     if (x == -1)
@@ -53,7 +54,7 @@ void Terminal::backspace()
     put_regular_char(' ', false);
 }
 
-void Terminal::put_regular_char(char c, bool next)
+void VgaText::put_regular_char(char c, bool next)
 {
     if (y == ROWS)
         scroll();
@@ -65,7 +66,7 @@ void Terminal::put_regular_char(char c, bool next)
     if (next) next_char();
 }
 
-void Terminal::clear()
+void VgaText::clear()
 {
     for (int i = 0; i < ROWS * COLUMNS - 1; i++)
         put_regular_char(' ', true);
@@ -74,20 +75,20 @@ void Terminal::clear()
     y = 0;
 }
 
-void Terminal::next_char()
+void VgaText::next_char()
 {
     x++;
     if (x == COLUMNS)
         next_line();
 }
 
-void Terminal::next_line()
+void VgaText::next_line()
 {
     x = 0;
     y++;
 }
 
-void Terminal::scroll()
+void VgaText::scroll()
 {
     for (int row = 1; row < ROWS; row++) // Iterate evey row, from the second.
     {
@@ -102,7 +103,7 @@ void Terminal::scroll()
     x = 0; // Go to the start of the last row.
 }
 
-void Terminal::copy_row(int from, int to)
+void VgaText::copy_row(int from, int to)
 {
     int _x = x, _y = y; // Backup
 
@@ -119,7 +120,7 @@ void Terminal::copy_row(int from, int to)
     x = _x, y = _y; // Restore
 }
 
-int Terminal::XYToOffset()
+int VgaText::XYToOffset()
 {
     return (x * 2) + (y * 2 * COLUMNS);
 }
