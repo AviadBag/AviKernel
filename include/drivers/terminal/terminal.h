@@ -11,6 +11,7 @@ private:
     static void put_regular_char(char c, bool next); // Does not treat "\n" etc.
     static void next_char();
     static void next_line();
+    static void backspace();
     static void scroll();
     static void copy_row(int from, int to);
     static int XYToOffset();

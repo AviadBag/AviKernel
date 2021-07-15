@@ -6,3 +6,4 @@ os.iso
 .vimrc
 compile_commands.json
 .cache/
+scripts/

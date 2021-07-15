@@ -43,7 +43,7 @@ run: ${ISO}
 debug: ${ISO}
 	${VM} ${VM_FLAGS} ${VM_DEBUG_FLAGS} -cdrom $<
 
-${ISO}: clean ${KERNEL} ${CONFIG}/grub.cfg
+${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	mkdir -p isodir/boot/grub
 	cp ${KERNEL} isodir/boot/kernel.bin
 	cp ${CONFIG}/grub.cfg isodir/boot/grub/grub.cfg
