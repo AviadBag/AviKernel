@@ -1,7 +1,7 @@
-#ifndef _TERMINAL_H
-#define _TERMINAL_H
+#ifndef __VGA_TEXT_H__
+#define __VGA_TEXT_H__
 
-class Terminal {
+class VgaText {
 public:
     static void putchar(char c);
     static void clear();
@@ -20,4 +20,4 @@ private:
     static int y;
 };
 
-#endif
+#endif // __VGA_TEXT_H__

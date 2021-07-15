@@ -35,7 +35,7 @@
 
 #include <cstdio.h>
 
-#include "drivers/terminal/terminal.h"
+#include "drivers/screen/vga_text.h"
 
 // define this globally (e.g. gcc -DPRINTF_INCLUDE_CONFIG_H ...) to include the
 // kprintf_config.h header file
@@ -128,7 +128,7 @@ typedef struct
 
 void _putchar(char c)
 {
-    Terminal::putchar(c);
+    VgaText::putchar(c);
 }
 
 // internal buffer output
