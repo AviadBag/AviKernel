@@ -5,7 +5,7 @@ CONFIG  := config
 CROSS   := ~/files/programming/softwares/i686-elf/bin
 
 CXX       := ${CROSS}/i686-elf-g++
-CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/kernel/standard
+CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-sized-deallocation -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/kernel/standard
 
 ASM       := nasm
 ASM_FLAGS := -felf32 -g -F dwarf -O0 -w-number-overflow
