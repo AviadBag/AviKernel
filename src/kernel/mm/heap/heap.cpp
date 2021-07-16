@@ -4,8 +4,6 @@
 #include "kernel/mm/virtual_mgr/virtual_mgr.h"
 #include "kernel/panic.h"
 
-#include <cstdio.h>
-
 // Adds <amount> to the void pointer <void_p>
 #define HEAP_ADD_TO_VOID_P(void_p, amount) ((void_p) = (void *)(((char *)(void_p)) + amount))
 
