@@ -27,17 +27,19 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 	kprintf("Hello! Welcome to AviKernel!\n");
 
 	GDT::initialize();
+	PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
+	VirtualMgr::initialize();
+	Heap::initialize();
+
 	PIC::initialize();
 	PIC::enable_all_interrupts();
 	IDT::initialize();
 	asm volatile ("sti");
 	PIT::initialize(100); // Once every 0.01 second
-	PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
-	VirtualMgr::initialize();
-	Heap::initialize();
+	Time::initialize();
+
 	Keyboard::initialize();
 	TextInput::initialize();
-	Time::initialize();
 
 	while (true)
 	{
