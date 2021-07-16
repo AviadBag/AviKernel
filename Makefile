@@ -44,24 +44,29 @@ debug: ${ISO}
 	${VM} ${VM_FLAGS} ${VM_DEBUG_FLAGS} -cdrom $<
 
 ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
-	mkdir -p isodir/boot/grub
-	cp ${KERNEL} isodir/boot/kernel.bin
-	cp ${CONFIG}/grub.cfg isodir/boot/grub/grub.cfg
-	grub-mkrescue -o $@ isodir
+	@mkdir -p isodir/boot/grub
+	@cp ${KERNEL} isodir/boot/kernel.bin
+	@cp ${CONFIG}/grub.cfg isodir/boot/grub/grub.cfg
+	$(info Creating iso "$(ISO)"...)
+	@grub-mkrescue -o $@ isodir 
 
 ${KERNEL}: ${OBJ}
-	mkdir -p ${BIN}
-	# Caution: ${LINKER_FLAGS} MUST be at the end of the line!
-	${LINKER} -T ${CONFIG}/linker.ld -o $@ $^ ${LINKER_FLAGS}
+	@mkdir -p ${BIN}
+	@# Caution: ${LINKER_FLAGS} MUST be at the end of the line!
+	@echo "Running Linker..."
+	@${LINKER} -T ${CONFIG}/linker.ld -o $@ $^ ${LINKER_FLAGS}
 
 %.asm.o: %.asm
-	${ASM} ${ASM_FLAGS} $^ -o $@
+	@${ASM} ${ASM_FLAGS} $^ -o $@
+	@echo ASM $@
 
 %.o: %.s
-	${ASM} ${ASM_FLAGS} $^ -o $@
+	@${ASM} ${ASM_FLAGS} $^ -o $@
+	@echo ASM $@
 
 %.cpp.o: %.cpp
-	${CXX} ${CXX_FLAGS} $^ -o $@
+	@${CXX} ${CXX_FLAGS} $^ -o $@
+	@echo CXX $@
 
 validate: ${KERNEL}
 	@if grub-file --is-x86-multiboot ${KERNEL}; then \
