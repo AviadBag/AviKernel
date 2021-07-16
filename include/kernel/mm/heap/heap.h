@@ -18,6 +18,9 @@ public:
 
     static void* kmalloc(size_t);
     static void kfree(void);
+
+private:
+    static heap_header* holes_list_head;
 };
 
 #endif // __HEAP_H__
