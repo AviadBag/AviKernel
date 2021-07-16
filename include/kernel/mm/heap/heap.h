@@ -17,7 +17,7 @@ public:
     static void initialize();
 
     static void* kmalloc(size_t);
-    static void kfree(void);
+    static void kfree(void*);
 
 private:
     static bool extend_heap(size_t); // Extends the heap until there is enough space.

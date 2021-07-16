@@ -9,6 +9,9 @@
 // Adds <amount> to the void pointer <void_p>
 #define HEAP_ADD_TO_VOID_P(void_p, amount) ((void_p) = (void*) ( ((char*)(void_p)) + amount ))
 
+// Subtracts <amount> from the void pointer <void_p>
+#define HEAP_SUBTRACT_FROM_VOID_P(void_p, amount) ((void_p) = (void*) ( ((char*)(void_p)) - amount ))
+
 extern "C" uint32_t kernelEnd; // This variable sits at the end of the kernel.
 
 heap_header* Heap::holes_list_head;
@@ -29,18 +32,12 @@ void Heap::initialize()
     holes_list_head->size = PMMGR_PAGE_SIZE;
     holes_list_head->prev = NULL;
     holes_list_head->next = NULL;
-
-    kprintf("Initialized heap!\n");
-    kprintf("Heap virtual start address: %p\n", holes_list_head);
-    kprintf("Heap physical start address: %p\n", first_frame);
 }
 
 bool Heap::extend_heap(size_t size) 
 {
     size_t desired_size = size + sizeof(heap_header); // How many size we REALLY nead
     size_t desired_pages = desired_size / VMMGR_PAGE_SIZE + 1;
-
-    kprintf("Extending heap... Adding %d pages\n", desired_pages);
 
     heap_header* header = NULL;
     HEAP_ADD_TO_VOID_P(last_page, VMMGR_PAGE_SIZE);
@@ -74,8 +71,6 @@ bool Heap::extend_heap(size_t size)
 
 void* Heap::kmalloc(size_t size)
 {
-    kprintf("Attempting to allocate %zu bytes\n", size);
-
     if (size == 0) return NULL;
 
     size_t required_size = size + sizeof(size_t); // I also have to store the amount of allocated bytes.
@@ -111,9 +106,6 @@ void* Heap::kmalloc(size_t size)
 
     *((size_t*) hole) = allocated_size;
     void* addr = (void*) ((size_t) hole + sizeof(size_t)); // Skip to after the bytes that represent the allocated size
-
-    kprintf("Allocated actually %zu bytes\n", allocated_size);
-    kprintf("Address: %u\n\n", (uint32_t) addr);
     
     return addr;
 }
@@ -171,7 +163,12 @@ void Heap::insert_to_holes_list(heap_header* hole)
     }
 }
 
-void Heap::kfree(void) 
+void Heap::kfree(void* addr) 
 {
+    HEAP_SUBTRACT_FROM_VOID_P(addr, sizeof(size_t)); // Go to the actual beginning of the allocated space.
+    size_t how_many_bytes = *(size_t*)(addr);
 
+    heap_header* header = (heap_header*) addr;
+    header->size = how_many_bytes;
+    insert_to_holes_list(header);
 }
