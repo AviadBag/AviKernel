@@ -23,6 +23,9 @@ private:
     static bool extend_heap(size_t); // Extends the heap until there is enough space.
     // Splits the hole. Returns the size of the newly allocated memory. (Usually <size>, but can be more). Returns 0 if could not be splitted.
     static size_t split(heap_header*, size_t size);
+    static void merge(heap_header*); // Merges the previous hole and next hole, IF POSSIBLE.
+    static void merge_previous(heap_header*);
+    static void merge_next(heap_header*);
     static void remove_from_holes_list(heap_header*);
     static void insert_to_holes_list(heap_header*);
 

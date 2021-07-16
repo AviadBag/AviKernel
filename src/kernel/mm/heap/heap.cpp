@@ -200,6 +200,26 @@ void Heap::insert_to_holes_list(heap_header *hole)
     }
 }
 
+void Heap::merge_next(heap_header* header) 
+{
+    remove_from_holes_list(header->next);
+    header->size += header->next->size;
+}
+
+void Heap::merge_previous(heap_header* header) 
+{
+    remove_from_holes_list(header);
+    header->prev->size += header->size;
+}
+
+void Heap::merge(heap_header* header)
+{
+    if ((char*) header->prev + header->prev->size == (char*) header)
+        merge_previous(header);
+    if ((char*) header + header->size == (char*) header->next)
+        merge_next(header);
+}
+
 void Heap::kfree(void *addr)
 {
     HEAP_SUBTRACT_FROM_VOID_P(addr, sizeof(size_t)); // Go to the actual beginning of the allocated space.
@@ -208,4 +228,6 @@ void Heap::kfree(void *addr)
     heap_header *header = (heap_header *)addr;
     header->size = how_many_bytes;
     insert_to_holes_list(header);
+
+    merge(header);
 }
