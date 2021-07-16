@@ -5,8 +5,7 @@
 #ifndef _PAGING_ENTRY_H
 #define _PAGING_ENTRY_H
 
-class PagingEntry
-{
+class PagingEntry {
 public:
     PagingEntry(); // By default, all the values are zero.
     PagingEntry(bool present, bool writeable, bool requires_supervisor, physical_addr frame);

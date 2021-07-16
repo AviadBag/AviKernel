@@ -18,37 +18,28 @@ void VgaText::initialize()
 
 void VgaText::putchar(char c)
 {
-    if (c == '\n')
-    {
+    if (c == '\n') {
         next_line();
         if (y == ROWS)
             scroll();
-    }
-    else if (c == '\t')
-    {
+    } else if (c == '\t') {
         // A tab is four spaces.
         for (int i = 0; i < 4; i++)
             put_regular_char(' ', true);
-    }
-    else if (c == '\b')
-    {
+    } else if (c == '\b') {
         backspace();
-    }
-    else
+    } else
         put_regular_char(c, true);
 }
 
-void VgaText::backspace() 
+void VgaText::backspace()
 {
     x--;
-    if (x == -1)
-    {
-        if (y != 0) 
-        {
+    if (x == -1) {
+        if (y != 0) {
             y--;
-            x = COLUMNS-1;
-        }
-        else
+            x = COLUMNS - 1;
+        } else
             x = 0;
     }
     put_regular_char(' ', false);
@@ -58,12 +49,13 @@ void VgaText::put_regular_char(char c, bool next)
 {
     if (y == ROWS)
         scroll();
-    
-    uint8_t *address = (uint8_t *)(MEMORY_ADDRESS + XYToOffset());
+
+    uint8_t* address = (uint8_t*)(MEMORY_ADDRESS + XYToOffset());
     *address = c;
     *(++address) = CHAR_ATTRIBUTES;
 
-    if (next) next_char();
+    if (next)
+        next_char();
 }
 
 void VgaText::clear()
@@ -110,7 +102,7 @@ void VgaText::copy_row(int from, int to)
     for (int i = 0; i < COLUMNS; i++) // Read from the source line, char by char.
     {
         y = from, x = i;
-        uint8_t *address = (uint8_t *)(MEMORY_ADDRESS + XYToOffset());
+        uint8_t* address = (uint8_t*)(MEMORY_ADDRESS + XYToOffset());
         char c = *address;
 
         y = to, x = i;

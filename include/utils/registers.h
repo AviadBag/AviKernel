@@ -3,8 +3,7 @@
 
 #include <stdint.h>
 
-class Registers
-{
+class Registers {
 public:
     static uint32_t get_cr3();
 

@@ -2,8 +2,7 @@
 
 #include "utils/bitmap.h"
 
-enum PE_FLAGS_INDEXES
-{
+enum PE_FLAGS_INDEXES {
     PE_FLAGS_PRESENT = 0,
     PE_FLAGS_WRITABLE = 1,
     PE_FLAGS_REQUIRES_SUPERVISOR = 2,
@@ -12,11 +11,13 @@ enum PE_FLAGS_INDEXES
 
 #define PE_FRAME_MASK 0xFFFFF000
 
-PagingEntry::PagingEntry() : entry(0)
+PagingEntry::PagingEntry()
+    : entry(0)
 {
 }
 
-PagingEntry::PagingEntry(bool present, bool writeable, bool requires_supervisor, physical_addr frame) : entry(0)
+PagingEntry::PagingEntry(bool present, bool writeable, bool requires_supervisor, physical_addr frame)
+    : entry(0)
 {
     set_present(present);
     set_writeable(writeable);

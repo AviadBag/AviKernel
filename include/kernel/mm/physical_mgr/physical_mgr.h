@@ -6,7 +6,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define PMMGR_PAGE_SIZE (1024 * 4)         // 4 KB
+#define PMMGR_PAGE_SIZE (1024 * 4) // 4 KB
 
 typedef void* physical_addr;
 

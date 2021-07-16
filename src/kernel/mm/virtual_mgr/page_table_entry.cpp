@@ -2,14 +2,17 @@
 
 #include "utils/bitmap.h"
 
-enum PTE_FLAGS_INDEXES
-{
+enum PTE_FLAGS_INDEXES {
     PTE_FLAGS_DIRTY = 6
 };
 
-PageTableEntry::PageTableEntry() : PagingEntry() {}
+PageTableEntry::PageTableEntry()
+    : PagingEntry()
+{
+}
 
-PageTableEntry::PageTableEntry(bool present, bool writeable, bool requires_supervisor, physical_addr frame) : PagingEntry(present, writeable, requires_supervisor, frame)
+PageTableEntry::PageTableEntry(bool present, bool writeable, bool requires_supervisor, physical_addr frame)
+    : PagingEntry(present, writeable, requires_supervisor, frame)
 {
 }
 

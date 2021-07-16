@@ -2,12 +2,14 @@
 
 #include "utils/bitmap.h"
 
-enum PDE_FLAGS_INDEXES
-{
+enum PDE_FLAGS_INDEXES {
     PDE_FLAGS_4MB = 7
 };
 
-PageDirectoryEntry::PageDirectoryEntry() : PagingEntry() {}
+PageDirectoryEntry::PageDirectoryEntry()
+    : PagingEntry()
+{
+}
 
 PageDirectoryEntry::PageDirectoryEntry(bool present, bool writeable, bool requires_supervisor, bool mb4_page_size, physical_addr frame)
     : PagingEntry(present, writeable, requires_supervisor, frame)
@@ -20,7 +22,7 @@ void PageDirectoryEntry::set_4mb_page_size(bool b)
     Bitmap::put(&entry, PDE_FLAGS_4MB, b);
 }
 
-bool PageDirectoryEntry::get_4mb_page_size() 
+bool PageDirectoryEntry::get_4mb_page_size()
 {
     return Bitmap::test(&entry, PDE_FLAGS_4MB);
 }

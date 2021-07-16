@@ -5,21 +5,21 @@
 #include "kernel/panic.h"
 
 // Adds <amount> to the void pointer <void_p>
-#define HEAP_ADD_TO_VOID_P(void_p, amount) ((void_p) = (void *)(((char *)(void_p)) + amount))
+#define HEAP_ADD_TO_VOID_P(void_p, amount) ((void_p) = (void*)(((char*)(void_p)) + amount))
 
 // Subtracts <amount> from the void pointer <void_p>
-#define HEAP_SUBTRACT_FROM_VOID_P(void_p, amount) ((void_p) = (void *)(((char *)(void_p)) - amount))
+#define HEAP_SUBTRACT_FROM_VOID_P(void_p, amount) ((void_p) = (void*)(((char*)(void_p)) - amount))
 
 extern "C" uint32_t kernelEnd; // This variable sits at the end of the kernel.
 
-heap_header *Heap::holes_list_head;
-heap_header *Heap::holes_list_tail;
-void *Heap::last_page;
+heap_header* Heap::holes_list_head;
+heap_header* Heap::holes_list_tail;
+void* Heap::last_page;
 
 void Heap::initialize()
 {
     // kernelEnd is page aligned, and holes_list_head should also be page aligned..
-    holes_list_head = holes_list_tail = (heap_header *)(&kernelEnd + VMMGR_PAGE_SIZE);
+    holes_list_head = holes_list_tail = (heap_header*)(&kernelEnd + VMMGR_PAGE_SIZE);
     physical_addr first_frame = PhysicalMgr::allocate_block();
     if (!first_frame)
         panic("Not enough space for heap!");
@@ -37,24 +37,22 @@ bool Heap::extend_heap(size_t size)
     size_t desired_size = size + sizeof(heap_header); // How many size we REALLY nead
     size_t desired_pages = desired_size / VMMGR_PAGE_SIZE + 1;
 
-    heap_header *header = NULL;
+    heap_header* header = NULL;
     HEAP_ADD_TO_VOID_P(last_page, VMMGR_PAGE_SIZE);
 
     bool status = true;
 
     size_t number_of_pages_done;
-    for (number_of_pages_done = 0; number_of_pages_done < desired_pages; number_of_pages_done++, HEAP_ADD_TO_VOID_P(last_page, VMMGR_PAGE_SIZE))
-    {
+    for (number_of_pages_done = 0; number_of_pages_done < desired_pages; number_of_pages_done++, HEAP_ADD_TO_VOID_P(last_page, VMMGR_PAGE_SIZE)) {
         physical_addr frame = PhysicalMgr::allocate_block();
-        if (!frame)
-        {
+        if (!frame) {
             status = false;
             break;
         }
 
         VirtualMgr::map(last_page, frame, true);
         if (header == NULL) // Do it only at the first time
-            header = (heap_header *)last_page;
+            header = (heap_header*)last_page;
     }
 
     // Fill header
@@ -67,7 +65,7 @@ bool Heap::extend_heap(size_t size)
     return status;
 }
 
-void *Heap::kmalloc(size_t size)
+void* Heap::kmalloc(size_t size)
 {
     if (size == 0)
         return NULL;
@@ -75,12 +73,10 @@ void *Heap::kmalloc(size_t size)
     size_t required_size = size + sizeof(size_t); // I also have to store the amount of allocated bytes.
 
     // Find the first big enough hole
-    heap_header *node = holes_list_head;
-    heap_header *hole = NULL;
-    while (node != NULL)
-    {
-        if (node->size >= required_size)
-        {
+    heap_header* node = holes_list_head;
+    heap_header* hole = NULL;
+    while (node != NULL) {
+        if (node->size >= required_size) {
             hole = node;
             break;
         }
@@ -103,18 +99,18 @@ void *Heap::kmalloc(size_t size)
         remove_from_holes_list(hole);
     }
 
-    *((size_t *)hole) = allocated_size;
-    void *addr = (void *)((size_t)hole + sizeof(size_t)); // Skip to after the bytes that represent the allocated size
+    *((size_t*)hole) = allocated_size;
+    void* addr = (void*)((size_t)hole + sizeof(size_t)); // Skip to after the bytes that represent the allocated size
 
     return addr;
 }
 
-size_t Heap::split(heap_header *hole, size_t size)
+size_t Heap::split(heap_header* hole, size_t size)
 {
     if (hole->size - size > sizeof(heap_header)) // Can it be splitted?
     {
         size_t offset = size > sizeof(heap_header) ? size : sizeof(heap_header);
-        heap_header *new_hole = (heap_header *)((size_t)hole + offset);
+        heap_header* new_hole = (heap_header*)((size_t)hole + offset);
         new_hole->size = hole->size - offset;
         remove_from_holes_list(hole);
         insert_to_holes_list(new_hole);
@@ -124,20 +120,18 @@ size_t Heap::split(heap_header *hole, size_t size)
     return 0;
 }
 
-void Heap::remove_from_holes_list(heap_header *hole)
+void Heap::remove_from_holes_list(heap_header* hole)
 {
     // Case 1 - This is the only hole
     if (hole->prev == NULL && hole->next == NULL)
         holes_list_tail = holes_list_head = NULL;
     // Case 2 - This is the first hole
-    else if (hole == holes_list_head)
-    {
+    else if (hole == holes_list_head) {
         holes_list_head = holes_list_head->next;
         holes_list_head->prev = NULL;
     }
     // Case 3 - This is the last hole
-    else if (hole == holes_list_tail)
-    {
+    else if (hole == holes_list_tail) {
         holes_list_tail = holes_list_tail->prev;
         holes_list_tail->next = NULL;
     }
@@ -146,20 +140,17 @@ void Heap::remove_from_holes_list(heap_header *hole)
         hole->prev->next = hole->next; // Skip me!
 }
 
-void Heap::insert_to_holes_list(heap_header *hole)
+void Heap::insert_to_holes_list(heap_header* hole)
 {
     if (holes_list_tail == NULL) // The list is empty
     {
         holes_list_tail = holes_list_head = hole;
         hole->next = NULL;
         hole->prev = NULL;
-    }
-    else
-    {
+    } else {
         // Find the right place.
-        heap_header *node = holes_list_head;
-        while (node != NULL)
-        {
+        heap_header* node = holes_list_head;
+        while (node != NULL) {
             if (hole < node)
                 break;
 
@@ -167,24 +158,21 @@ void Heap::insert_to_holes_list(heap_header *hole)
         }
 
         // Case 1: That should be the first
-        if (node == holes_list_head)
-        {
+        if (node == holes_list_head) {
             holes_list_head = hole;
             hole->prev = NULL;
             hole->next = node;
             node->prev = hole;
         }
         // Case 2: That should be the last
-        else if (node == NULL)
-        {
+        else if (node == NULL) {
             holes_list_tail->next = hole;
             hole->prev = holes_list_tail;
             holes_list_tail = hole;
             hole->next = NULL;
         }
         // Case 3: That should be put in the middle
-        else
-        {
+        else {
             heap_header* prev = node->prev;
 
             // Bind to prev
@@ -198,13 +186,13 @@ void Heap::insert_to_holes_list(heap_header *hole)
     }
 }
 
-void Heap::merge_next(heap_header* header) 
+void Heap::merge_next(heap_header* header)
 {
     remove_from_holes_list(header->next);
     header->size += header->next->size;
 }
 
-void Heap::merge_previous(heap_header* header) 
+void Heap::merge_previous(heap_header* header)
 {
     remove_from_holes_list(header);
     header->prev->size += header->size;
@@ -212,18 +200,18 @@ void Heap::merge_previous(heap_header* header)
 
 void Heap::merge(heap_header* header)
 {
-    if ((char*) header->prev + header->prev->size == (char*) header)
+    if ((char*)header->prev + header->prev->size == (char*)header)
         merge_previous(header);
-    if ((char*) header + header->size == (char*) header->next)
+    if ((char*)header + header->size == (char*)header->next)
         merge_next(header);
 }
 
-void Heap::kfree(void *addr)
+void Heap::kfree(void* addr)
 {
     HEAP_SUBTRACT_FROM_VOID_P(addr, sizeof(size_t)); // Go to the actual beginning of the allocated space.
-    size_t how_many_bytes = *(size_t *)(addr);
+    size_t how_many_bytes = *(size_t*)(addr);
 
-    heap_header *header = (heap_header *)addr;
+    heap_header* header = (heap_header*)addr;
     header->size = how_many_bytes;
     insert_to_holes_list(header);
 

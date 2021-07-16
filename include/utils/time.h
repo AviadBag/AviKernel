@@ -3,8 +3,7 @@
 
 #include <stdint.h>
 
-class Time
-{
+class Time {
 public:
     static void initialize();
     static void sleep(uint64_t ms); // ms = milliseconds

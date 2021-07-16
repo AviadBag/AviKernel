@@ -4,15 +4,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct heap_header_e
-{
+typedef struct heap_header_e {
     size_t size;
     struct heap_header_e* next;
     struct heap_header_e* prev;
 } heap_header;
 
-class Heap
-{
+class Heap {
 public:
     static void initialize();
 
