@@ -5,3 +5,8 @@ void TextOutput::putchar(char c)
 {
     VgaText::putchar(c);
 }
+
+void TextOutput::clear()
+{
+    VgaText::clear();
+}

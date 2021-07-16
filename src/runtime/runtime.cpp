@@ -1,32 +1,26 @@
 #include <stddef.h>
+#include <cstdlib.h>
 
 #define MARKUSED(X) ((void)(&(X)))
 
-/* Memory manegmnet functions */
-void* operator new(size_t size)
+void *operator new(size_t size)
 {
-    /* Nothing here in the meantime */
-    MARKUSED(size);
-    return (void*)(0);
+    return kmalloc(size);
 }
-
-void* operator new[](size_t size)
+ 
+void *operator new[](size_t size)
 {
-    /* Nothing here in the meantime */
-    MARKUSED(size);
-    return (void*)(0);
+    return kmalloc(size);
 }
-
-void operator delete(void* p)
+ 
+void operator delete(void *p)
 {
-    /* Nothing here in the meantime */
-    MARKUSED(p);
+    kfree(p);
 }
-
-void operator delete[](void* p)
+ 
+void operator delete[](void *p)
 {
-    /* Nothing here in the meantime */
-    MARKUSED(p);
+    kfree(p);
 }
 
 /* Virtual function hundler */

@@ -50,6 +50,8 @@ temp_page_directory:
 ; Declare _start as a function symbol with the given symbol size.
 section .text
 load_os:
+	cli ; The OS will treat it.
+	
 	push ebx ; Multiboot Data
 
 	extern _init

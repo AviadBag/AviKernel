@@ -10,7 +10,7 @@ uint64_t PIT::ticks_count;
 on_tick_ptr PIT::on_tick_ptrs_arr[];
 int PIT::on_tick_ptrs_arr_next;
 
-void PIT::on_tick(uint32_t unsued)
+void PIT::on_tick([[gnu::unused]] uint32_t unsued)
 {
     ticks_count++;
     for (int i = 0; i < on_tick_ptrs_arr_next; i++)

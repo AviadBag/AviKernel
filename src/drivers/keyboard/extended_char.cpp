@@ -203,7 +203,7 @@ ExtendedChar::ExtendedChar(scan_code _scan_code)
 	_avi_charcode = one_scan_code_to_avi_charcode_arr[_scan_code];
 }
 
-ExtendedChar::ExtendedChar(scan_code _scan_code_1, scan_code _scan_code_2)
+ExtendedChar::ExtendedChar([[gnu::unused]] scan_code _scan_code_1, scan_code _scan_code_2)
 {
 	/* I ignore _scan_code_1; It is always 0xE0. */
 	_avi_charcode = two_scan_codes_to_avi_charcode_arr[_scan_code_2];

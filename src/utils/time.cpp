@@ -10,7 +10,7 @@ void Time::initialize()
     PIT::add_on_tick_listener(on_tick);
 }
 
-void Time::on_tick(uint64_t unused)
+void Time::on_tick([[gnu::unused]] uint64_t unused)
 {
     ticks++;
 }

@@ -49,7 +49,7 @@ void log(const char *s)
 	}
 }
 
-void Keyboard::on_ke_data(uint32_t unused)
+void Keyboard::on_ke_data([[gnu::unused]] uint32_t unused)
 {
 	uint8_t data = ke_read_data();
 	bool is_break = false;

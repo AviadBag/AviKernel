@@ -1,3 +1,5 @@
+#include "kernel/mm/heap/heap.h"
+
 #include <cstdlib.h>
 
 char* itoa(int value, char* str, int base)
@@ -32,4 +34,14 @@ char* itoa(int value, char* str, int base)
         *ptr-- = tmp;
     }
     return rc;
+}
+
+void* kmalloc(size_t size) 
+{
+    return Heap::kmalloc(size);
+}
+
+void kfree(void* addr) 
+{
+    Heap::kfree(addr);
 }
