@@ -4,6 +4,8 @@ INCLUDE := include
 CONFIG  := config
 CROSS   := ~/files/programming/softwares/i686-elf/bin
 
+HARD_DRIVA_IMAGE := drive.img
+
 CXX       := ${CROSS}/i686-elf-g++
 CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-sized-deallocation -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/standard
 
@@ -14,7 +16,7 @@ LINKER       := ${CROSS}/i686-elf-gcc
 LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc 
 
 VM             := qemu-system-i386
-VM_FLAGS       := -curses
+VM_FLAGS       := -curses -hda ${HARD_DRIVA_IMAGE} -boot d
 VM_DEBUG_FLAGS := -s -S
 
 SOURCES_ASM := $(shell find ${SRC} -type f -name '*.asm')

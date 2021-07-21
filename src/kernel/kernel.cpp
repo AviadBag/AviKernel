@@ -4,6 +4,7 @@
 #include "drivers/pit/pit.h"
 #include "drivers/screen/vga_text.h"
 #include "drivers/serial_ports/serial_ports.h"
+#include "drivers/pci/pci.h"
 
 #include "kernel/gdt/gdt.h"
 #include "kernel/idt/idt.h"
@@ -40,6 +41,8 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
 
     Keyboard::initialize();
     TextInput::initialize();
+
+    PCI::initialize();
 
     while (true) {
         char c = TextInput::getchar();
