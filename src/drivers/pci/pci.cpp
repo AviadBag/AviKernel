@@ -41,6 +41,8 @@ enum PCI_FIELDS_SHIFT // How many do I have to shift after masking?
     PCI_HEADER_TYPE_SHIFT = 24
 };
 
+Vector<PCIDevice> PCI::devices_vector;
+
 void PCI::initialize()
 {
     for (int bus = 0; bus < PCI_NUMBER_OF_BUSES; bus++)
@@ -48,33 +50,34 @@ void PCI::initialize()
             check_device(bus, device);
 }
 
+Vector<PCIDevice>* PCI::get_devices_vector() 
+{
+    return &devices_vector;
+}
+
 void PCI::check_device(uint8_t bus, uint8_t device)
 {
     uint16_t vendor_id = get_vendor_id(bus, device, 0);
     if (vendor_id == PCI_VENDOR_ID_DEVICE_DOES_NOT_EXIST)
         return;
+    
     uint8_t header_type = get_header_type(bus, device, 0);
     if (header_type & PCI_HAS_MULTIPLE_FUNCTIONS_MASK)
     {
         for (int function = 0; function < PCI_NUMBER_OF_DEVICES_PER_BUS; function++)
-        {
-            uint8_t class_code = get_class_code(bus, device, function);
-            uint8_t sub_class_code = get_sub_class_code(bus, device, function);
-
-            PCIDevice d(class_code, sub_class_code, bus, device, function);
-            kprintf("Bus: %d, Device: %d, Function: %d, Header Type: %x\t", (int)bus, (int)device, (int)function, (int)header_type);
-            kprintf("%s\n", d.type_to_string());
-        }
+            add_function(bus, device, function);
     }
     else
-    {
-        uint8_t class_code = get_class_code(bus, device, 0);
-        uint8_t sub_class_code = get_sub_class_code(bus, device, 0);
+        add_function(bus, device, 0);
+}
 
-        PCIDevice d(class_code, sub_class_code, bus, device, 0);
-        kprintf("Bus: %d, Device: %d, Function: %d, Header Type: %x\t", (int)bus, (int)device, 0, (int)header_type);
-        kprintf("%s\n", d.type_to_string());
-    }
+void PCI::add_function(uint8_t bus, uint8_t device, uint8_t function)
+{
+    uint8_t class_code = get_class_code(bus, device, function);
+    uint8_t sub_class_code = get_sub_class_code(bus, device, function);
+
+    PCIDevice d(class_code, sub_class_code, bus, device, function);
+    devices_vector.append(d);
 }
 
 uint32_t PCI::pci_config_read_32_bits(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset)

@@ -45,10 +45,6 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     TextInput::initialize();
 
     PCI::initialize();
-    for (int i = 0; i < PCI::get_devices_vector()->size(); i++)
-    {
-        kprintf("%s\n", PCI::get_devices_vector()->get(i));
-    }
 
     while (true) {
         char c = TextInput::getchar();
