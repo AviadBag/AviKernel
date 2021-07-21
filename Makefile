@@ -15,10 +15,6 @@ ASM_FLAGS := -felf32 -g -F dwarf -O0 -w-number-overflow
 LINKER       := ${CROSS}/i686-elf-gcc
 LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc 
 
-VM             := qemu-system-i386
-VM_FLAGS       := -curses -hda ${HARD_DRIVA_IMAGE} -boot d
-VM_DEBUG_FLAGS := -s -S
-
 SOURCES_ASM := $(shell find ${SRC} -type f -name '*.asm')
 SOURCES_CPP := $(shell find ${SRC} -type f -name '*.cpp')
 
@@ -37,13 +33,17 @@ OBJ := $(CRTI_OBJ) $(CRTBEGIN_OBJ) ${OBJECTS_ASM} ${OBJECTS_CPP} $(CRTEND_OBJ) $
 KERNEL := ${BIN}/kernel.bin
 ISO    := os.iso
 
+VM             := qemu-system-i386
+VM_FLAGS       := -curses -device piix3-ide,id=ide -drive id=disk,file=${ISO},format=raw,if=none -device ide-hd,drive=disk,bus=ide.0
+VM_DEBUG_FLAGS := -s -S
+
 all: ${ISO}
 
 run: ${ISO}
-	${VM} ${VM_FLAGS} -cdrom $<
+	${VM} ${VM_FLAGS}
 
 debug: ${ISO}
-	${VM} ${VM_FLAGS} ${VM_DEBUG_FLAGS} -cdrom $<
+	${VM} ${VM_FLAGS} ${VM_DEBUG_FLAGS}
 
 ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	@mkdir -p isodir/boot/grub
