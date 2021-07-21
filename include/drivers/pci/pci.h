@@ -15,6 +15,7 @@ private:
     static uint16_t get_device_id(uint8_t bus, uint8_t device, uint8_t function);
     static uint8_t get_class_code(uint8_t bus, uint8_t device, uint8_t function);
     static uint8_t get_sub_class_code(uint8_t bus, uint8_t device, uint8_t function);
+    static uint8_t get_header_type(uint8_t bus, uint8_t device, uint8_t function);
 };
 
 #endif // __PCI_H__
