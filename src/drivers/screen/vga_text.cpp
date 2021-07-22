@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include <cstdio.h>
 
-#define VGA_ROWS 25
-#define VGA_COLUMNS 80
 #define VGA_MEMORY_ADDRESS 0xB8000
 #define VGA_CHAR_ATTRIBUTES 0x07 // White on black
 
