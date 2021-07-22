@@ -26,25 +26,30 @@
 
 extern "C" void kernel_main(multiboot_info_t* multiboot_info)
 {
+    // Text
     VgaText::initialize();
     kprintf("Hello! Welcome to AviKernel!\n");
 
+    // Memory
     GDT::initialize();
     PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
     VirtualMgr::initialize();
     Heap::initialize();
 
-    PCI::initialize();
+    // Interrupts
+    IDT::initialize();
 
+    // Drivers
+    PCI::initialize();
     PIC::initialize();
     PIC::enable_all_interrupts();
-    IDT::initialize();
     asm volatile("sti");
     PIT::initialize(100); // Once every 0.01 second
-    Time::initialize();
-
     Keyboard::initialize();
     TextInput::initialize();
+
+    // Utils
+    Time::initialize();
 
     while (true) {
         char c = TextInput::getchar();
