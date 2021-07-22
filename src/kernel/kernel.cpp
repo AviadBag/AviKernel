@@ -34,6 +34,8 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     VirtualMgr::initialize();
     Heap::initialize();
 
+    PCI::initialize();
+
     PIC::initialize();
     PIC::enable_all_interrupts();
     IDT::initialize();
@@ -43,8 +45,6 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
 
     Keyboard::initialize();
     TextInput::initialize();
-
-    PCI::initialize();
 
     while (true) {
         char c = TextInput::getchar();
