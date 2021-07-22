@@ -4,8 +4,6 @@ INCLUDE := include
 CONFIG  := config
 CROSS   := ~/files/programming/softwares/i686-elf/bin
 
-HARD_DRIVA_IMAGE := drive.img
-
 CXX       := ${CROSS}/i686-elf-g++
 CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-sized-deallocation -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/standard
 
@@ -90,3 +88,4 @@ clean:
 	find . -type f -name '*.o' -delete
 	rm -f ${ISO}
 	clear
+
