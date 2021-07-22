@@ -62,6 +62,7 @@ void PCI::check_device(uint8_t bus, uint8_t device)
         return;
     
     uint8_t header_type = get_header_type(bus, device, 0);
+    // TODO: Support only header type 0!
     if (header_type & PCI_HAS_MULTIPLE_FUNCTIONS_MASK)
     {
         for (int function = 0; function < PCI_NUMBER_OF_FUNCTIONS_PER_DEVICE; function++)
