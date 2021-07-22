@@ -1,11 +1,13 @@
 #include "utils/time.h"
-
 #include "drivers/pit/pit.h"
+
+#include <cstdio.h>
 
 uint64_t Time::ticks;
 
 void Time::initialize()
 {
+    kprintf("Initializing Time Util...\n");
     ticks = 0;
     PIT::add_on_tick_listener(on_tick);
 }

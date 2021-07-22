@@ -1,6 +1,8 @@
 #include "drivers/pic/pic.h"
 #include "drivers/serial_ports/serial_ports.h"
 
+#include <cstdio.h>
+
 #define MASTER 0
 #define SLAVE 1
 
@@ -27,6 +29,8 @@
 // Remaps the IRQ
 void PIC::initialize()
 {
+    kprintf("Initializing PIC driver...\n");
+
     // ICW1
     send_command(MASTER, ICW1);
     SerialPorts::io_wait();

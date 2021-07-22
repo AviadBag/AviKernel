@@ -1,6 +1,8 @@
 #include "drivers/pit/pit.h"
 #include "drivers/serial_ports/serial_ports.h"
 
+#include <cstdio.h>
+
 #define CHANNEL_0_PORT 0x40
 #define COMMAND_PORT 0x43
 
@@ -28,6 +30,8 @@ bool PIT::add_on_tick_listener(on_tick_ptr ptr)
 
 void PIT::initialize(uint32_t frequency)
 {
+    kprintf("Initializing PIT driver...\n");
+
     ticks_count = 0;
     on_tick_ptrs_arr_next = 0;
 

@@ -26,6 +26,7 @@ bool Keyboard::wait_for_second_and_third_scan_code;
 
 void Keyboard::initialize()
 {
+    kprintf("Initializing Keyboard Driver...\n");
     register_isr(KEYBOARD_INTERRUPT_NUBMER, Keyboard::on_ke_data);
     wait_for_second_scan_code = wait_for_second_and_third_scan_code = false;
 }

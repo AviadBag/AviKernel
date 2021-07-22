@@ -45,6 +45,8 @@ Vector<PCIDevice> PCI::devices_vector;
 
 void PCI::initialize()
 {
+    kprintf("Initializing PCI driver...\n");
+
     for (int bus = 0; bus < PCI_NUMBER_OF_BUSES; bus++)
         for (int device = 0; device < PCI_NUMBER_OF_DEVICES_PER_BUS; device++)
             check_device(bus, device);

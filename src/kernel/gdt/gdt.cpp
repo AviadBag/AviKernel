@@ -1,5 +1,7 @@
 #include "kernel/gdt/gdt.h"
 
+#include <cstdio.h>
+
 extern "C" void install_gdt(uint32_t, uint32_t);
 
 int GDT::descriptors_count = 0;
@@ -7,6 +9,8 @@ gdt_descriptor GDT::gdt[GDT_DESCRIPTORS_LIMIT];
 
 void GDT::initialize()
 {
+    kprintf("Initializing GDT...\n");
+
     descriptors_count = 0;
     init_descriptors();
     install();

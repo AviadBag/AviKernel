@@ -2,12 +2,15 @@
 #include "drivers/keyboard/keyboard.h"
 
 #include <cctype.h>
+#include <cstdio.h>
 
 FixedQueue<char> TextInput::queue;
 bool TextInput::shift, TextInput::caps_lock;
 
 void TextInput::initialize()
 {
+    kprintf("Initializing TextInput...\n");
+
     shift = caps_lock = false;
 
     Keyboard::set_press_extended_char_listener(TextInput::on_press_extended_char);

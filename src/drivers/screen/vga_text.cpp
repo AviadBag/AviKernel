@@ -1,6 +1,7 @@
 #include "drivers/screen/vga_text.h"
 
 #include <stdint.h>
+#include <cstdio.h>
 
 #define ROWS 25
 #define COLUMNS 80
@@ -14,6 +15,7 @@ void VgaText::initialize()
 {
     x = y = 0;
     clear();
+    kprintf("Initialized VgaText...\n");
 }
 
 void VgaText::putchar(char c)

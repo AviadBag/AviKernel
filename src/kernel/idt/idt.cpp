@@ -1,5 +1,7 @@
 #include "kernel/idt/idt.h"
+
 #include <cstring.h>
+#include <cstdio.h>
 
 extern "C" void install_idt(uint32_t, uint32_t);
 extern "C" void first_handler();
@@ -8,6 +10,7 @@ idt_descriptor IDT::idt[IDT_SIZE];
 
 void IDT::initialize()
 {
+    kprintf("Initializing IDT...\n");
     init_descriptors();
     install();
 }

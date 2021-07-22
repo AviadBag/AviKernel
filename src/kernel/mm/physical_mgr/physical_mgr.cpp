@@ -32,6 +32,8 @@ extern "C" void* kernelEnd; // This variable sits at the end of the kernel.
 
 void PhysicalMgr::initialize(uint32_t higher_memory_size, uint32_t mmap_addr, uint32_t mmap_length)
 {
+    kprintf("Initializing Physical Memory Manager...\n");
+
     // Init variables
     number_of_pages = higher_memory_size / PMMGR_PAGE_SIZE; // higher_memory_size
     number_of_cells = number_of_pages / 32;

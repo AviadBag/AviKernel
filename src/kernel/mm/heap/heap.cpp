@@ -4,6 +4,8 @@
 #include "kernel/mm/virtual_mgr/virtual_mgr.h"
 #include "kernel/panic.h"
 
+#include <cstdio.h>
+
 // Adds <amount> to the void pointer <void_p>
 #define HEAP_ADD_TO_VOID_P(void_p, amount) ((void_p) = (void*)(((char*)(void_p)) + amount))
 
@@ -18,6 +20,8 @@ void* Heap::last_page;
 
 void Heap::initialize()
 {
+    kprintf("Initializing Heap...\n");
+
     // kernelEnd is page aligned, and holes_list_head should also be page aligned..
     holes_list_head = holes_list_tail = (heap_header*)(&kernelEnd + VMMGR_PAGE_SIZE);
     physical_addr first_frame = PhysicalMgr::allocate_block();
