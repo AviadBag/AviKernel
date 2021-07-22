@@ -4,7 +4,7 @@
 #include <cstdio.h>
 
 #define VGA_MEMORY_ADDRESS 0xB8000
-#define VGA_CHAR_ATTRIBUTES 0x07 // White on black
+#define VGA_CHAR_ATTRIBUTES 0x17 // White on blue
 
 int VgaText::x;
 int VgaText::y;
