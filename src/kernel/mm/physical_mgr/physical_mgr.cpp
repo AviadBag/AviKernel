@@ -79,18 +79,12 @@ void PhysicalMgr::fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
     uint32_t kernelStartP = (uint32_t)PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(&kernelStart);
     uint32_t kernelEndP = (uint32_t)PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(&kernelEnd);
     mark_memory_as(kernelStartP, kernelEndP - kernelStartP, PMMGR_BITMAP_PAGE_USED);
-    kprintf("Kernel start: 0x%x, Kernel end: 0x%x\n", kernelStartP, kernelEndP);
 }
 
 void PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
 {
     multiboot_memory_map_t* entry = (multiboot_memory_map_t*)mmap_addr;
-    kprintf("Memory Map:\n");
     while ((uint32_t)entry < (mmap_addr + mmap_length)) {
-        kprintf("Base address: 0x%p", entry->addr);
-        kprintf(", End address: 0x%p", entry->addr + entry->len);
-        kprintf(", Entry Type: %x\n", entry->type);
-
         if (entry->type == MULTIBOOT_MEMORY_AVAILABLE && entry->addr >= PMMGR_USABLE_MEMORY_START && entry->addr + bitmap_size < PMMGR_MAPPED_MEMORY_END) {
             if (entry->len >= bitmap_size) {
                 // Make sure that we are not overriding the kernel
@@ -102,8 +96,6 @@ void PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
                 // Can the bitmap fit before the kernel?
                 if (desired_bitmap_end_addr < kernelStartP) {
                     bitmap = (uint32_t*)desired_bitmap_start_addr;
-                    kprintf("Placing bitmap before kernel, on address 0x%x", desired_bitmap_start_addr);
-                    kprintf(", Bitmap end = 0x%x\n", desired_bitmap_end_addr);
                     return;
                 }
 
@@ -112,8 +104,6 @@ void PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
                 desired_bitmap_end_addr = desired_bitmap_start_addr + bitmap_size;
                 if (desired_bitmap_end_addr < entry->addr + entry->len) {
                     bitmap = (uint32_t*)desired_bitmap_start_addr;
-                    kprintf("Placing bitmap after kernel, on address 0x%x", desired_bitmap_start_addr);
-                    kprintf(", Bitmap end = 0x%x\n", desired_bitmap_end_addr);
                     return;
                 }
 
