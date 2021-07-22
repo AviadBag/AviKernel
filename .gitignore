@@ -7,3 +7,4 @@ os.iso
 compile_commands.json
 .cache/
 scripts/
+.idea/
