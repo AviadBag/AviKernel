@@ -84,6 +84,8 @@ void type()
             else 
                 number_of_chars -= 2; // Because it will be incremented by one soon.
         }
+        else if (c == '\n')
+            number_of_chars += VGA_COLUMNS;
 
         number_of_chars++;
         kprintf("%c", c);
