@@ -69,6 +69,7 @@ void info()
 
 void type()
 {
+    TextOutput::clear();
     kprintf("Please type here whatever you want, exit with '|'\n");
     int number_of_chars = 0; // To prevent previous lines override
 
