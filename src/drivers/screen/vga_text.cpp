@@ -3,10 +3,10 @@
 #include <stdint.h>
 #include <cstdio.h>
 
-#define ROWS 25
-#define COLUMNS 80
-#define MEMORY_ADDRESS 0xB8000
-#define CHAR_ATTRIBUTES 0x07 // White on black
+#define VGA_ROWS 25
+#define VGA_COLUMNS 80
+#define VGA_MEMORY_ADDRESS 0xB8000
+#define VGA_CHAR_ATTRIBUTES 0x07 // White on black
 
 int VgaText::x;
 int VgaText::y;
@@ -22,7 +22,7 @@ void VgaText::putchar(char c)
 {
     if (c == '\n') {
         next_line();
-        if (y == ROWS)
+        if (y == VGA_ROWS)
             scroll();
     } else if (c == '\t') {
         // A tab is four spaces.
@@ -40,7 +40,7 @@ void VgaText::backspace()
     if (x == -1) {
         if (y != 0) {
             y--;
-            x = COLUMNS - 1;
+            x = VGA_COLUMNS - 1;
         } else
             x = 0;
     }
@@ -49,12 +49,12 @@ void VgaText::backspace()
 
 void VgaText::put_regular_char(char c, bool next)
 {
-    if (y == ROWS)
+    if (y == VGA_ROWS)
         scroll();
 
-    uint8_t* address = (uint8_t*)(MEMORY_ADDRESS + XYToOffset());
+    uint8_t* address = (uint8_t*)(VGA_MEMORY_ADDRESS + XYToOffset());
     *address = c;
-    *(++address) = CHAR_ATTRIBUTES;
+    *(++address) = VGA_CHAR_ATTRIBUTES;
 
     if (next)
         next_char();
@@ -62,7 +62,7 @@ void VgaText::put_regular_char(char c, bool next)
 
 void VgaText::clear()
 {
-    for (int i = 0; i < ROWS * COLUMNS - 1; i++)
+    for (int i = 0; i < VGA_ROWS * VGA_COLUMNS - 1; i++)
         put_regular_char(' ', true);
     put_regular_char(' ', false);
     x = 0;
@@ -72,7 +72,7 @@ void VgaText::clear()
 void VgaText::next_char()
 {
     x++;
-    if (x == COLUMNS)
+    if (x == VGA_COLUMNS)
         next_line();
 }
 
@@ -84,14 +84,14 @@ void VgaText::next_line()
 
 void VgaText::scroll()
 {
-    for (int row = 1; row < ROWS; row++) // Iterate evey row, from the second.
+    for (int row = 1; row < VGA_ROWS; row++) // Iterate evey row, from the second.
     {
         copy_row(row, row - 1);
     }
 
     x = 0;
     y--;
-    for (int col = 0; col < COLUMNS - 1; col++) // Fill the last row with zeros
+    for (int col = 0; col < VGA_COLUMNS - 1; col++) // Fill the last row with zeros
         put_regular_char(' ', true);
     put_regular_char(' ', false);
     x = 0; // Go to the start of the last row.
@@ -101,10 +101,10 @@ void VgaText::copy_row(int from, int to)
 {
     int _x = x, _y = y; // Backup
 
-    for (int i = 0; i < COLUMNS; i++) // Read from the source line, char by char.
+    for (int i = 0; i < VGA_COLUMNS; i++) // Read from the source line, char by char.
     {
         y = from, x = i;
-        uint8_t* address = (uint8_t*)(MEMORY_ADDRESS + XYToOffset());
+        uint8_t* address = (uint8_t*)(VGA_MEMORY_ADDRESS + XYToOffset());
         char c = *address;
 
         y = to, x = i;
@@ -116,5 +116,5 @@ void VgaText::copy_row(int from, int to)
 
 int VgaText::XYToOffset()
 {
-    return (x * 2) + (y * 2 * COLUMNS);
+    return (x * 2) + (y * 2 * VGA_COLUMNS);
 }
