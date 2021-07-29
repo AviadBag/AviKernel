@@ -4,12 +4,7 @@
 class Driver
 {
 public:
-    void initialize();
-
-protected:
-    bool get_initialized();
-    
-    bool initialized = false;
+    virtual void initialize() = 0;
 };
 
 #endif // __DRIVER_H__
