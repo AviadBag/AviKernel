@@ -7,7 +7,7 @@ enum HAL_DRIVER_TYPE
 {
     HAL_KEYBOARD_DRIVER,
     HAL_SCREEN_TEXT_DRIVER
-}
+};
 
 class HAL
 {

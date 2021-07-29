@@ -23,7 +23,7 @@ void HAL::initialize()
     // This is where the fun begins!
 }
 
-Driver* HAL::get_driver(HAL_DRIVER_TYPE) 
+Driver* HAL::get_driver(HAL_DRIVER_TYPE driver_type) 
 {
-    
+    return nullptr;
 }
