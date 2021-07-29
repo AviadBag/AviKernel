@@ -77,7 +77,11 @@ void type()
     {
         char c = TextInput::getchar();
 
-        if (c == '|') return;
+        if (c == '|')
+        {
+            TextOutput::clear();
+            return;
+        }
         else if (c == '\b')
         {
             if (number_of_chars == 0)
@@ -98,8 +102,8 @@ void help()
     kprintf("Avialable commands:\n");
     kprintf("\"help\" - Shows this help message\n");
     kprintf("\"info\" - Shows information about this OS\n");
-    kprintf("\"type\": A very simple text editor. Exit with '|'\n");
-    kprintf("\"clear\": Clears the screen\n");
+    kprintf("\"type\" - A very simple text editor. Exit with '|'\n");
+    kprintf("\"clear\" - Clears the screen\n");
 }
 
 void command_not_found(const char* command)
