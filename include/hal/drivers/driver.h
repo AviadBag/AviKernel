@@ -4,7 +4,8 @@
 class Driver
 {
 public:
-    virtual void initialize() = 0;
+    virtual void attach() = 0;
+    virtual void detach() = 0;
 };
 
 #endif // __DRIVER_H__
