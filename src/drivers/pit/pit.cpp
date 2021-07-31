@@ -1,5 +1,6 @@
 #include "drivers/pit/pit.h"
 #include "drivers/serial_ports/serial_ports.h"
+#include "kernel/interrupts/interrupts_manager.h"
 
 #include <cstdio.h>
 
@@ -49,5 +50,5 @@ void PIT::initialize(uint32_t frequency)
     SerialPorts::outb(CHANNEL_0_PORT, high);
 
     // Now, register my tick callback.
-    register_isr(IRQ0, on_tick);
+    InterruptsManager::get_instance()->set_isr(IRQ0, on_tick);
 }

@@ -1,7 +1,7 @@
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/keyboard/extended_char.h"
 #include "drivers/serial_ports/serial_ports.h"
-#include "kernel/idt/isr.h"
+#include "kernel/interrupts/interrupts_manager.h"
 
 #include <cstdio.h>
 
@@ -27,7 +27,7 @@ bool Keyboard::wait_for_second_and_third_scan_code;
 void Keyboard::initialize()
 {
     kprintf("Initializing Keyboard Driver...\n");
-    register_isr(KEYBOARD_INTERRUPT_NUBMER, Keyboard::on_ke_data);
+    InterruptsManager::get_instance()->set_isr(KEYBOARD_INTERRUPT_NUBMER, Keyboard::on_ke_data);
     wait_for_second_scan_code = wait_for_second_and_third_scan_code = false;
 }
 

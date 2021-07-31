@@ -10,7 +10,6 @@
 #include "drivers/pci/pci.h"
 
 #include "kernel/gdt/gdt.h"
-#include "kernel/idt/idt.h"
 #include "kernel/interrupts/interrupts_manager.h"
 #include "kernel/mm/heap/heap.h"
 #include "kernel/mm/physical_mgr/physical_mgr.h"
@@ -140,7 +139,6 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     Heap::initialize();
 
     // Interrupts
-    IDT::initialize(); // For backward compatability. Will be deleted when the interrupts manager is ready.
     InterruptsManager::get_instance()->initialize();
 
     // Drivers
