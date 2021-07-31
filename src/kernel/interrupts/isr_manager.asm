@@ -1,4 +1,4 @@
-extern isr_handler
+extern general_isr_handler
 
 isr:
   cli
@@ -14,7 +14,7 @@ isr:
   mov fs, ax
   mov gs, ax
 
-  call isr_handler
+  call general_isr_handler
 
   pop eax        ; reload the original data segment descriptor
   mov ds, ax
