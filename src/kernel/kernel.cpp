@@ -103,6 +103,7 @@ void help()
     kprintf("\"help\" - Shows this help message\n");
     kprintf("\"info\" - Shows information about this OS\n");
     kprintf("\"type\" - A very simple text editor. Exit with '|'\n");
+    kprintf("\"wait\" - Waits 1 second.\n");
     kprintf("\"clear\" - Clears the screen\n");
 }
 
@@ -121,6 +122,7 @@ void terminal()
         if (strcmp(command, "info") == 0) info();
         else if (strcmp(command, "help") == 0) help();
         else if (strcmp(command, "type") == 0) type();
+        else if (strcmp(command, "wait") == 0) Time::sleep(100);
         else if (strcmp(command, "clear") == 0) TextOutput::clear();
         else if (*command != '\0') // Don't show "command not found" if the command was empty
             command_not_found(command);
