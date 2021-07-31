@@ -1,4 +1,4 @@
-#include "kernel/interrupts_manager.h"
+#include "kernel/interrupts/interrupts_manager.h"
 
 void InterruptsManager::initialize() 
 {

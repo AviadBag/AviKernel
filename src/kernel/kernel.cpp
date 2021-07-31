@@ -11,7 +11,7 @@
 
 #include "kernel/gdt/gdt.h"
 #include "kernel/idt/idt.h"
-#include "kernel/interrupts_manager.h"
+#include "kernel/interrupts/interrupts_manager.h"
 #include "kernel/mm/heap/heap.h"
 #include "kernel/mm/physical_mgr/physical_mgr.h"
 #include "kernel/mm/virtual_mgr/virtual_mgr.h"
