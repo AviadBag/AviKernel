@@ -3,6 +3,13 @@
 #include <cstring.h>
 #include <cstdio.h>
 
+/* Idt flags */
+#define INTERRUPT_IN_USE 0b10000000
+#define INTERRUPT_NOT_IN_USE 0b00000000
+
+#define PRIVILEGE_USER 0b01100000
+#define PRIVILEGE_KERNEL 0b00000000
+
 extern "C" void install_idt(uint32_t, uint32_t);
 extern "C" void first_handler();
 

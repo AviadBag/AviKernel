@@ -5,13 +5,6 @@
 
 #define IDT_SIZE 256
 
-/* Idt flags */
-#define INTERRUPT_IN_USE 0b10000000
-#define INTERRUPT_NOT_IN_USE 0b00000000
-
-#define PRIVILEGE_USER 0b01100000
-#define PRIVILEGE_KERNEL 0b00000000
-
 struct idt_descriptor {
     uint16_t handler_lower;
     uint16_t selector;
