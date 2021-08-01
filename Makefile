@@ -47,28 +47,27 @@ ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	@mkdir -p isodir/boot/grub
 	@cp ${KERNEL} isodir/boot/kernel.bin
 	@cp ${CONFIG}/grub.cfg isodir/boot/grub/grub.cfg
-	@echo -n Generating iso file \"$(ISO)\"...
+	@echo "PACKAGE     ${KERNEL}"
 	@grub-mkrescue -o $@ isodir > /dev/null 2>&1
-	@echo " Done!"
+
+	@echo "\n\nFile ${ISO} is ready!\n"
 
 # Caution: ${LINKER_FLAGS} MUST be at the end of the line!
 ${KERNEL}: ${OBJ}
-	@echo ${OBJ} > obj.txt
 	@mkdir -p ${BIN}
-	@echo -n Running Linker...
+	@echo "LD          *.ob"
 	@${LINKER} -T ${CONFIG}/linker.ld -o $@ $^ ${LINKER_FLAGS}
-	@echo " Done!"
 
 %.asm.ob: %.asm
-	@echo ASM $^
+	@echo "ASM         $^"
 	@${ASM} ${ASM_FLAGS} $^ -o $@
 
 %.ob: %.s
-	@echo ASM $^
+	@echo "ASM         $^"
 	@${ASM} ${ASM_FLAGS} $^ -o $@
 
 %.cpp.ob: %.cpp
-	@echo CXX $^
+	@echo "CXX         $^"
 	@${CXX} ${CXX_FLAGS} $^ -o $@
 
 validate: ${KERNEL}
