@@ -15,7 +15,7 @@ class HAL
 {
 public:
     void initialize();
-    Driver* get_driver(HAL_GENERAL_DRIVER_TYPE); // Returns nullptr if the given device does not exist
+    Driver* get_driver(HAL_GENERAL_DRIVER_TYPE);
 
 private:
     // I make it Driver* and not Driver - because I need polymorphism here. Aviad, just think about it a few seconds..
