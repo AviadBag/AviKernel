@@ -1,22 +1,21 @@
 #ifndef _KEYBOARD_PS2_DRIVER_H__
 #define _KEYBOARD_PS2_DRIVER_H__
 
-#include "hal/drivers/driver.h"
-#include "hal/drivers/keyboard/extended_char.h"
+#include "hal/drivers/keyboard/keyboard_driver.h"
 
 #include <stdint.h>
 
 typedef void (*keyboard_on_press_listener)(ExtendedChar);
 typedef void (*keyboard_on_release_listener)(ExtendedChar);
 
-class KeyboardPS2Driver : public Driver
+class KeyboardPS2Driver : public KeyboardDriver
 {
 public:
     virtual void attach();
     virtual void detach();
 
-    void set_on_press_listener(keyboard_on_press_listener);
-    void set_on_release_listener(keyboard_on_release_listener);
+    virtual void set_on_press_listener(keyboard_on_press_listener);
+    virtual void set_on_release_listener(keyboard_on_release_listener);
 
 private:
     void on_ke_data();                          // Called whenever the keyboard encoder sends an interrupt
@@ -25,8 +24,6 @@ private:
     bool ignore(uint8_t scan_code);             // Shall I ignore this scan code?
     uint8_t ke_read_data();                     // Reads a byte from the keyboard encoder
 
-    keyboard_on_press_listener press_listener     = nullptr;
-    keyboard_on_release_listener release_listener = nullptr;
     bool wait_for_second_scan_code                = false; // Shall I wait for a second scan code?
     bool wait_for_second_and_third_scan_code      = false; // Shall I wait for a second and a third scan code?
 };
