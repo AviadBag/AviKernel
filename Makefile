@@ -16,12 +16,12 @@ LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc
 SOURCES_ASM := $(shell find ${SRC} -type f -name '*.asm')
 SOURCES_CPP := $(shell find ${SRC} -type f -name '*.cpp')
 
-OBJECTS_ASM := $(patsubst %.asm,%.asm.o,${SOURCES_ASM})
-OBJECTS_CPP := $(patsubst %.cpp,%.cpp.o,${SOURCES_CPP})
+OBJECTS_ASM := $(patsubst %.asm,%.asm.ob,${SOURCES_ASM})
+OBJECTS_CPP := $(patsubst %.cpp,%.cpp.ob,${SOURCES_CPP})
 
 # Runtime OBJ's
-CRTI_OBJ := ${SRC}/runtime/crti.o
-CRTN_OBJ := ${SRC}/runtime/crtn.o
+CRTI_OBJ := ${SRC}/runtime/crti.ob
+CRTN_OBJ := ${SRC}/runtime/crtn.ob
 CRTBEGIN_OBJ:=$(shell $(CXX) $(CXX_FLAGS) -print-file-name=crtbegin.o)
 CRTEND_OBJ:=$(shell $(CXX) $(CXX_FLAGS) -print-file-name=crtend.o)
 
@@ -53,20 +53,21 @@ ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 
 # Caution: ${LINKER_FLAGS} MUST be at the end of the line!
 ${KERNEL}: ${OBJ}
+	@echo ${OBJ} > obj.txt
 	@mkdir -p ${BIN}
 	@echo -n Running Linker...
 	@${LINKER} -T ${CONFIG}/linker.ld -o $@ $^ ${LINKER_FLAGS}
 	@echo " Done!"
 
-%.asm.o: %.asm
+%.asm.ob: %.asm
 	@echo ASM $^
 	@${ASM} ${ASM_FLAGS} $^ -o $@
 
-%.o: %.s
+%.ob: %.s
 	@echo ASM $^
 	@${ASM} ${ASM_FLAGS} $^ -o $@
 
-%.cpp.o: %.cpp
+%.cpp.ob: %.cpp
 	@echo CXX $^
 	@${CXX} ${CXX_FLAGS} $^ -o $@
 
@@ -92,7 +93,7 @@ format:
 clean:
 	rm -f ${BIN}/*
 	rm -rf isodir
-	find . -type f -name '*.o' -delete
+	find . -type f -name '*.ob' -delete
 	rm -f ${ISO}
 	clear
 

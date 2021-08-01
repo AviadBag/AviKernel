@@ -1,7 +1,7 @@
 bin/
 isodir/
 os.iso
-**/*.o
+**/*.ob
 .vscode/
 .vimrc
 compile_commands.json
