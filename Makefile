@@ -38,10 +38,12 @@ VM_DEBUG_FLAGS := -s -S
 all: ${ISO}
 
 run: ${ISO}
-	${VM} ${VM_FLAGS}
+	@${VM} ${VM_FLAGS}
+	@echo "QEMU        $^"
 
 debug: ${ISO}
-	${VM} ${VM_FLAGS} ${VM_DEBUG_FLAGS}
+	@${VM} ${VM_FLAGS} ${VM_DEBUG_FLAGS}
+	@echo "QEMU        $^"
 
 ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	@mkdir -p isodir/boot/grub
@@ -49,8 +51,6 @@ ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	@cp ${CONFIG}/grub.cfg isodir/boot/grub/grub.cfg
 	@echo "PACKAGE     ${KERNEL}"
 	@grub-mkrescue -o $@ isodir > /dev/null 2>&1
-
-	@echo "\n\nFile ${ISO} is ready!\n"
 
 # Caution: ${LINKER_FLAGS} MUST be at the end of the line!
 ${KERNEL}: ${OBJ}
