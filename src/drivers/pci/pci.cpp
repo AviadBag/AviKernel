@@ -80,7 +80,8 @@ void PCI::add_function(uint8_t bus, uint8_t device, uint8_t function)
     uint8_t sub_class_code = get_sub_class_code(bus, device, function);
 
     PCIDevice d(class_code, sub_class_code, bus, device, function);
-    devices_vector.append(d);
+    if (!devices_vector.append(d))
+        panic("PCI: Not enough memory");
 }
 
 uint32_t PCI::pci_config_read_32_bits(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset)
