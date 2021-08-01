@@ -16,6 +16,8 @@
 #define SCAN_CODE_WAIT_FOR_SECOND 0xE0
 #define SCAN_CODE_WAIT_FOR_SECOND_AND_THIRD 0xE1
 
+KeyboardPS2Driver::~KeyboardPS2Driver() {}
+
 void KeyboardPS2Driver::attach() 
 {
     // Register the IRQ handler.

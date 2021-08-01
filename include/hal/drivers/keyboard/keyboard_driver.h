@@ -12,6 +12,8 @@ typedef void (*keyboard_on_release_listener)(ExtendedChar);
 class KeyboardDriver : public Driver
 {
 public:
+    virtual ~KeyboardDriver();
+
     virtual void attach() = 0;
     virtual void detach() = 0;
     virtual bool exist() = 0;
