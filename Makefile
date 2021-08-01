@@ -47,40 +47,47 @@ ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	@mkdir -p isodir/boot/grub
 	@cp ${KERNEL} isodir/boot/kernel.bin
 	@cp ${CONFIG}/grub.cfg isodir/boot/grub/grub.cfg
-	$(info Creating iso "$(ISO)"...)
-	@grub-mkrescue -o $@ isodir 
+	@echo -n Generating iso file \"$(ISO)\"...
+	@grub-mkrescue -o $@ isodir > /dev/null 2>&1
+	@echo " Done!"
 
+# Caution: ${LINKER_FLAGS} MUST be at the end of the line!
 ${KERNEL}: ${OBJ}
 	@mkdir -p ${BIN}
-	@# Caution: ${LINKER_FLAGS} MUST be at the end of the line!
-	@echo "Running Linker..."
+	@echo -n Running Linker...
 	@${LINKER} -T ${CONFIG}/linker.ld -o $@ $^ ${LINKER_FLAGS}
+	@echo " Done!"
 
 %.asm.o: %.asm
+	@echo ASM $^
 	@${ASM} ${ASM_FLAGS} $^ -o $@
-	@echo ASM $@
 
 %.o: %.s
+	@echo ASM $^
 	@${ASM} ${ASM_FLAGS} $^ -o $@
-	@echo ASM $@
 
 %.cpp.o: %.cpp
+	@echo CXX $^
 	@${CXX} ${CXX_FLAGS} $^ -o $@
-	@echo CXX $@
 
 validate: ${KERNEL}
 	@if grub-file --is-x86-multiboot ${KERNEL}; then \
-  		echo multiboot confirmed!; \
+  		echo Multiboot confirmed!; \
 	else \
-		echo the file is not multiboot; \
+		echo The file is not multiboot; \
 	fi
 
 compiledb: clean
 	compiledb make
 
 format:
-	find ${SRC} -iname *.h -o -iname *.cpp | xargs clang-format -i --style=Webkit
-	find ${INCLUDE} -iname *.h -o -iname *.cpp | xargs clang-format -i --style=Webkit
+	@echo -n Applying Prettier on src files...
+	@find ${SRC} -iname *.h -o -iname *.cpp | xargs clang-format -i --style=Webkit
+	@echo " Done!"
+
+	@echo -n Applying Prettier on header files...
+	@find ${INCLUDE} -iname *.h -o -iname *.cpp | xargs clang-format -i --style=Webkit
+	@echo " Done!"
 
 clean:
 	rm -f ${BIN}/*
