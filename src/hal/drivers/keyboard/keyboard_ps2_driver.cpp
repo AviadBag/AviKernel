@@ -100,11 +100,11 @@ void KeyboardPS2Driver::on_break_scan_code(uint8_t scan_code)
     if (wait_for_second_scan_code) {
         ExtendedChar ec(SCAN_CODE_WAIT_FOR_SECOND, scan_code);
         wait_for_second_scan_code = false;
-        if (press_listener)
+        if (release_listener)
             release_listener(ec);
     } else {
         ExtendedChar ec(scan_code);
-        if (press_listener)
+        if (release_listener)
             release_listener(ec);
     }
 }
