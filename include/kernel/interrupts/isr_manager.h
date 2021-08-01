@@ -5,8 +5,8 @@
 
 // This module helps to set a register handler. IT IS NOT WRITTEN WITH CLASSES, BECAUSE THE HANDLER MUST BE A C FUNCTION!!!
 
-typedef void (*isr_ptr)(uint32_t error_code);
+using isr = void (*)(void* context, uint32_t error_code);
 
-void isr_manager_set_isr(unsigned char interrupt_number, isr_ptr isr);
+void isr_manager_set_isr(unsigned char interrupt_number, isr i, void* context);
 
 #endif

@@ -13,7 +13,7 @@ public:
     static void set_press_extended_char_listener(new_extended_char_listener);
     static void set_release_extended_char_listener(new_extended_char_listener);
 
-    static void on_ke_data(uint32_t unused);
+    static void on_ke_data(void* context, uint32_t err);
     static void on_make_scan_code(uint8_t scan_code);
     static void on_break_scan_code(uint8_t scan_code);
     static bool ignore(uint8_t scan_code); /* Shall I ignore this scan code? */

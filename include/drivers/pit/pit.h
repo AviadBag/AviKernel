@@ -12,7 +12,7 @@ typedef void (*on_tick_ptr)(uint64_t time);
 class PIT {
 public:
     static void initialize(uint32_t frequency);
-    static void on_tick(uint32_t unsued); // Just a listener. Should not be called!
+    static void on_tick(void* context, uint32_t err); // Just a listener. Should not be called!
     static bool add_on_tick_listener(on_tick_ptr ptr); // Returns false if there is the listeners list is already full.
 
 private:

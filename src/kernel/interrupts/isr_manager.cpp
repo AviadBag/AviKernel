@@ -6,7 +6,12 @@
 
 #define NUMBER_OF_INTERRUPTS 256
 
-isr_ptr isrs[NUMBER_OF_INTERRUPTS] = {};
+struct isr_holder
+{
+    isr i;
+    void* context;
+    bool exist = false;
+} isrs[NUMBER_OF_INTERRUPTS] = {};
 
 struct registers {
     uint32_t ds; // Data segment selector
@@ -24,11 +29,11 @@ extern "C" void general_isr_handler(struct registers regs)
     }
 
     // Call the registered handler
-    if (isrs[regs.interrupt_number] != 0)
-        isrs[regs.interrupt_number](regs.err_code);
+    if (isrs[regs.interrupt_number].exist)
+        isrs[regs.interrupt_number].i(isrs[regs.interrupt_number].context, regs.err_code);
 }
 
-void isr_manager_set_isr(unsigned char interrupt_number, isr_ptr isr)
+void isr_manager_set_isr(unsigned char interrupt_number, isr i, void* context)
 {
-    isrs[interrupt_number] = isr;
+    isrs[interrupt_number] = isr_holder{i, context, true};
 }

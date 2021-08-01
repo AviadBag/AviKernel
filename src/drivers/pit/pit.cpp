@@ -13,7 +13,7 @@ uint64_t PIT::ticks_count;
 on_tick_ptr PIT::on_tick_ptrs_arr[];
 int PIT::on_tick_ptrs_arr_next;
 
-void PIT::on_tick([[gnu::unused]] uint32_t unsued)
+void PIT::on_tick([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err)
 {
     ticks_count++;
     for (int i = 0; i < on_tick_ptrs_arr_next; i++)
@@ -50,5 +50,5 @@ void PIT::initialize(uint32_t frequency)
     SerialPorts::outb(CHANNEL_0_PORT, high);
 
     // Now, register my tick callback.
-    InterruptsManager::get_instance()->set_isr(IRQ0, on_tick);
+    InterruptsManager::get_instance()->set_isr(IRQ0, on_tick, nullptr);
 }

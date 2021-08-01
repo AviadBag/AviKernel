@@ -27,7 +27,7 @@ bool Keyboard::wait_for_second_and_third_scan_code;
 void Keyboard::initialize()
 {
     kprintf("Initializing Keyboard Driver...\n");
-    InterruptsManager::get_instance()->set_isr(KEYBOARD_INTERRUPT_NUBMER, Keyboard::on_ke_data);
+    InterruptsManager::get_instance()->set_isr(KEYBOARD_INTERRUPT_NUBMER, Keyboard::on_ke_data, nullptr);
     wait_for_second_scan_code = wait_for_second_and_third_scan_code = false;
 }
 
@@ -49,7 +49,7 @@ void log(const char* s)
     }
 }
 
-void Keyboard::on_ke_data([[gnu::unused]] uint32_t unused)
+void Keyboard::on_ke_data([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err)
 {
     uint8_t data = ke_read_data();
     bool is_break = false;
