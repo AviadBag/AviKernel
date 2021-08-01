@@ -1,5 +1,6 @@
 #include "hal/hal.h"
 #include "hal/drivers/driver.h"
+#include "hal/drivers/keyboard/keyboard_generic_driver.h"
 
 #include <cstdio.h>
 
@@ -7,9 +8,8 @@ void HAL::initialize()
 {
     // This is where the fun begins!
     
-    // Fill general_drivers[] with nullptr's, so if a device does not exist - get_driver() will return nullptr.
-    for (int i = 0; i < HAL_NUMBER_OF_GENERAL_DRIVERS; i++)
-        general_drivers[i] = nullptr;
+    // Fill general_drivers[] with devices!
+    general_drivers[HAL_KEYBOARD_DRIVER] = new KeyboardGenericDriver();
 }
 
 Driver* HAL::get_driver(HAL_GENERAL_DRIVER_TYPE driver_type) 
