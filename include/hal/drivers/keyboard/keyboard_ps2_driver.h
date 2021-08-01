@@ -24,6 +24,11 @@ private:
     void on_break_scan_code(uint8_t scan_code); // Called whenever there is a new break scan code
     bool ignore(uint8_t scan_code);             // Shall I ignore this scan code?
     uint8_t ke_read_data();                     // Reads a byte from the keyboard encoder
+
+    keyboard_on_press_listener press_listener     = nullptr;
+    keyboard_on_release_listener release_listener = nullptr;
+    bool wait_for_second_scan_code                = false; // Shall I wait for a second scan code?
+    bool wait_for_second_and_third_scan_code      = false; // Shall I wait for a second and a third scan code?
 };
 
 #endif // _KEYBOARD_PS2_DRIVER_H__

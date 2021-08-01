@@ -1,4 +1,4 @@
-#include "drivers/keyboard/extended_char.h"
+#include "hal/drivers/keyboard/extended_char.h"
 
 // Using the scan_code as an index, returns the corresponding avi_charcode.
 // The array works only with make codes; break codes should be
