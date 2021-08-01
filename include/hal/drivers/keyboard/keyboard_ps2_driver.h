@@ -19,7 +19,7 @@ public:
     void set_on_release_listener(keyboard_on_release_listener);
 
 private:
-    void on_ke_data(uint32_t unused);           // Called whenever the keyboard encoder sends an interrupt
+    void on_ke_data();                          // Called whenever the keyboard encoder sends an interrupt
     void on_make_scan_code(uint8_t scan_code);  // Called whenever there is a new make scan code
     void on_break_scan_code(uint8_t scan_code); // Called whenever there is a new break scan code
     bool ignore(uint8_t scan_code);             // Shall I ignore this scan code?
