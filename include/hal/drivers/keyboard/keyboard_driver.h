@@ -18,8 +18,8 @@ public:
     virtual void detach() = 0;
     virtual bool exist() = 0;
 
-    void set_on_press_listener(keyboard_on_press_listener);
-    void set_on_release_listener(keyboard_on_release_listener);
+    virtual void set_on_press_listener(keyboard_on_press_listener);
+    virtual void set_on_release_listener(keyboard_on_release_listener);
 
 protected:
     keyboard_on_press_listener   press_listener   = nullptr;
