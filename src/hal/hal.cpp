@@ -3,21 +3,6 @@
 
 #include <cstdio.h>
 
-HAL* HAL::instance = nullptr;
-
-HAL::HAL() {}
-
-HAL* HAL::get_instance() 
-{
-    if (instance == nullptr)
-    {
-        kprintf("new!\n");
-        instance = new HAL();
-    }
-
-    return instance;
-}
-
 void HAL::initialize() 
 {
     // This is where the fun begins!
@@ -30,4 +15,17 @@ void HAL::initialize()
 Driver* HAL::get_driver(HAL_GENERAL_DRIVER_TYPE driver_type) 
 {
     return general_drivers[driver_type];
+}
+
+/* ------------------------- Singelton stuff. ------------------------- */
+HAL* HAL::instance = nullptr;
+
+HAL::HAL() {}
+
+HAL* HAL::get_instance() 
+{
+    if (!instance)
+        instance = new HAL;
+
+    return instance;
 }
