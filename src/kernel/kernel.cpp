@@ -10,7 +10,7 @@
 #include "drivers/pci/pci.h"
 
 #include "kernel/gdt/gdt.h"
-#include "kernel/idt/idt.h"
+#include "kernel/interrupts/interrupts_manager.h"
 #include "kernel/mm/heap/heap.h"
 #include "kernel/mm/physical_mgr/physical_mgr.h"
 #include "kernel/mm/virtual_mgr/virtual_mgr.h"
@@ -103,6 +103,7 @@ void help()
     kprintf("\"help\" - Shows this help message\n");
     kprintf("\"info\" - Shows information about this OS\n");
     kprintf("\"type\" - A very simple text editor. Exit with '|'\n");
+    kprintf("\"wait\" - Waits 1 second.\n");
     kprintf("\"clear\" - Clears the screen\n");
 }
 
@@ -121,6 +122,7 @@ void terminal()
         if (strcmp(command, "info") == 0) info();
         else if (strcmp(command, "help") == 0) help();
         else if (strcmp(command, "type") == 0) type();
+        else if (strcmp(command, "wait") == 0) Time::sleep(100);
         else if (strcmp(command, "clear") == 0) TextOutput::clear();
         else if (*command != '\0') // Don't show "command not found" if the command was empty
             command_not_found(command);
@@ -139,7 +141,7 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     Heap::initialize();
 
     // Interrupts
-    IDT::initialize();
+    InterruptsManager::get_instance()->initialize();
 
     // Drivers
     PCI::initialize();

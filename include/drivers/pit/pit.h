@@ -2,7 +2,7 @@
 #define _PIT_H
 
 #include "drivers/serial_ports/serial_ports.h"
-#include "kernel/idt/isr.h"
+
 #include <stdint.h>
 
 #define PIT_ON_TICK_PTRS_MAX 128

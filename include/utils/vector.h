@@ -22,7 +22,7 @@ public:
 
     bool empty() const;
     int size() const;
-    void append(T);
+    bool append(T);   // Returns false if there is no enough memory
     T get(int index); // Will cause unexpected results if the index is too big!
 
 private:
@@ -61,11 +61,11 @@ int Vector<T>::size() const
 }
 
 template <class T>
-void Vector<T>::append(T data)
+bool Vector<T>::append(T data)
 {
     VectorNode<T> *new_node = new VectorNode<T>;
     if (!new_node)
-        panic("Vector: Not Enough Memory!");
+        return false;
     new_node->data = data;
     new_node->next = nullptr;
 
@@ -81,6 +81,8 @@ void Vector<T>::append(T data)
     }
 
     vector_size++;
+
+    return true;
 }
 
 template <class T>
