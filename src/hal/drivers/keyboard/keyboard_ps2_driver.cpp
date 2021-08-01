@@ -1,6 +1,6 @@
 #include "hal/drivers/keyboard/keyboard_ps2_driver.h"
-#include "kernel/interrupts/interrupts_manager.h"
 #include "drivers/serial_ports/serial_ports.h"
+#include "kernel/interrupts/interrupts_manager.h"
 
 #define PS2_INTERRUPT_NUBMER 33
 
@@ -16,19 +16,21 @@
 #define SCAN_CODE_WAIT_FOR_SECOND 0xE0
 #define SCAN_CODE_WAIT_FOR_SECOND_AND_THIRD 0xE1
 
-KeyboardPS2Driver::~KeyboardPS2Driver() {}
+KeyboardPS2Driver::~KeyboardPS2Driver() { }
 
-void KeyboardPS2Driver::attach() 
+void KeyboardPS2Driver::attach()
 {
     // Register the IRQ handler.
-    InterruptsManager::get_instance()->set_isr(PS2_INTERRUPT_NUBMER, [](void* context, [[gnu::unused]] uint32_t unused) {
-        ((KeyboardPS2Driver*) context)->on_ke_data();
-    }, this);
+    InterruptsManager::get_instance()->set_isr(
+        PS2_INTERRUPT_NUBMER, [](void* context, [[gnu::unused]] uint32_t unused) {
+            ((KeyboardPS2Driver*)context)->on_ke_data();
+        },
+        this);
 }
 
-void KeyboardPS2Driver::detach() {} // Nothing here
+void KeyboardPS2Driver::detach() { } // Nothing here
 
-void KeyboardPS2Driver::on_ke_data() 
+void KeyboardPS2Driver::on_ke_data()
 {
     uint8_t data = ke_read_data();
     bool is_break = false;
@@ -114,8 +116,8 @@ uint8_t KeyboardPS2Driver::ke_read_data()
     return SerialPorts::inb(KE_PORT);
 }
 
-bool KeyboardPS2Driver::exist() 
+bool KeyboardPS2Driver::exist()
 {
     // TODO: Implement it!
-    return true; 
+    return true;
 }

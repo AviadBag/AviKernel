@@ -11,7 +11,7 @@
 #define PCI_CONFIG_ADDRESS_PORT 0xCF8
 #define PCI_CONFIG_DATA 0xCFC
 
-#define PCI_HAS_MULTIPLE_FUNCTIONS_MASK 0x80       // When bit 7 of the header type is on (0x80), then this device has multiple functions.
+#define PCI_HAS_MULTIPLE_FUNCTIONS_MASK 0x80 // When bit 7 of the header type is on (0x80), then this device has multiple functions.
 #define PCI_VENDOR_ID_DEVICE_DOES_NOT_EXIST 0xFFFF // When the vendor id is this, then this device does not exist.
 
 enum PCI_FIELDS_OFFSET // The offset of the 32 bit bundle contains this field.
@@ -52,7 +52,7 @@ void PCI::initialize()
             check_device(bus, device);
 }
 
-Vector<PCIDevice>* PCI::get_devices_vector() 
+Vector<PCIDevice>* PCI::get_devices_vector()
 {
     return &devices_vector;
 }
@@ -62,15 +62,13 @@ void PCI::check_device(uint8_t bus, uint8_t device)
     uint16_t vendor_id = get_vendor_id(bus, device, 0);
     if (vendor_id == PCI_VENDOR_ID_DEVICE_DOES_NOT_EXIST)
         return;
-    
+
     uint8_t header_type = get_header_type(bus, device, 0);
     // TODO: Support only header type 0!
-    if (header_type & PCI_HAS_MULTIPLE_FUNCTIONS_MASK)
-    {
+    if (header_type & PCI_HAS_MULTIPLE_FUNCTIONS_MASK) {
         for (int function = 0; function < PCI_NUMBER_OF_FUNCTIONS_PER_DEVICE; function++)
             add_function(bus, device, function);
-    }
-    else
+    } else
         add_function(bus, device, 0);
 }
 

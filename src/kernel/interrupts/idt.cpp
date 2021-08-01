@@ -1,7 +1,7 @@
 #include "idt.h"
 
-#include <cstring.h>
 #include <cstdio.h>
+#include <cstring.h>
 
 /* Idt flags */
 #define INTERRUPT_IN_USE 0b10000000
@@ -273,7 +273,7 @@ void IDT::install()
 {
     kprintf("Initializing IDT...\n");
     put_descriptors();
-    
+
     uint32_t idt_size = sizeof(idt_descriptor) * IDT_SIZE - 1;
     install_idt((uint32_t)&idt, idt_size); // Calls the assembly function
 }
@@ -557,9 +557,9 @@ void IDT::put_descriptor(int index, uint32_t handler, uint16_t selector, uint8_t
 /* ------------------------- Singelton stuff. ------------------------- */
 IDT* IDT::instance = nullptr;
 
-IDT::IDT() {}
+IDT::IDT() { }
 
-IDT* IDT::get_instance() 
+IDT* IDT::get_instance()
 {
     if (!instance)
         instance = new IDT;

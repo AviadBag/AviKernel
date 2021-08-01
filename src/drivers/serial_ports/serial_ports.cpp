@@ -20,14 +20,14 @@ uint8_t SerialPorts::inb(uint16_t port)
     return ret;
 }
 
-void SerialPorts::outl(uint16_t port, uint32_t val) 
+void SerialPorts::outl(uint16_t port, uint32_t val)
 {
     asm volatile("outl %0, %1"
                  :
                  : "a"(val), "Nd"(port));
 }
 
-uint32_t SerialPorts::inl(uint16_t port) 
+uint32_t SerialPorts::inl(uint16_t port)
 {
     uint32_t ret;
     asm volatile("inl %1, %0"

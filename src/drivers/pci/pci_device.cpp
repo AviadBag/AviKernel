@@ -9,16 +9,13 @@ PCIDevice::PCIDevice(uint8_t _class_code, uint8_t _sub_class_code, uint8_t _bus_
     function_number = _function_number;
 }
 
-const char *PCIDevice::type_to_string() const // Taken from https://github.com/MandelbrotOS/MandelbrotOS/blob/master/src/pci/pci_descriptors.c
+const char* PCIDevice::type_to_string() const // Taken from https://github.com/MandelbrotOS/MandelbrotOS/blob/master/src/pci/pci_descriptors.c
 {
-    switch (class_code)
-    {
+    switch (class_code) {
     case 0:
         return "Unknown";
-    case 1:
-    {
-        switch (sub_class_code)
-        {
+    case 1: {
+        switch (sub_class_code) {
         case 0:
             return "SCSI storage controller";
         case 1:
@@ -42,10 +39,8 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
         }
     }
 
-    case 2:
-    {
-        switch (sub_class_code)
-        {
+    case 2: {
+        switch (sub_class_code) {
         case 0:
             return "Ethernet controller";
         case 1:
@@ -70,8 +65,7 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
     }
 
     case 3:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "VGA compatible controller";
         case 1:
@@ -82,8 +76,7 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
             return "Display controller";
         }
     case 4:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "Multimedia video controller";
         case 1:
@@ -96,8 +89,7 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
             return "Multimedia controller";
         }
     case 5:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "RAM memory";
         case 1:
@@ -106,8 +98,7 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
             return "Memory controller";
         }
     case 6:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "Host bridge";
         case 1:
@@ -134,8 +125,7 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
             return "Bridge";
         }
     case 7:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "Serial controller";
         case 1:
@@ -152,8 +142,7 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
             return "Communication controller";
         }
     case 8:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "PIC";
         case 1:
@@ -172,8 +161,7 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
             return "System peripheral";
         }
     case 9:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "Keyboard controller";
         case 1:
@@ -188,16 +176,14 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
             return "Input device controller";
         }
     case 0xa:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "Generic Docking Station";
         default:
             return "Docking Station";
         }
     case 0xb:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "386";
         case 1:
@@ -216,8 +202,7 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
             return "Processor";
         }
     case 0xc:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "FireWire (IEEE 1394)";
         case 1:
@@ -242,8 +227,7 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
             return "Serial bus controller";
         }
     case 0xd:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "IRDA controller";
         case 1:
@@ -262,8 +246,7 @@ const char *PCIDevice::type_to_string() const // Taken from https://github.com/M
             return "Wireless controller";
         }
     case 0xe:
-        switch (sub_class_code)
-        {
+        switch (sub_class_code) {
         case 0:
             return "I2O";
         default:

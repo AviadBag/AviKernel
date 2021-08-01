@@ -3,13 +3,12 @@
 
 #include <stdint.h>
 
-class PCIDevice
-{
+class PCIDevice {
 public:
     PCIDevice() {};
     PCIDevice(uint8_t class_code, uint8_t sub_class_code, uint8_t bus_number, uint8_t device_number, uint8_t function_number);
 
-    const char *type_to_string() const;
+    const char* type_to_string() const;
 
     uint8_t get_class_code() const;
     uint8_t get_sub_class_code() const;

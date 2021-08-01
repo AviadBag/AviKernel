@@ -1,14 +1,14 @@
 #include "runtime/icxxabi.h"
 
-#include "hal/hal.h"
 #include "hal/drivers/keyboard/keyboard_driver.h"
+#include "hal/hal.h"
 
+#include "drivers/pci/pci.h"
 #include "drivers/pic/pic.h"
 #include "drivers/pit/pit.h"
-#include "drivers/screen/vga_text.h"
 #include "drivers/screen/text_output.h"
+#include "drivers/screen/vga_text.h"
 #include "drivers/serial_ports/serial_ports.h"
-#include "drivers/pci/pci.h"
 
 #include "kernel/gdt/gdt.h"
 #include "kernel/interrupts/interrupts_manager.h"
@@ -24,8 +24,8 @@
 
 #include <cstdio.h>
 #include <cstdlib.h>
-#include <stdint.h>
 #include <cstring.h>
+#include <stdint.h>
 
 /* #define TERMINAL_COMMAND_MAX_SIZE 20
 
@@ -157,9 +157,8 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     //terminal();
 
     HAL::get_instance()->initialize();
-    KeyboardDriver* keyboard_driver = (KeyboardDriver*) HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
-    if (keyboard_driver->exist())
-    {
+    KeyboardDriver* keyboard_driver = (KeyboardDriver*)HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
+    if (keyboard_driver->exist()) {
         keyboard_driver->attach();
         keyboard_driver->set_on_press_listener([](ExtendedChar c) {
             if (c.printable())
@@ -167,5 +166,5 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
         });
     }
 
-    while (1) {}
+    while (1) { }
 }

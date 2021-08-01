@@ -1,6 +1,6 @@
 #include "hal/drivers/keyboard/keyboard_driver.h"
 
-KeyboardDriver::~KeyboardDriver() {}
+KeyboardDriver::~KeyboardDriver() { }
 
 void KeyboardDriver::set_on_press_listener(keyboard_on_press_listener l) { press_listener = l; }
 

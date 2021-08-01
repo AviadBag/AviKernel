@@ -6,27 +6,25 @@
 #include "kernel/panic.h"
 
 template <class T>
-class VectorNode
-{
+class VectorNode {
 public:
     T data;
-    VectorNode *next;
+    VectorNode* next;
 };
 
 template <class T>
-class Vector
-{
+class Vector {
 public:
     Vector();
     ~Vector();
 
     bool empty() const;
     int size() const;
-    bool append(T);   // Returns false if there is no enough memory
+    bool append(T); // Returns false if there is no enough memory
     T get(int index); // Will cause unexpected results if the index is too big!
 
 private:
-    VectorNode<T> *head;
+    VectorNode<T>* head;
     int vector_size;
 };
 
@@ -40,9 +38,8 @@ Vector<T>::Vector()
 template <class T>
 Vector<T>::~Vector()
 {
-    while (head)
-    {
-        VectorNode<T> *tmp = head->next;
+    while (head) {
+        VectorNode<T>* tmp = head->next;
         delete head;
         head = tmp;
     }
@@ -63,7 +60,7 @@ int Vector<T>::size() const
 template <class T>
 bool Vector<T>::append(T data)
 {
-    VectorNode<T> *new_node = new VectorNode<T>;
+    VectorNode<T>* new_node = new VectorNode<T>;
     if (!new_node)
         return false;
     new_node->data = data;
@@ -71,9 +68,8 @@ bool Vector<T>::append(T data)
 
     if (!head)
         head = new_node;
-    else
-    {
-        VectorNode<T> *node = head;
+    else {
+        VectorNode<T>* node = head;
         while (node->next != nullptr)
             node = node->next;
 
@@ -88,7 +84,7 @@ bool Vector<T>::append(T data)
 template <class T>
 T Vector<T>::get(int index)
 {
-    VectorNode<T> *node = head;
+    VectorNode<T>* node = head;
     while (index--)
         node = node->next;
 

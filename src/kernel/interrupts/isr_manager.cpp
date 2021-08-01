@@ -6,8 +6,7 @@
 
 #define NUMBER_OF_INTERRUPTS 256
 
-struct isr_holder
-{
+struct isr_holder {
     isr i;
     void* context;
     bool exist = false;
@@ -35,5 +34,5 @@ extern "C" void general_isr_handler(struct registers regs)
 
 void isr_manager_set_isr(unsigned char interrupt_number, isr i, void* context)
 {
-    isrs[interrupt_number] = isr_holder{i, context, true};
+    isrs[interrupt_number] = isr_holder { i, context, true };
 }

@@ -1,3 +1,3 @@
 #include "hal/drivers/driver.h"
 
-Driver::~Driver() {}
+Driver::~Driver() { }

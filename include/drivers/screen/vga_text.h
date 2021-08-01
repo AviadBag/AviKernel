@@ -1,7 +1,7 @@
 #ifndef __VGA_TEXT_H__
 #define __VGA_TEXT_H__
 
-#define VGA_ROWS    25
+#define VGA_ROWS 25
 #define VGA_COLUMNS 80
 
 class VgaText {

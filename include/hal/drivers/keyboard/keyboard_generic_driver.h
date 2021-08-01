@@ -3,8 +3,7 @@
 
 #include "hal/drivers/keyboard/keyboard_driver.h"
 
-class KeyboardGenericDriver : public KeyboardDriver
-{
+class KeyboardGenericDriver : public KeyboardDriver {
 public:
     KeyboardGenericDriver();
     virtual ~KeyboardGenericDriver();

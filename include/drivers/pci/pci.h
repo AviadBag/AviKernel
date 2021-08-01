@@ -1,8 +1,8 @@
 #ifndef __PCI_H__
 #define __PCI_H__
 
-#include "utils/vector.h"
 #include "drivers/pci/pci_device.h"
+#include "utils/vector.h"
 
 #include <stdint.h>
 

@@ -9,8 +9,7 @@
 typedef void (*keyboard_on_press_listener)(ExtendedChar);
 typedef void (*keyboard_on_release_listener)(ExtendedChar);
 
-class KeyboardDriver : public Driver
-{
+class KeyboardDriver : public Driver {
 public:
     virtual ~KeyboardDriver();
 
@@ -22,7 +21,7 @@ public:
     virtual void set_on_release_listener(keyboard_on_release_listener);
 
 protected:
-    keyboard_on_press_listener   press_listener   = nullptr;
+    keyboard_on_press_listener press_listener = nullptr;
     keyboard_on_release_listener release_listener = nullptr;
 };
 

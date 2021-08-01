@@ -1,7 +1,7 @@
 #include "drivers/screen/vga_text.h"
 
-#include <stdint.h>
 #include <cstdio.h>
+#include <stdint.h>
 
 #define VGA_MEMORY_ADDRESS 0xB8000
 #define VGA_CHAR_ATTRIBUTES 0x17 // White on blue
