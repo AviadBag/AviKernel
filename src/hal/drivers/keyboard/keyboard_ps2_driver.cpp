@@ -58,10 +58,6 @@ void KeyboardPS2Driver::on_ke_data()
     }
 }
 
-void KeyboardPS2Driver::set_on_press_listener(keyboard_on_press_listener l) { press_listener = l; }
-
-void KeyboardPS2Driver::set_on_release_listener(keyboard_on_release_listener l) { release_listener = l; }
-
 bool KeyboardPS2Driver::ignore(uint8_t scan_code)
 {
     // Ignore Print Screen

@@ -15,9 +15,6 @@ public:
     virtual void detach();
     virtual bool exist();
 
-    virtual void set_on_press_listener(keyboard_on_press_listener);
-    virtual void set_on_release_listener(keyboard_on_release_listener);
-
 private:
     void on_ke_data();                          // Called whenever the keyboard encoder sends an interrupt
     void on_make_scan_code(uint8_t scan_code);  // Called whenever there is a new make scan code
