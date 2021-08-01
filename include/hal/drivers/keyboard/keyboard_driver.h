@@ -14,6 +14,7 @@ class KeyboardDriver : public Driver
 public:
     virtual void attach() = 0;
     virtual void detach() = 0;
+    virtual bool exist() = 0;
 
     virtual void set_on_press_listener(keyboard_on_press_listener) = 0;
     virtual void set_on_release_listener(keyboard_on_release_listener) = 0;

@@ -115,3 +115,9 @@ uint8_t KeyboardPS2Driver::ke_read_data()
 {
     return SerialPorts::inb(KE_PORT);
 }
+
+bool KeyboardPS2Driver::exist() 
+{
+    // TODO: Implement it!
+    return true; 
+}
