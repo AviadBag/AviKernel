@@ -16,6 +16,7 @@ template <class T>
 class Vector {
 public:
     Vector();
+    Vector(Vector<T>& other);
     ~Vector();
 
     bool empty() const;
@@ -33,6 +34,16 @@ Vector<T>::Vector()
 {
     head = nullptr;
     vector_size = 0;
+}
+
+template<class T>
+Vector<T>::Vector(Vector<T>& other) : Vector()
+{
+    for (int i = 0; i < other.size(); i++)
+    {
+        if (!append(other.get(i)))
+            panic("Vector: Copy Constructor: Not enough memory!\n");
+    }
 }
 
 template <class T>
