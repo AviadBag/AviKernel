@@ -13,7 +13,8 @@ void DriversHolder::filter()
     {
         Driver* d = all_drivers.get(i);
         if (d->exist())
-            existing_drivers.append(d);
+            if (!existing_drivers.append(d))
+                panic("DriversHolder: Error while trying to add a driver: Not enough memory!");
     }
 }
 
