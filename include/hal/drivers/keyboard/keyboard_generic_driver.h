@@ -2,6 +2,7 @@
 #define _KEYBOARD_GENERIC_DRIVER_H__
 
 #include "hal/drivers/keyboard/keyboard_driver.h"
+#include "hal/drivers/drivers_holder.h"
 
 class KeyboardGenericDriver : public KeyboardDriver {
 public:
@@ -16,8 +17,7 @@ public:
     virtual void set_on_release_listener(keyboard_on_release_listener l);
 
 private:
-    KeyboardDriver* driver = nullptr;
-    KeyboardDriver* drivers[1]; // There is only one keyboard driver currently.
+    DriversHolder drivers_holder;
 };
 
 #endif // _KEYBOARD_GENERIC_DRIVER_H__
