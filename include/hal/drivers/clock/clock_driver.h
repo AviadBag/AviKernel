@@ -13,9 +13,6 @@ public:
     ClockDriver();
     virtual ~ClockDriver();
 
-    virtual void attach() = 0;
-    virtual void detach() = 0;
-
     void set_on_tick_listener(clock_on_tick_listener);
     
     // In HZ. IF CALLED, CALL BEFORE attach(). Does not have to be called; Default value is once in every 0.01 seconds.
