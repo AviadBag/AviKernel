@@ -10,6 +10,7 @@ using clock_on_tick_listener = void (*)();
 class ClockDriver : public Driver
 {
 public:
+    ClockDriver();
     virtual ~ClockDriver();
 
     virtual void attach();
