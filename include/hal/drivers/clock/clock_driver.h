@@ -13,8 +13,8 @@ public:
     ClockDriver();
     virtual ~ClockDriver();
 
-    virtual void attach();
-    virtual void detach();
+    virtual void attach() = 0;
+    virtual void detach() = 0;
 
     void set_on_tick_listener(clock_on_tick_listener);
     
@@ -22,6 +22,9 @@ public:
     void set_frequency(uint32_t);
 
 protected:
+    // A callback; Called when the clock ticks. The children has to write it as the callback.
+    static void on_tick(void* context, [[gnu::unused]] uint32_t unused);
+
     clock_on_tick_listener listener;
     uint32_t frequency;
 };
