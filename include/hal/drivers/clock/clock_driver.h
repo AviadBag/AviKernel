@@ -17,7 +17,9 @@ public:
     virtual void detach();
 
     void set_on_tick_listener(clock_on_tick_listener);
-    void set_frequency(uint32_t); // In HZ
+    
+    // In HZ. IF CALLED, CALL BEFORE attach(). Does not have to be called; Default value is once in every 0.01 seconds.
+    void set_frequency(uint32_t);
 
 protected:
     clock_on_tick_listener listener;
