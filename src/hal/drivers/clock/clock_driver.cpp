@@ -14,5 +14,6 @@ void ClockDriver::set_frequency(uint32_t f) { frequency = f; }
 void ClockDriver::on_tick(void* context, [[gnu::unused]] uint32_t unused) 
 {
     ClockDriver* thi = (ClockDriver*) context; // "thi" ==> this.
-    thi->listener();
+    if (thi->listener)
+        thi->listener();
 }
