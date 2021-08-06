@@ -22,8 +22,8 @@ protected:
     // A callback; Called when the clock ticks. The children has to write it as the callback.
     static void on_tick(void* context, [[gnu::unused]] uint32_t unused);
 
-    clock_on_tick_listener listener;
-    uint32_t frequency;
+    clock_on_tick_listener listener = nullptr;
+    uint32_t frequency = 100;
 };
 
 #endif // _CLOCK_DRIVER_H__
