@@ -18,7 +18,8 @@ enum PCI_FIELDS_OFFSET // The offset of the 32 bit bundle contains this field.
     PCI_DEVICE_ID_OFFSET = 0x0,
     PCI_CLASS_CODE_OFFSET = 0x8,
     PCI_SUB_CLASS_CODE_OFFSET = 0x8,
-    PCI_HEADER_TYPE_OFFSET = 0xC
+    PCI_HEADER_TYPE_OFFSET = 0xC,
+    PCI_PROG_IF_OFFSET = 0x8
 };
 
 enum PCI_FIELDS_MASK // The mask in order to extract a field from a 32 bit bundle.
@@ -27,7 +28,8 @@ enum PCI_FIELDS_MASK // The mask in order to extract a field from a 32 bit bundl
     PCI_DEVICE_ID_MASK = 0xFFFF0000, // The higher 16 bits
     PCI_CLASS_CODE_MASK = 0x00FF0000,
     PCI_SUB_CLASS_CODE_MASK = 0xFF000000,
-    PCI_HEADER_TYPE_MASK = 0x00FF0000
+    PCI_HEADER_TYPE_MASK = 0x00FF0000,
+    PCI_PROG_IF_MASK = 0x0000FF00
 };
 
 enum PCI_FIELDS_SHIFT // How many do I have to shift after masking?
@@ -36,7 +38,8 @@ enum PCI_FIELDS_SHIFT // How many do I have to shift after masking?
     PCI_DEVICE_ID_SHIFT = 16,
     PCI_CLASS_CODE_SHIFT = 16,
     PCI_SUB_CLASS_CODE_SHIFT = 24,
-    PCI_HEADER_TYPE_SHIFT = 24
+    PCI_HEADER_TYPE_SHIFT = 24,
+    PCI_PROG_IF_SHIFT = 8
 };
 
 void PCIDriver::attach() 
@@ -129,4 +132,9 @@ uint8_t PCIDriver::get_class_code(PCIDevice d)
 uint8_t PCIDriver::get_header_type(PCIDevice d)
 {
     return (pci_config_read_32_bits(d, PCI_HEADER_TYPE_OFFSET) & PCI_HEADER_TYPE_MASK) >> PCI_HEADER_TYPE_SHIFT;
+}
+
+uint8_t PCIDriver::get_prog_if(PCIDevice d) 
+{
+    return (pci_config_read_32_bits(d, PCI_PROG_IF_OFFSET) & PCI_PROG_IF_MASK) >> PCI_PROG_IF_SHIFT;
 }

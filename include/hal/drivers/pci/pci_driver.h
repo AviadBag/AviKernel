@@ -22,6 +22,7 @@ public:
     uint8_t  get_class_code(PCIDevice d);
     uint8_t  get_sub_class_code(PCIDevice d);
     uint8_t  get_header_type(PCIDevice d);
+    uint8_t  get_prog_if(PCIDevice d);
 
 private:
     void check_device(uint8_t bus, uint8_t device);

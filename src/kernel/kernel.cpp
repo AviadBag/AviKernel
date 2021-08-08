@@ -410,7 +410,7 @@ void initialize_hal()
             PCIDevice d = pci_driver->get_devices()->get(i);
             int class_code = pci_driver->get_class_code(d);
             int sub_class_code = pci_driver->get_sub_class_code(d);
-            kprintf("  %s\n", pci_device_type_to_string(class_code, sub_class_code));
+            kprintf("  Name: %s, PROG IF: 0x%X\n", pci_device_type_to_string(class_code, sub_class_code), pci_driver->get_prog_if(d));
         }
         kprintf("\n");
     }
