@@ -150,10 +150,6 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     PIC::initialize();
     PIC::enable_all_interrupts();
     asm volatile("sti");
-    // PIT::initialize(100); // Once every 0.01 second
-    // PIT::add_on_tick_listener([](uint64_t t) {
-    //     kprintf("%d\n", t);
-    // });
 
     // Utils
     Time::initialize();
