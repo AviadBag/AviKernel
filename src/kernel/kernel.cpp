@@ -5,7 +5,6 @@
 #include "hal/drivers/bus/bus_driver.h"
 #include "hal/hal.h"
 
-#include "drivers/pci/pci.h"
 #include "drivers/pic/pic.h"
 #include "drivers/screen/text_output.h"
 #include "drivers/screen/vga_text.h"
@@ -181,7 +180,6 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     InterruptsManager::get_instance()->initialize();
 
     // Drivers
-    PCI::initialize();
     PIC::initialize();
     PIC::enable_all_interrupts();
     asm volatile("sti");
