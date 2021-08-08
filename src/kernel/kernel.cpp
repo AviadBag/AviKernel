@@ -2,6 +2,7 @@
 
 #include "hal/drivers/keyboard/keyboard_driver.h"
 #include "hal/drivers/clock/clock_driver.h"
+#include "hal/drivers/bus/bus_driver.h"
 #include "hal/hal.h"
 
 #include "drivers/pci/pci.h"
@@ -150,6 +151,18 @@ void initialize_hal()
             static int counter = 0;
             counter++;
         });
+    }
+
+    BusDriver* bus_driver = (BusDriver*)HAL::get_instance()->get_driver(HAL_BUS_DRIVER);
+    if (bus_driver->exist())
+    {
+        bus_driver->attach();
+        kprintf("\nPCI Devices:\n");
+        for (int i = 0; i < bus_driver->get_devices()->size(); i++)
+        {
+            kprintf("  %s\n", bus_driver->get_devices()->get(i).type_to_string());
+        }
+        kprintf("\n");
     }
 }
 
