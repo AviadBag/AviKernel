@@ -12,14 +12,14 @@ public:
 
 private:
     void check_device(uint8_t bus, uint8_t device);
-    void add_function(uint8_t bus, uint8_t device, uint8_t function);
+    void add_device_to_list(Device d);
 
-    uint32_t pci_config_read_32_bits(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
-    uint16_t get_vendor_id(uint8_t bus, uint8_t device, uint8_t function);
-    uint16_t get_device_id(uint8_t bus, uint8_t device, uint8_t function);
-    uint8_t  get_class_code(uint8_t bus, uint8_t device, uint8_t function);
-    uint8_t  get_sub_class_code(uint8_t bus, uint8_t device, uint8_t function);
-    uint8_t  get_header_type(uint8_t bus, uint8_t device, uint8_t function);
+    uint32_t pci_config_read_32_bits(Device d, uint8_t offset);
+    uint16_t get_vendor_id(Device d);
+    uint16_t get_device_id(Device d);
+    uint8_t  get_class_code(Device d);
+    uint8_t  get_sub_class_code(Device d);
+    uint8_t  get_header_type(Device d);
 };
 
 #endif // _BUS_PCI_DRIVER_H__

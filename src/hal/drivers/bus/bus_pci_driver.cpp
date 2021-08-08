@@ -55,34 +55,35 @@ void BusPCIDriver::enumerate_devices()
 
 void BusPCIDriver::check_device(uint8_t bus, uint8_t device)
 {
-    uint16_t vendor_id = get_vendor_id(bus, device, 0);
+    Device zero_function_dev(bus, device, 0);
+
+    uint16_t vendor_id = get_vendor_id(zero_function_dev);
     if (vendor_id == PCI_VENDOR_ID_DEVICE_DOES_NOT_EXIST)
         return;
 
-    uint8_t header_type = get_header_type(bus, device, 0);
+    uint8_t header_type = get_header_type(zero_function_dev);
     // TODO: Support only header type 0!
     if (header_type & PCI_HAS_MULTIPLE_FUNCTIONS_MASK) {
         for (int function = 0; function < PCI_NUMBER_OF_FUNCTIONS_PER_DEVICE; function++)
-            add_function(bus, device, function);
+        {
+            Device d(bus, device, function);
+            add_device_to_list(d);
+        }
     } else
-        add_function(bus, device, 0);
+        add_device_to_list(zero_function_dev);
 }
 
-void BusPCIDriver::add_function(uint8_t bus, uint8_t device, uint8_t function)
+void BusPCIDriver::add_device_to_list(Device d)
 {
-    uint8_t class_code = get_class_code(bus, device, function);
-    uint8_t sub_class_code = get_sub_class_code(bus, device, function);
-
-    Device d(class_code, sub_class_code, bus, device, function);
     if (!devices.append(d))
         panic("PCI: Not enough memory");
 }
 
-uint32_t BusPCIDriver::pci_config_read_32_bits(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset)
+uint32_t BusPCIDriver::pci_config_read_32_bits(Device d, uint8_t offset)
 {
-    uint32_t bus_32 = (uint32_t)bus;
-    uint32_t device_32 = (uint32_t)device;
-    uint32_t function_32 = (uint32_t)function;
+    uint32_t bus_32 = (uint32_t)d.get_bus_number();
+    uint32_t device_32 = (uint32_t)d.get_device_number();
+    uint32_t function_32 = (uint32_t)d.get_function_number();
     uint32_t offset_32 = (uint32_t)offset;
 
     uint32_t address = 0x80000000;
@@ -95,27 +96,27 @@ uint32_t BusPCIDriver::pci_config_read_32_bits(uint8_t bus, uint8_t device, uint
     return SerialPorts::inl(PCI_CONFIG_DATA);
 }
 
-uint16_t BusPCIDriver::get_vendor_id(uint8_t bus, uint8_t device, uint8_t function)
+uint16_t BusPCIDriver::get_vendor_id(Device d)
 {
-    return (pci_config_read_32_bits(bus, device, function, PCI_VENDOR_ID_OFFSET) & PCI_VENDOR_ID_MASK) >> PCI_VENDOR_ID_SHIFT;
+    return (pci_config_read_32_bits(d, PCI_VENDOR_ID_OFFSET) & PCI_VENDOR_ID_MASK) >> PCI_VENDOR_ID_SHIFT;
 }
 
-uint16_t BusPCIDriver::get_device_id(uint8_t bus, uint8_t device, uint8_t function)
+uint16_t BusPCIDriver::get_device_id(Device d)
 {
-    return (pci_config_read_32_bits(bus, device, function, PCI_DEVICE_ID_OFFSET) & PCI_DEVICE_ID_MASK) >> PCI_DEVICE_ID_SHIFT;
+    return (pci_config_read_32_bits(d, PCI_DEVICE_ID_OFFSET) & PCI_DEVICE_ID_MASK) >> PCI_DEVICE_ID_SHIFT;
 }
 
-uint8_t BusPCIDriver::get_sub_class_code(uint8_t bus, uint8_t device, uint8_t function)
+uint8_t BusPCIDriver::get_sub_class_code(Device d)
 {
-    return (pci_config_read_32_bits(bus, device, function, PCI_CLASS_CODE_OFFSET) & PCI_CLASS_CODE_MASK) >> PCI_CLASS_CODE_SHIFT;
+    return (pci_config_read_32_bits(d, PCI_CLASS_CODE_OFFSET) & PCI_CLASS_CODE_MASK) >> PCI_CLASS_CODE_SHIFT;
 }
 
-uint8_t BusPCIDriver::get_class_code(uint8_t bus, uint8_t device, uint8_t function)
+uint8_t BusPCIDriver::get_class_code(Device d)
 {
-    return (pci_config_read_32_bits(bus, device, function, PCI_SUB_CLASS_CODE_OFFSET) & PCI_SUB_CLASS_CODE_MASK) >> PCI_SUB_CLASS_CODE_SHIFT;
+    return (pci_config_read_32_bits(d, PCI_SUB_CLASS_CODE_OFFSET) & PCI_SUB_CLASS_CODE_MASK) >> PCI_SUB_CLASS_CODE_SHIFT;
 }
 
-uint8_t BusPCIDriver::get_header_type(uint8_t bus, uint8_t device, uint8_t function)
+uint8_t BusPCIDriver::get_header_type(Device d)
 {
-    return (pci_config_read_32_bits(bus, device, function, PCI_HEADER_TYPE_OFFSET) & PCI_HEADER_TYPE_MASK) >> PCI_HEADER_TYPE_SHIFT;
+    return (pci_config_read_32_bits(d, PCI_HEADER_TYPE_OFFSET) & PCI_HEADER_TYPE_MASK) >> PCI_HEADER_TYPE_SHIFT;
 }

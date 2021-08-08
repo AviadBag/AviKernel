@@ -1,15 +1,13 @@
 #include "hal/drivers/bus/device.h"
 
-Device::Device(uint8_t _class_code, uint8_t _sub_class_code, uint8_t _bus_number, uint8_t _device_number, uint8_t _function_number)
+Device::Device(uint8_t _bus_number, uint8_t _device_number, uint8_t _function_number)
 {
-    class_code = _class_code;
-    sub_class_code = _sub_class_code;
     bus_number = _bus_number;
     device_number = _device_number;
     function_number = _function_number;
 }
 
-const char* Device::type_to_string() const // Taken from https://github.com/MandelbrotOS/MandelbrotOS/blob/master/src/pci/pci_descriptors.c
+/*const char* Device::type_to_string() const // Taken from https://github.com/MandelbrotOS/MandelbrotOS/blob/master/src/pci/pci_descriptors.c
 {
     switch (class_code) {
     case 0:
@@ -280,4 +278,4 @@ uint8_t Device::get_class_code() const
 uint8_t Device::get_sub_class_code() const
 {
     return sub_class_code;
-}
+}*/
