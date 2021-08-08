@@ -1,10 +1,25 @@
-#include "hal/drivers/bus/device.h"
+#include "hal/drivers/pci/device.h"
 
 Device::Device(uint8_t _bus_number, uint8_t _device_number, uint8_t _function_number)
 {
     bus_number = _bus_number;
     device_number = _device_number;
     function_number = _function_number;
+}
+
+uint8_t Device::get_bus_number() const
+{
+    return bus_number;
+}
+
+uint8_t Device::get_device_number() const
+{
+    return device_number;
+}
+
+uint8_t Device::get_function_number() const
+{
+    return function_number;
 }
 
 /*const char* Device::type_to_string() const // Taken from https://github.com/MandelbrotOS/MandelbrotOS/blob/master/src/pci/pci_descriptors.c

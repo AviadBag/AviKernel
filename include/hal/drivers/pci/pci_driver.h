@@ -1,14 +1,21 @@
 #ifndef _BUS_PCI_DRIVER_H__
 #define _BUS_PCI_DRIVER_H__
 
-#include "hal/drivers/bus/bus_driver.h"
+#include "hal/drivers/driver.h"
+#include "hal/drivers/pci/device.h"
 
-class BusPCIDriver : public BusDriver
+#include "utils/vector.h"
+
+#include <stdint.h>
+
+class PCIDriver : public Driver
 {
 public:
+    virtual void attach() override;
     virtual void detach() override;
     virtual bool exist () override;
-    virtual void enumerate_devices() override;
+    void enumerate_devices();
+    Vector<Device>* get_devices();
 
 private:
     void check_device(uint8_t bus, uint8_t device);
@@ -20,6 +27,8 @@ private:
     uint8_t  get_class_code(Device d);
     uint8_t  get_sub_class_code(Device d);
     uint8_t  get_header_type(Device d);
+
+    Vector<Device> devices;
 };
 
 #endif // _BUS_PCI_DRIVER_H__

@@ -1,5 +1,5 @@
-#include "hal/drivers/bus/bus_pci_driver.h"
-#include "hal/drivers/bus/device.h"
+#include "hal/drivers/pci/pci_driver.h"
+#include "hal/drivers/pci/device.h"
 #include "drivers/serial_ports/serial_ports.h"
 
 #define PCI_NUMBER_OF_BUSES 256
@@ -39,21 +39,31 @@ enum PCI_FIELDS_SHIFT // How many do I have to shift after masking?
     PCI_HEADER_TYPE_SHIFT = 24
 };
 
-void BusPCIDriver::detach() {} // Nothing here
+void PCIDriver::attach() 
+{
+    enumerate_devices();
+}
 
-bool BusPCIDriver::exist() 
+Vector<Device>* PCIDriver::get_devices() 
+{
+    return &devices;
+}
+
+void PCIDriver::detach() {} // Nothing here
+
+bool PCIDriver::exist() 
 {
     return true; // TODO: Implement it.
 }
 
-void BusPCIDriver::enumerate_devices()
+void PCIDriver::enumerate_devices()
 {
     for (int bus = 0; bus < PCI_NUMBER_OF_BUSES; bus++)
         for (int device = 0; device < PCI_NUMBER_OF_DEVICES_PER_BUS; device++)
             check_device(bus, device);
 }
 
-void BusPCIDriver::check_device(uint8_t bus, uint8_t device)
+void PCIDriver::check_device(uint8_t bus, uint8_t device)
 {
     Device zero_function_dev(bus, device, 0);
 
@@ -73,13 +83,13 @@ void BusPCIDriver::check_device(uint8_t bus, uint8_t device)
         add_device_to_list(zero_function_dev);
 }
 
-void BusPCIDriver::add_device_to_list(Device d)
+void PCIDriver::add_device_to_list(Device d)
 {
     if (!devices.append(d))
         panic("PCI: Not enough memory");
 }
 
-uint32_t BusPCIDriver::pci_config_read_32_bits(Device d, uint8_t offset)
+uint32_t PCIDriver::pci_config_read_32_bits(Device d, uint8_t offset)
 {
     uint32_t bus_32 = (uint32_t)d.get_bus_number();
     uint32_t device_32 = (uint32_t)d.get_device_number();
@@ -96,27 +106,27 @@ uint32_t BusPCIDriver::pci_config_read_32_bits(Device d, uint8_t offset)
     return SerialPorts::inl(PCI_CONFIG_DATA);
 }
 
-uint16_t BusPCIDriver::get_vendor_id(Device d)
+uint16_t PCIDriver::get_vendor_id(Device d)
 {
     return (pci_config_read_32_bits(d, PCI_VENDOR_ID_OFFSET) & PCI_VENDOR_ID_MASK) >> PCI_VENDOR_ID_SHIFT;
 }
 
-uint16_t BusPCIDriver::get_device_id(Device d)
+uint16_t PCIDriver::get_device_id(Device d)
 {
     return (pci_config_read_32_bits(d, PCI_DEVICE_ID_OFFSET) & PCI_DEVICE_ID_MASK) >> PCI_DEVICE_ID_SHIFT;
 }
 
-uint8_t BusPCIDriver::get_sub_class_code(Device d)
+uint8_t PCIDriver::get_sub_class_code(Device d)
 {
     return (pci_config_read_32_bits(d, PCI_CLASS_CODE_OFFSET) & PCI_CLASS_CODE_MASK) >> PCI_CLASS_CODE_SHIFT;
 }
 
-uint8_t BusPCIDriver::get_class_code(Device d)
+uint8_t PCIDriver::get_class_code(Device d)
 {
     return (pci_config_read_32_bits(d, PCI_SUB_CLASS_CODE_OFFSET) & PCI_SUB_CLASS_CODE_MASK) >> PCI_SUB_CLASS_CODE_SHIFT;
 }
 
-uint8_t BusPCIDriver::get_header_type(Device d)
+uint8_t PCIDriver::get_header_type(Device d)
 {
     return (pci_config_read_32_bits(d, PCI_HEADER_TYPE_OFFSET) & PCI_HEADER_TYPE_MASK) >> PCI_HEADER_TYPE_SHIFT;
 }

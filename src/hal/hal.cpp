@@ -1,7 +1,7 @@
 #include "hal/hal.h"
 #include "hal/drivers/driver.h"
 #include "hal/drivers/keyboard/keyboard_generic_driver.h"
-#include "hal/drivers/bus/bus_pci_driver.h"
+#include "hal/drivers/pci/pci_driver.h"
 
 #include "hal/drivers/clock/clock_pit_driver.h"
 
@@ -16,7 +16,7 @@ void HAL::initialize()
     
     // I don't plan on adding another clock and bus drivers, so there are no generic drivers for them.
     general_drivers[HAL_CLOCK_DRIVER] = new ClockPITDriver();
-    general_drivers[HAL_BUS_DRIVER] = new BusPCIDriver();
+    general_drivers[HAL_PCI_DRIVER] = new PCIDriver();
 }
 
 Driver* HAL::get_driver(HAL_GENERAL_DRIVER_TYPE driver_type)
