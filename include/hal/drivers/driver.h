@@ -3,7 +3,7 @@
 
 class Driver {
 public:
-    virtual ~Driver();
+    virtual ~Driver() {};
 
     virtual void attach() = 0; // Undefined results if called when exist() returns false.
     virtual void detach() = 0; // Undefined results if attach was not called before.

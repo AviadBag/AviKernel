@@ -11,8 +11,6 @@ typedef void (*keyboard_on_release_listener)(ExtendedChar);
 
 class KeyboardDriver : public Driver {
 public:
-    virtual ~KeyboardDriver();
-
     virtual void set_on_press_listener(keyboard_on_press_listener);
     virtual void set_on_release_listener(keyboard_on_release_listener);
 

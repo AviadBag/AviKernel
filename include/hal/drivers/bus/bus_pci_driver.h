@@ -6,8 +6,6 @@
 class BusPCIDriver : public BusDriver
 {
 public:
-    virtual ~BusPCIDriver() {}
-
     virtual void detach() override;
     virtual bool exist () override;
     virtual void enumerate_devices() override;

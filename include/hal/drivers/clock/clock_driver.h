@@ -11,7 +11,6 @@ class ClockDriver : public Driver
 {
 public:
     ClockDriver();
-    virtual ~ClockDriver();
 
     void set_on_tick_listener(clock_on_tick_listener);
     

@@ -9,9 +9,7 @@
 
 class BusDriver : public Driver
 {
-public:
-    virtual ~BusDriver() {};
-    
+public:    
     virtual void attach() override;
     
     Vector<Device>* get_devices();
