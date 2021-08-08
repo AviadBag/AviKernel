@@ -6,7 +6,6 @@
 
 #include "drivers/pci/pci.h"
 #include "drivers/pic/pic.h"
-#include "drivers/pit/pit.h"
 #include "drivers/screen/text_output.h"
 #include "drivers/screen/vga_text.h"
 #include "drivers/serial_ports/serial_ports.h"
@@ -21,7 +20,6 @@
 #include "multiboot/multiboot.h"
 
 #include "utils/fixed_queue.h"
-#include "utils/time.h"
 
 #include <cstdio.h>
 #include <cstdlib.h>
@@ -150,12 +148,6 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     PIC::initialize();
     PIC::enable_all_interrupts();
     asm volatile("sti");
-
-    // Utils
-    Time::initialize();
-
-    //terminal();
-
     HAL::get_instance()->initialize();
     KeyboardDriver* keyboard_driver = (KeyboardDriver*)HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
     if (keyboard_driver->exist()) 
@@ -176,6 +168,8 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
             counter++;
         });
     }
+
+    //terminal();
 
     while (1) { }
 }
