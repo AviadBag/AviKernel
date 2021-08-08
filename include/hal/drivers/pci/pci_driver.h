@@ -14,8 +14,14 @@ public:
     virtual void attach() override;
     virtual void detach() override;
     virtual bool exist () override;
-    
+
     Vector<PCIDevice>* get_devices();
+
+    uint16_t get_vendor_id(PCIDevice d);
+    uint16_t get_device_id(PCIDevice d);
+    uint8_t  get_class_code(PCIDevice d);
+    uint8_t  get_sub_class_code(PCIDevice d);
+    uint8_t  get_header_type(PCIDevice d);
 
 private:
     void check_device(uint8_t bus, uint8_t device);
@@ -23,11 +29,6 @@ private:
     void enumerate_devices();
 
     uint32_t pci_config_read_32_bits(PCIDevice d, uint8_t offset);
-    uint16_t get_vendor_id(PCIDevice d);
-    uint16_t get_device_id(PCIDevice d);
-    uint8_t  get_class_code(PCIDevice d);
-    uint8_t  get_sub_class_code(PCIDevice d);
-    uint8_t  get_header_type(PCIDevice d);
 
     Vector<PCIDevice> devices;
 };
