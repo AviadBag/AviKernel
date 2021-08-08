@@ -9,9 +9,9 @@ public:
     KeyboardGenericDriver();
     virtual ~KeyboardGenericDriver();
 
-    virtual void attach();
-    virtual void detach();
-    virtual bool exist();
+    virtual void attach() override;
+    virtual void detach() override;
+    virtual bool exist () override;
 
     virtual void set_on_press_listener(keyboard_on_press_listener l);
     virtual void set_on_release_listener(keyboard_on_release_listener l);

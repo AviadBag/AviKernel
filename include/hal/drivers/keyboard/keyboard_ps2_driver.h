@@ -12,9 +12,9 @@ class KeyboardPS2Driver : public KeyboardDriver {
 public:
     virtual ~KeyboardPS2Driver();
 
-    virtual void attach();
-    virtual void detach();
-    virtual bool exist();
+    virtual void attach() override;
+    virtual void detach() override;
+    virtual bool exist () override;
 
 private:
     void on_ke_data(); // Called whenever the keyboard encoder sends an interrupt

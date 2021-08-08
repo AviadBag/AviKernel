@@ -6,9 +6,9 @@
 class ClockPITDriver : public ClockDriver
 {
 public:
-    virtual void attach();
-    virtual void detach();
-    virtual bool exist();
+    virtual void attach() override;
+    virtual void detach() override;
+    virtual bool exist () override;
 
 private:
     void configure_pit(); // Sends the required values to the PIT.
