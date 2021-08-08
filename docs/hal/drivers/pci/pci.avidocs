@@ -1,0 +1,4 @@
+The PCI driver allows you to communicate with the PCI.
+It gives you a list of the available devices. You can get info about the devices by using the function:
+    pci_driver->get_***(device).
+
