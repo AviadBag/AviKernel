@@ -1,5 +1,5 @@
 #include "hal/drivers/pci/pci_driver.h"
-#include "hal/drivers/pci/device.h"
+#include "hal/drivers/pci/pci_device.h"
 #include "drivers/serial_ports/serial_ports.h"
 
 #define PCI_NUMBER_OF_BUSES 256
@@ -44,7 +44,7 @@ void PCIDriver::attach()
     enumerate_devices();
 }
 
-Vector<Device>* PCIDriver::get_devices() 
+Vector<PCIDevice>* PCIDriver::get_devices() 
 {
     return &devices;
 }
@@ -65,7 +65,7 @@ void PCIDriver::enumerate_devices()
 
 void PCIDriver::check_device(uint8_t bus, uint8_t device)
 {
-    Device zero_function_dev(bus, device, 0);
+    PCIDevice zero_function_dev(bus, device, 0);
 
     uint16_t vendor_id = get_vendor_id(zero_function_dev);
     if (vendor_id == PCI_VENDOR_ID_DEVICE_DOES_NOT_EXIST)
@@ -76,20 +76,20 @@ void PCIDriver::check_device(uint8_t bus, uint8_t device)
     if (header_type & PCI_HAS_MULTIPLE_FUNCTIONS_MASK) {
         for (int function = 0; function < PCI_NUMBER_OF_FUNCTIONS_PER_DEVICE; function++)
         {
-            Device d(bus, device, function);
+            PCIDevice d(bus, device, function);
             add_device_to_list(d);
         }
     } else
         add_device_to_list(zero_function_dev);
 }
 
-void PCIDriver::add_device_to_list(Device d)
+void PCIDriver::add_device_to_list(PCIDevice d)
 {
     if (!devices.append(d))
         panic("PCI: Not enough memory");
 }
 
-uint32_t PCIDriver::pci_config_read_32_bits(Device d, uint8_t offset)
+uint32_t PCIDriver::pci_config_read_32_bits(PCIDevice d, uint8_t offset)
 {
     uint32_t bus_32 = (uint32_t)d.get_bus_number();
     uint32_t device_32 = (uint32_t)d.get_device_number();
@@ -106,27 +106,27 @@ uint32_t PCIDriver::pci_config_read_32_bits(Device d, uint8_t offset)
     return SerialPorts::inl(PCI_CONFIG_DATA);
 }
 
-uint16_t PCIDriver::get_vendor_id(Device d)
+uint16_t PCIDriver::get_vendor_id(PCIDevice d)
 {
     return (pci_config_read_32_bits(d, PCI_VENDOR_ID_OFFSET) & PCI_VENDOR_ID_MASK) >> PCI_VENDOR_ID_SHIFT;
 }
 
-uint16_t PCIDriver::get_device_id(Device d)
+uint16_t PCIDriver::get_device_id(PCIDevice d)
 {
     return (pci_config_read_32_bits(d, PCI_DEVICE_ID_OFFSET) & PCI_DEVICE_ID_MASK) >> PCI_DEVICE_ID_SHIFT;
 }
 
-uint8_t PCIDriver::get_sub_class_code(Device d)
+uint8_t PCIDriver::get_sub_class_code(PCIDevice d)
 {
     return (pci_config_read_32_bits(d, PCI_CLASS_CODE_OFFSET) & PCI_CLASS_CODE_MASK) >> PCI_CLASS_CODE_SHIFT;
 }
 
-uint8_t PCIDriver::get_class_code(Device d)
+uint8_t PCIDriver::get_class_code(PCIDevice d)
 {
     return (pci_config_read_32_bits(d, PCI_SUB_CLASS_CODE_OFFSET) & PCI_SUB_CLASS_CODE_MASK) >> PCI_SUB_CLASS_CODE_SHIFT;
 }
 
-uint8_t PCIDriver::get_header_type(Device d)
+uint8_t PCIDriver::get_header_type(PCIDevice d)
 {
     return (pci_config_read_32_bits(d, PCI_HEADER_TYPE_OFFSET) & PCI_HEADER_TYPE_MASK) >> PCI_HEADER_TYPE_SHIFT;
 }

@@ -6,11 +6,11 @@
 /* This class represents a BUS device. It does not hold any useful information to the outer functions; It should be 
 passed to the Driver in order to get the required data. */
 
-class Device
+class PCIDevice
 {
 public:
-    Device() {}; // Required for using vector<Device>. Not sure why.
-    Device(uint8_t bus_number, uint8_t device_number, uint8_t function_number);
+    PCIDevice() {}; // Required for using vector<PCIDevice>. Not sure why.
+    PCIDevice(uint8_t bus_number, uint8_t device_number, uint8_t function_number);
 
     uint8_t get_bus_number() const;
     uint8_t get_device_number() const;

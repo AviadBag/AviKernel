@@ -2,7 +2,7 @@
 #define _BUS_PCI_DRIVER_H__
 
 #include "hal/drivers/driver.h"
-#include "hal/drivers/pci/device.h"
+#include "hal/drivers/pci/pci_device.h"
 
 #include "utils/vector.h"
 
@@ -15,20 +15,20 @@ public:
     virtual void detach() override;
     virtual bool exist () override;
     void enumerate_devices();
-    Vector<Device>* get_devices();
+    Vector<PCIDevice>* get_devices();
 
 private:
     void check_device(uint8_t bus, uint8_t device);
-    void add_device_to_list(Device d);
+    void add_device_to_list(PCIDevice d);
 
-    uint32_t pci_config_read_32_bits(Device d, uint8_t offset);
-    uint16_t get_vendor_id(Device d);
-    uint16_t get_device_id(Device d);
-    uint8_t  get_class_code(Device d);
-    uint8_t  get_sub_class_code(Device d);
-    uint8_t  get_header_type(Device d);
+    uint32_t pci_config_read_32_bits(PCIDevice d, uint8_t offset);
+    uint16_t get_vendor_id(PCIDevice d);
+    uint16_t get_device_id(PCIDevice d);
+    uint8_t  get_class_code(PCIDevice d);
+    uint8_t  get_sub_class_code(PCIDevice d);
+    uint8_t  get_header_type(PCIDevice d);
 
-    Vector<Device> devices;
+    Vector<PCIDevice> devices;
 };
 
 #endif // _BUS_PCI_DRIVER_H__

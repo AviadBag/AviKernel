@@ -1,28 +1,28 @@
-#include "hal/drivers/pci/device.h"
+#include "hal/drivers/pci/pci_device.h"
 
-Device::Device(uint8_t _bus_number, uint8_t _device_number, uint8_t _function_number)
+PCIDevice::PCIDevice(uint8_t _bus_number, uint8_t _device_number, uint8_t _function_number)
 {
     bus_number = _bus_number;
     device_number = _device_number;
     function_number = _function_number;
 }
 
-uint8_t Device::get_bus_number() const
+uint8_t PCIDevice::get_bus_number() const
 {
     return bus_number;
 }
 
-uint8_t Device::get_device_number() const
+uint8_t PCIDevice::get_device_number() const
 {
     return device_number;
 }
 
-uint8_t Device::get_function_number() const
+uint8_t PCIDevice::get_function_number() const
 {
     return function_number;
 }
 
-/*const char* Device::type_to_string() const // Taken from https://github.com/MandelbrotOS/MandelbrotOS/blob/master/src/pci/pci_descriptors.c
+/*const char* PCIDevice::type_to_string() const // Taken from https://github.com/MandelbrotOS/MandelbrotOS/blob/master/src/pci/pci_descriptors.c
 {
     switch (class_code) {
     case 0:
@@ -270,27 +270,27 @@ uint8_t Device::get_function_number() const
     }
 }
 
-uint8_t Device::get_bus_number() const
+uint8_t PCIDevice::get_bus_number() const
 {
     return bus_number;
 }
 
-uint8_t Device::get_device_number() const
+uint8_t PCIDevice::get_device_number() const
 {
     return device_number;
 }
 
-uint8_t Device::get_function_number() const
+uint8_t PCIDevice::get_function_number() const
 {
     return function_number;
 }
 
-uint8_t Device::get_class_code() const
+uint8_t PCIDevice::get_class_code() const
 {
     return class_code;
 }
 
-uint8_t Device::get_sub_class_code() const
+uint8_t PCIDevice::get_sub_class_code() const
 {
     return sub_class_code;
 }*/
