@@ -28,7 +28,10 @@ void KeyboardPS2Driver::attach()
         this);
 }
 
-void KeyboardPS2Driver::detach() { } // Nothing here
+void KeyboardPS2Driver::detach() 
+{
+    InterruptsManager::get_instance()->remove_isr(PS2_INTERRUPT_NUBMER);
+}
 
 void KeyboardPS2Driver::on_ke_data()
 {

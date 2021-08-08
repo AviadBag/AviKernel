@@ -8,5 +8,6 @@
 using isr = void (*)(void* context, uint32_t error_code);
 
 void isr_manager_set_isr(unsigned char interrupt_number, isr i, void* context);
+void isr_manager_remove_isr(unsigned char interrupt_number);
 
 #endif

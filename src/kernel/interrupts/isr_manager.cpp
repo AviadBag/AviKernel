@@ -36,3 +36,8 @@ void isr_manager_set_isr(unsigned char interrupt_number, isr i, void* context)
 {
     isrs[interrupt_number] = isr_holder { i, context, true };
 }
+
+void isr_manager_remove_isr(unsigned char interrupt_number) 
+{
+    isrs[interrupt_number] = isr_holder { nullptr, nullptr, false };
+}

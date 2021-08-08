@@ -20,7 +20,7 @@ void ClockPITDriver::attach()
 
 void ClockPITDriver::detach() 
 {
-    // TODO: de-register the callback.
+    InterruptsManager::get_instance()->remove_isr(PIT_IRQ_NUMBER);
 }
 
 bool ClockPITDriver::exist() 

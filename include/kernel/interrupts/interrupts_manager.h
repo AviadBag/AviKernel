@@ -9,6 +9,7 @@ class InterruptsManager {
 public:
     void initialize();
     void set_isr(unsigned char interrupt_number, isr i, void* context);
+    void remove_isr(unsigned char interrupt_number);
 
     /* ------------------------- Singelton stuff. ------------------------- */
 public:
