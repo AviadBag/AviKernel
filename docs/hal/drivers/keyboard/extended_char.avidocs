@@ -1,0 +1,4 @@
+The ExtendedChar class represents any keyboard key-stroke.
+It's internal representation us using avi_charcode, which represents a single key-stroke.
+
+It gets as an input a keyboard scan code, type I.

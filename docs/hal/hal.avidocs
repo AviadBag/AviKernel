@@ -1,0 +1,2 @@
+HAL stands for Hardware Abstraction Layer. This layer abstracts all of the hardware DEVICES.
+It allows you to ask for a driver for a type of device. (For example - keyboard, clock, etc...)
