@@ -1,6 +1,7 @@
 #include "runtime/icxxabi.h"
 
 #include "hal/drivers/keyboard/keyboard_driver.h"
+#include "hal/drivers/clock/clock_driver.h"
 #include "hal/hal.h"
 
 #include "drivers/pci/pci.h"
@@ -149,7 +150,10 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     PIC::initialize();
     PIC::enable_all_interrupts();
     asm volatile("sti");
-    PIT::initialize(100); // Once every 0.01 second
+    // PIT::initialize(100); // Once every 0.01 second
+    // PIT::add_on_tick_listener([](uint64_t t) {
+    //     kprintf("%d\n", t);
+    // });
 
     // Utils
     Time::initialize();
@@ -158,11 +162,22 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
 
     HAL::get_instance()->initialize();
     KeyboardDriver* keyboard_driver = (KeyboardDriver*)HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
-    if (keyboard_driver->exist()) {
+    if (keyboard_driver->exist()) 
+    {
         keyboard_driver->attach();
         keyboard_driver->set_on_press_listener([](ExtendedChar c) {
             if (c.printable())
                 kprintf("%c", c.as_regular_char());
+        });
+    }
+
+    ClockDriver* clock_driver = (ClockDriver*)HAL::get_instance()->get_driver(HAL_CLOCK_DRIVER);
+    if (clock_driver->exist())
+    {
+        clock_driver->attach();
+        clock_driver->set_on_tick_listener([]() {
+            static int counter = 0;
+            counter++;
         });
     }
 
