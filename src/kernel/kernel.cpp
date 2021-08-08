@@ -129,25 +129,8 @@
 //     }
 // }*/
 
-extern "C" void kernel_main(multiboot_info_t* multiboot_info)
+void initialize_hal()
 {
-    // Text
-    VgaText::initialize();
-
-    // Memory
-    GDT::initialize();
-    PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
-    VirtualMgr::initialize();
-    Heap::initialize();
-
-    // Interrupts
-    InterruptsManager::get_instance()->initialize();
-
-    // Drivers
-    PCI::initialize();
-    PIC::initialize();
-    PIC::enable_all_interrupts();
-    asm volatile("sti");
     HAL::get_instance()->initialize();
     KeyboardDriver* keyboard_driver = (KeyboardDriver*)HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
     if (keyboard_driver->exist()) 
@@ -168,6 +151,28 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
             counter++;
         });
     }
+}
+
+extern "C" void kernel_main(multiboot_info_t* multiboot_info)
+{
+    // Text
+    VgaText::initialize();
+
+    // Memory
+    GDT::initialize();
+    PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
+    VirtualMgr::initialize();
+    Heap::initialize();
+
+    // Interrupts
+    InterruptsManager::get_instance()->initialize();
+
+    // Drivers
+    PCI::initialize();
+    PIC::initialize();
+    PIC::enable_all_interrupts();
+    asm volatile("sti");
+    initialize_hal();
 
     //terminal();
 
