@@ -14,12 +14,13 @@ public:
     virtual void attach() override;
     virtual void detach() override;
     virtual bool exist () override;
-    void enumerate_devices();
+    
     Vector<PCIDevice>* get_devices();
 
 private:
     void check_device(uint8_t bus, uint8_t device);
     void add_device_to_list(PCIDevice d);
+    void enumerate_devices();
 
     uint32_t pci_config_read_32_bits(PCIDevice d, uint8_t offset);
     uint16_t get_vendor_id(PCIDevice d);
