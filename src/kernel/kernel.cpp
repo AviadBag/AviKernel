@@ -377,6 +377,14 @@ const char* pci_device_type_to_string(uint8_t class_code, uint8_t sub_class_code
     }
 }
 
+void setup_memory_managment()
+{
+    GDT::initialize();
+    PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
+    VirtualMgr::initialize();
+    Heap::initialize();
+}
+
 void setup_drivers()
 {
     HAL::get_instance()->initialize();
@@ -428,19 +436,10 @@ void setup_drivers()
 
 extern "C" void kernel_main(multiboot_info_t* multiboot_info)
 {
-    // Early Console
+    // System Initialization
     VgaText::initialize();
-
-    // 1. Setup memory managment
-    GDT::initialize();
-    PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
-    VirtualMgr::initialize();
-    Heap::initialize();
-
-    // 2. Initialize the Interrupts Manager.
+    setup_memory_managment();
     InterruptsManager::get_instance()->initialize();
-
-    // 3. Setup drivers
     setup_drivers();
 
     //terminal();
