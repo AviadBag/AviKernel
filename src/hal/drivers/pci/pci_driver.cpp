@@ -80,16 +80,10 @@ void PCIDriver::check_device(uint8_t bus, uint8_t device)
         for (int function = 0; function < PCI_NUMBER_OF_FUNCTIONS_PER_DEVICE; function++)
         {
             PCIDevice d(bus, device, function);
-            add_device_to_list(d);
+            devices.append(d);
         }
     } else
-        add_device_to_list(zero_function_dev);
-}
-
-void PCIDriver::add_device_to_list(PCIDevice d)
-{
-    if (!devices.append(d))
-        panic("PCI: Not enough memory");
+        devices.append(zero_function_dev);
 }
 
 uint32_t PCIDriver::pci_config_read_32_bits(PCIDevice d, uint8_t offset)

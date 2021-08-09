@@ -21,7 +21,7 @@ public:
 
     bool empty() const;
     int size() const;
-    bool append(T); // Returns false if there is no enough memory
+    void append(T); // Panics if there is no enough memory
     T get(int index); // Will cause unexpected results if the index is too big!
 
 private:
@@ -40,10 +40,7 @@ template<class T>
 Vector<T>::Vector(Vector<T>& other) : Vector()
 {
     for (int i = 0; i < other.size(); i++)
-    {
-        if (!append(other.get(i)))
-            panic("Vector: Copy Constructor: Not enough memory!\n");
-    }
+        append(other.get(i));
 }
 
 template <class T>
@@ -69,11 +66,11 @@ int Vector<T>::size() const
 }
 
 template <class T>
-bool Vector<T>::append(T data)
+void Vector<T>::append(T data)
 {
     VectorNode<T>* new_node = new VectorNode<T>;
     if (!new_node)
-        return false;
+        panic("Vector -> append(): Not enough memory!\n");
     new_node->data = data;
     new_node->next = nullptr;
 
@@ -88,8 +85,6 @@ bool Vector<T>::append(T data)
     }
 
     vector_size++;
-
-    return true;
 }
 
 template <class T>

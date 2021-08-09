@@ -1,10 +1,8 @@
 #include "hal/drivers/drivers_holder.h"
-#include "kernel/panic.h"
 
 void DriversHolder::add_driver(Driver* d) 
 {
-    if (!all_drivers.append(d))
-        panic("DriversHolder: Error while trying to add a driver: Not enough memory!");
+    all_drivers.append(d);
 }
 
 void DriversHolder::filter() 
@@ -13,8 +11,7 @@ void DriversHolder::filter()
     {
         Driver* d = all_drivers.get(i);
         if (d->exist())
-            if (!existing_drivers.append(d))
-                panic("DriversHolder: Error while trying to add a driver: Not enough memory!");
+            existing_drivers.append(d);
     }
 }
 

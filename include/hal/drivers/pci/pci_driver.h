@@ -26,7 +26,6 @@ public:
 
 private:
     void check_device(uint8_t bus, uint8_t device);
-    void add_device_to_list(PCIDevice d);
     void enumerate_devices();
 
     uint32_t pci_config_read_32_bits(PCIDevice d, uint8_t offset);
