@@ -377,7 +377,7 @@ const char* pci_device_type_to_string(uint8_t class_code, uint8_t sub_class_code
     }
 }
 
-void setup_memory_managment()
+void setup_memory_managment(multiboot_info_t* multiboot_info)
 {
     GDT::initialize();
     PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
@@ -397,48 +397,45 @@ void setup_drivers()
     asm volatile ("sti");
 
     PCIDriver* pci_driver = (PCIDriver*)HAL::get_instance()->get_driver(HAL_PCI_DRIVER);
-    if (pci_driver->exist())
+    if (!pci_driver->exist())
+        panic("This PC is unsupported, because it has no a PCI bus");
+    pci_driver->attach();
+    kprintf("\nPCI Devices:\n");
+    for (int i = 0; i < pci_driver->get_devices()->size(); i++)
     {
-        pci_driver->attach();
-        kprintf("\nPCI Devices:\n");
-        for (int i = 0; i < pci_driver->get_devices()->size(); i++)
-        {
-            PCIDevice d = pci_driver->get_devices()->get(i);
-            int class_code = pci_driver->get_class_code(d);
-            int sub_class_code = pci_driver->get_sub_class_code(d);
-            kprintf("  Name: %s, PROG IF: 0x%X\n", pci_device_type_to_string(class_code, sub_class_code), pci_driver->get_prog_if(d));
-        }
-        kprintf("\n");
+        PCIDevice d = pci_driver->get_devices()->get(i);
+        int class_code = pci_driver->get_class_code(d);
+        int sub_class_code = pci_driver->get_sub_class_code(d);
+        kprintf("  Name: %s, PROG IF: 0x%X\n", pci_device_type_to_string(class_code, sub_class_code), pci_driver->get_prog_if(d));
     }
+    kprintf("\n");
 
     ClockDriver* clock_driver = (ClockDriver*)HAL::get_instance()->get_driver(HAL_CLOCK_DRIVER);
-    if (clock_driver->exist())
-    {
-        clock_driver->attach();
-        clock_driver->set_on_tick_listener([]() {
-            static int counter = 0;
-            counter++;
-            if (counter % 100 == 0)
-                kprintf("%d\n", counter / 100);
-        });
-    }
+    if (!clock_driver->exist())
+        panic("This PC is unsupported, because it has no clock");
+    clock_driver->attach();
+    clock_driver->set_on_tick_listener([]() {
+        static int counter = 0;
+        counter++;
+        if (counter % 100 == 0)
+            kprintf("%d\n", counter / 100);
+    });
 
     KeyboardDriver* keyboard_driver = (KeyboardDriver*)HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
-    if (keyboard_driver->exist()) 
-    {
-        keyboard_driver->attach();
-        keyboard_driver->set_on_press_listener([](ExtendedChar c) {
-            if (c.printable())
-                kprintf("%c", c.as_regular_char());
-        });
-    }
+    if (!keyboard_driver->exist()) 
+        panic("No keyboard connected. Press F10 to continue.");
+    keyboard_driver->attach();
+    keyboard_driver->set_on_press_listener([](ExtendedChar c) {
+        if (c.printable())
+            kprintf("%c", c.as_regular_char());
+    });
 }
 
 extern "C" void kernel_main(multiboot_info_t* multiboot_info)
 {
     // System Initialization
     VgaText::initialize();
-    setup_memory_managment();
+    setup_memory_managment(multiboot_info);
     InterruptsManager::get_instance()->initialize();
     setup_drivers();
 
