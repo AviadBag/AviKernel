@@ -1,4 +1,4 @@
-#include "idt.h"
+#include "kernel/interrupts/idt.h"
 
 #include <cstdio.h>
 #include <cstring.h>

@@ -1,5 +1,5 @@
 #include "kernel/interrupts/interrupts_manager.h"
-#include "idt.h"
+#include "kernel/interrupts/idt.h"
 #include "kernel/interrupts/isr_manager.h"
 
 void InterruptsManager::initialize()
