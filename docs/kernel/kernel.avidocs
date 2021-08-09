@@ -1,12 +1,13 @@
 System Initialization Order:
-1. Setup memory managment:
-    1.1 Create and install a GDT
-    1.2 Initialize the Physical Memory Manager
-    1.3 Initialize the Virtual  Memory Manager and enable paging
-    1.4 Initialize the Heap.
-2. Initialize the Interrupts Manager.
-3. Setup drivers:
-    3.1 PIC driver. (Hardware Interrupts) + Enable hardware interrupts
-    3.2 PCI driver.
-    3.3 Clock driver.
-    3.4 Keyboard driver.
+1. Setup an early console
+2. Setup memory managment:
+    2.1 Create and install a GDT
+    2.2 Initialize the Physical Memory Manager
+    2.3 Initialize the Virtual  Memory Manager and enable paging
+    2.4 Initialize the Heap.
+3. Initialize the Interrupts Manager.
+4. Setup drivers:
+    4.1 PIC driver. (Hardware Interrupts) + Enable hardware interrupts
+    4.2 PCI driver.
+    4.3 Clock driver.
+    4.4 Keyboard driver.
