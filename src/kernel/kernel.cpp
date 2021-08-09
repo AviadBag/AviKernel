@@ -428,19 +428,19 @@ void initialize_hal()
 
 extern "C" void kernel_main(multiboot_info_t* multiboot_info)
 {
-    // Text
+    // Early Console
     VgaText::initialize();
 
-    // Memory
+    // 1. Setup memory managment
     GDT::initialize();
     PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
     VirtualMgr::initialize();
     Heap::initialize();
 
-    // Interrupts
+    // 2. Initialize the Interrupts Manager.
     InterruptsManager::get_instance()->initialize();
 
-    // Drivers
+    // 3. Enable drivers
     initialize_hal();
 
     //terminal();

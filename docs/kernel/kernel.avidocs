@@ -1,0 +1,8 @@
+System Initialization Order:
+1. Setup memory managment:
+    1.1 Create and install a GDT
+    1.2 Initialize the Physical Memory Manager
+    1.3 Initialize the Virtual  Memory Manager and enable paging
+    1.4 Initialize the Heap.
+2. Initialize the Interrupts Manager.
+3. Enable drivers
