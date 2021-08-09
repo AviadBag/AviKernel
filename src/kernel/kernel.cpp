@@ -26,108 +26,122 @@
 #include <cstring.h>
 #include <stdint.h>
 
-/* #define TERMINAL_COMMAND_MAX_SIZE 20
+#define TERMINAL_COMMAND_MAX_SIZE 20
 
-// char* terminal_get_command()
-// {
-//     static char command[TERMINAL_COMMAND_MAX_SIZE+1];
-//     int number_of_chars = 0; // How many chars does the command contain?
-//     bool enter = false; // Was enter pressed?
+Queue<char> chars_queue;
 
-//     kprintf(">> ");
-//     while (!enter) // Get char
-//     {
-//         char c = TextInput::getchar();
-//         if (c == '\b') // Backspace
-//         {
-//             if (number_of_chars == 0)
-//                 continue; // You cannot delete anymore
-//             else
-//             {
-//                 number_of_chars--;
-//             }
-//         }
-//         else if (c == '\n') // Enter
-//             enter = true;
-//         else if (number_of_chars == TERMINAL_COMMAND_MAX_SIZE)
-//             continue; // You cannot type anymore
-//         else
-//             command[number_of_chars++] = c;
+void new_char_listener(ExtendedChar c)
+{
+    if (c.printable())
+        chars_queue.enqueue(c.as_regular_char());
+}
 
-//         kprintf("%c", c);
-//     }
+char getchar()
+{
+    while (chars_queue.empty())
+        ;
+    
+    return chars_queue.dequeue();
+}
 
-//     command[number_of_chars] = '\0'; // Null terminator
+char* terminal_get_command()
+{
+    static char command[TERMINAL_COMMAND_MAX_SIZE+1];
+    int number_of_chars = 0; // How many chars does the command contain?
+    bool enter = false; // Was enter pressed?
 
-//     return command;
-// }
+    kprintf(">> ");
+    while (!enter) // Get char
+    {
+        char c = getchar();
+        if (c == '\b') // Backspace
+        {
+            if (number_of_chars == 0)
+                continue; // You cannot delete anymore
+            else
+            {
+                number_of_chars--;
+            }
+        }
+        else if (c == '\n') // Enter
+            enter = true;
+        else if (number_of_chars == TERMINAL_COMMAND_MAX_SIZE)
+            continue; // You cannot type anymore
+        else
+            command[number_of_chars++] = c;
 
-// void info()
-// {
-//     kprintf("AviKernel 0.1 - An OS developed by Aviad Bagno\n");
-// }
+        kprintf("%c", c);
+    }
 
-// void type()
-// {
-//     TextOutput::clear();
-//     kprintf("Please type here whatever you want, exit with '|'\n");
-//     int number_of_chars = 0; // To prevent previous lines override
+    command[number_of_chars] = '\0'; // Null terminator
 
-//     while (true)
-//     {
-//         char c = TextInput::getchar();
+    return command;
+}
 
-//         if (c == '|')
-//         {
-//             TextOutput::clear();
-//             return;
-//         }
-//         else if (c == '\b')
-//         {
-//             if (number_of_chars == 0)
-//                 continue;
-//             else 
-//                 number_of_chars -= 2; // Because it will be incremented by one soon.
-//         }
-//         else if (c == '\n')
-//             number_of_chars += VGA_COLUMNS;
+void info()
+{
+    kprintf("AviKernel 0.1 - An OS developed by Aviad Bagno\n");
+}
 
-//         number_of_chars++;
-//         kprintf("%c", c);
-//     }
-// }
+void type()
+{
+    VgaText::clear();
+    kprintf("Please type here whatever you want, exit with '|'\n");
+    int number_of_chars = 0; // To prevent previous lines override
 
-// void help()
-// {
-//     kprintf("Avialable commands:\n");
-//     kprintf("\"help\" - Shows this help message\n");
-//     kprintf("\"info\" - Shows information about this OS\n");
-//     kprintf("\"type\" - A very simple text editor. Exit with '|'\n");
-//     kprintf("\"wait\" - Waits 1 second.\n");
-//     kprintf("\"clear\" - Clears the screen\n");
-// }
+    while (true)
+    {
+        char c = getchar();
 
-// void command_not_found(const char* command)
-// {
-//     kprintf("\"%s\": Invalid command\n", command);
-//     help();
-// }
+        if (c == '|')
+        {
+            VgaText::clear();
+            return;
+        }
+        else if (c == '\b')
+        {
+            if (number_of_chars == 0)
+                continue;
+            else 
+                number_of_chars -= 2; // Because it will be incremented by one soon.
+        }
+        else if (c == '\n')
+            number_of_chars += VGA_COLUMNS;
 
-// void terminal()
-// {
-//     help();
-//     while (true) // Get command
-//     {
-//         const char* command = terminal_get_command();
-//         if (strcmp(command, "info") == 0) info();
-//         else if (strcmp(command, "help") == 0) help();
-//         else if (strcmp(command, "type") == 0) type();
-//         else if (strcmp(command, "wait") == 0) Time::sleep(100);
-//         else if (strcmp(command, "clear") == 0) TextOutput::clear();
-//         else if (*command != '\0') // Don't show "command not found" if the command was empty
-//             command_not_found(command);
-//     }
-// }*/
+        number_of_chars++;
+        kprintf("%c", c);
+    }
+}
+
+void help()
+{
+    kprintf("Avialable commands:\n");
+    kprintf("\"help\" - Shows this help message\n");
+    kprintf("\"info\" - Shows information about this OS\n");
+    kprintf("\"type\" - A very simple text editor. Exit with '|'\n");
+    kprintf("\"clear\" - Clears the screen\n");
+}
+
+void command_not_found(const char* command)
+{
+    kprintf("\"%s\": Invalid command\n", command);
+    help();
+}
+
+void terminal()
+{
+    help();
+    while (true) // Get command
+    {
+        const char* command = terminal_get_command();
+        if (strcmp(command, "info") == 0) info();
+        else if (strcmp(command, "help") == 0) help();
+        else if (strcmp(command, "type") == 0) type();
+        else if (strcmp(command, "clear") == 0) TextOutput::clear();
+        else if (*command != '\0') // Don't show "command not found" if the command was empty
+            command_not_found(command);
+    }
+}
 
 const char* pci_device_type_to_string(uint8_t class_code, uint8_t sub_class_code) // Taken from https://github.com/MandelbrotOS/MandelbrotOS/blob/master/src/pci/pci_descriptors.c
 {
@@ -414,21 +428,11 @@ void setup_drivers()
     if (!clock_driver->exist())
         panic("This PC is unsupported, because it has no clock");
     clock_driver->attach();
-    clock_driver->set_on_tick_listener([]() {
-        static int counter = 0;
-        counter++;
-        if (counter % 100 == 0)
-            kprintf("%d\n", counter / 100);
-    });
 
     KeyboardDriver* keyboard_driver = (KeyboardDriver*)HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
     if (!keyboard_driver->exist()) 
         panic("No keyboard connected. Press F10 to continue.");
     keyboard_driver->attach();
-    keyboard_driver->set_on_press_listener([](ExtendedChar c) {
-        if (c.printable())
-            kprintf("%c", c.as_regular_char());
-    });
 }
 
 extern "C" void kernel_main(multiboot_info_t* multiboot_info)
@@ -439,18 +443,11 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     InterruptsManager::get_instance()->initialize();
     setup_drivers();
 
-    //terminal();
+    // Terminal Setup
+    KeyboardDriver* keyboard_driver = (KeyboardDriver*)HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
+    keyboard_driver->set_on_press_listener(new_char_listener);
+    terminal();
 
-    Queue<int>* q = new Queue<int>;
-    q->enqueue(1);
-    q->enqueue(2);
-    q->enqueue(3);
-    
-    Queue<int> q1 = *q;
-    delete q;
-
-    while (!q1.empty())
-        kprintf("DATA: %d\n", q1.dequeue());
-
+    // Endless loop!
     while (1) { }
 }
