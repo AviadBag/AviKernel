@@ -19,7 +19,7 @@
 
 #include "multiboot/multiboot.h"
 
-#include "utils/fixed_queue.h"
+#include "utils/queue.h"
 
 #include <cstdio.h>
 #include <cstdlib.h>
@@ -440,6 +440,17 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     setup_drivers();
 
     //terminal();
+
+    Queue<int>* q = new Queue<int>;
+    q->enqueue(1);
+    q->enqueue(2);
+    q->enqueue(3);
+    
+    Queue<int> q1 = *q;
+    delete q;
+
+    while (!q1.empty())
+        kprintf("DATA: %d\n", q1.dequeue());
 
     while (1) { }
 }
