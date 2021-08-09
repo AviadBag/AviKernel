@@ -5,4 +5,8 @@ System Initialization Order:
     1.3 Initialize the Virtual  Memory Manager and enable paging
     1.4 Initialize the Heap.
 2. Initialize the Interrupts Manager.
-3. Enable drivers
+3. Setup drivers:
+    3.1 PIC driver. (Hardware Interrupts) + Enable hardware interrupts
+    3.2 PCI driver.
+    3.3 Clock driver.
+    3.4 Keyboard driver.
