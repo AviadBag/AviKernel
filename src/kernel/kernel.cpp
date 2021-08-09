@@ -377,7 +377,7 @@ const char* pci_device_type_to_string(uint8_t class_code, uint8_t sub_class_code
     }
 }
 
-void initialize_hal()
+void setup_drivers()
 {
     HAL::get_instance()->initialize();
 
@@ -387,28 +387,6 @@ void initialize_hal()
     pic_driver->attach();
     pic_driver->unmask_all_interrupts();
     asm volatile ("sti");
-
-    KeyboardDriver* keyboard_driver = (KeyboardDriver*)HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
-    if (keyboard_driver->exist()) 
-    {
-        keyboard_driver->attach();
-        keyboard_driver->set_on_press_listener([](ExtendedChar c) {
-            if (c.printable())
-                kprintf("%c", c.as_regular_char());
-        });
-    }
-
-    ClockDriver* clock_driver = (ClockDriver*)HAL::get_instance()->get_driver(HAL_CLOCK_DRIVER);
-    if (clock_driver->exist())
-    {
-        clock_driver->attach();
-        clock_driver->set_on_tick_listener([]() {
-            static int counter = 0;
-            counter++;
-            if (counter % 100 == 0)
-                kprintf("%d\n", counter / 100);
-        });
-    }
 
     PCIDriver* pci_driver = (PCIDriver*)HAL::get_instance()->get_driver(HAL_PCI_DRIVER);
     if (pci_driver->exist())
@@ -423,6 +401,28 @@ void initialize_hal()
             kprintf("  Name: %s, PROG IF: 0x%X\n", pci_device_type_to_string(class_code, sub_class_code), pci_driver->get_prog_if(d));
         }
         kprintf("\n");
+    }
+
+    ClockDriver* clock_driver = (ClockDriver*)HAL::get_instance()->get_driver(HAL_CLOCK_DRIVER);
+    if (clock_driver->exist())
+    {
+        clock_driver->attach();
+        clock_driver->set_on_tick_listener([]() {
+            static int counter = 0;
+            counter++;
+            if (counter % 100 == 0)
+                kprintf("%d\n", counter / 100);
+        });
+    }
+
+    KeyboardDriver* keyboard_driver = (KeyboardDriver*)HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
+    if (keyboard_driver->exist()) 
+    {
+        keyboard_driver->attach();
+        keyboard_driver->set_on_press_listener([](ExtendedChar c) {
+            if (c.printable())
+                kprintf("%c", c.as_regular_char());
+        });
     }
 }
 
@@ -440,8 +440,8 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     // 2. Initialize the Interrupts Manager.
     InterruptsManager::get_instance()->initialize();
 
-    // 3. Enable drivers
-    initialize_hal();
+    // 3. Setup drivers
+    setup_drivers();
 
     //terminal();
 
