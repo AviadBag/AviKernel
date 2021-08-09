@@ -1,7 +1,5 @@
-#include "drivers/pic/pic.h"
+#include "hal/drivers/pic/pic_driver.h"
 #include "drivers/serial_ports/serial_ports.h"
-
-#include <cstdio.h>
 
 #define MASTER 0
 #define SLAVE 1
@@ -26,11 +24,8 @@
 #define ICW3_SLAVE 0x02
 #define ICW4 0x01
 
-// Remaps the IRQ
-void PIC::initialize()
+void PICDriver::attach() 
 {
-    kprintf("Initializing PIC driver...\n");
-
     // ICW1
     send_command(MASTER, ICW1);
     SerialPorts::io_wait();
@@ -55,14 +50,16 @@ void PIC::initialize()
     SerialPorts::io_wait();
 }
 
-void PIC::enable_all_interrupts()
+void PICDriver::detach() {} // Nothing here
+
+void PICDriver::unmask_all_interrupts()
 {
     send_data(MASTER, 0x0);
     send_data(SLAVE, 0x0);
 }
 
 // pic=0: master, pic=1: slave
-void PIC::send_command(int pic, uint8_t command)
+void PICDriver::send_command(int pic, uint8_t command)
 {
     if (pic > 1)
         return; // We have only two PIC's...
@@ -72,7 +69,7 @@ void PIC::send_command(int pic, uint8_t command)
 }
 
 // pic=0: master, pic=1: slave
-uint8_t PIC::read_data(int pic)
+uint8_t PICDriver::read_data(int pic)
 {
     if (pic > 1)
         return 0; // We have only two PIC's...
@@ -82,7 +79,7 @@ uint8_t PIC::read_data(int pic)
 }
 
 // pic=0: master, pic=1: slave
-void PIC::send_data(int pic, uint8_t data)
+void PICDriver::send_data(int pic, uint8_t data)
 {
     if (pic > 1)
         return; // We have only two PIC's...
@@ -91,10 +88,15 @@ void PIC::send_data(int pic, uint8_t data)
     SerialPorts::outb(port, data);
 }
 
-void PIC::send_end_of_interrupt(uint8_t irq)
+void PICDriver::send_end_of_interrupt(uint8_t irq)
 {
     if (irq >= 8)
         send_command(SLAVE, END_OF_INTERRUPT);
 
     send_command(MASTER, END_OF_INTERRUPT);
+}
+
+bool PICDriver::exist() 
+{
+    return true; // TODO: Only return true if there are TWO PIC's.
 }

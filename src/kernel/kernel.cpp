@@ -3,9 +3,9 @@
 #include "hal/drivers/keyboard/keyboard_driver.h"
 #include "hal/drivers/clock/clock_driver.h"
 #include "hal/drivers/pci/pci_driver.h"
+#include "hal/drivers/pic/pic_driver.h"
 #include "hal/hal.h"
 
-#include "drivers/pic/pic.h"
 #include "drivers/screen/text_output.h"
 #include "drivers/screen/vga_text.h"
 #include "drivers/serial_ports/serial_ports.h"
@@ -380,6 +380,14 @@ const char* pci_device_type_to_string(uint8_t class_code, uint8_t sub_class_code
 void initialize_hal()
 {
     HAL::get_instance()->initialize();
+
+    PICDriver* pic_driver = (PICDriver*)HAL::get_instance()->get_driver(HAL_PIC_DRIVER);
+    if (!pic_driver->exist())
+        panic("This PC is unsupported, because it does not have 2 PIC's");
+    pic_driver->attach();
+    pic_driver->unmask_all_interrupts();
+    asm volatile ("sti");
+
     KeyboardDriver* keyboard_driver = (KeyboardDriver*)HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
     if (keyboard_driver->exist()) 
     {
@@ -397,6 +405,8 @@ void initialize_hal()
         clock_driver->set_on_tick_listener([]() {
             static int counter = 0;
             counter++;
+            if (counter % 100 == 0)
+                kprintf("%d\n", counter / 100);
         });
     }
 
@@ -431,9 +441,6 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     InterruptsManager::get_instance()->initialize();
 
     // Drivers
-    PIC::initialize();
-    PIC::enable_all_interrupts();
-    asm volatile("sti");
     initialize_hal();
 
     //terminal();
