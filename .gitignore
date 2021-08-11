@@ -4,6 +4,7 @@ os.iso
 **/*.ob
 .vimrc
 compile_commands.json
+.vscode/*.log
 .cache/
 scripts/
 .idea/
