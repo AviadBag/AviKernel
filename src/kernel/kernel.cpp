@@ -61,12 +61,18 @@ void setup_drivers()
     keyboard_driver->attach();
 }
 
+void setup_interrupts()
+{
+    InterruptsManager::get_instance()->initialize();
+}
+
 extern "C" void kernel_main(multiboot_info_t* multiboot_info)
 {
     // System Initialization
     VgaText::initialize();
+    
     setup_memory_managment(multiboot_info);
-    InterruptsManager::get_instance()->initialize();
+    setup_interrupts();
     setup_drivers();
 
     // Endless loop!
