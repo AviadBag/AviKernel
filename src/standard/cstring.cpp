@@ -14,3 +14,11 @@ int strcmp(const char* s1, const char* s2)
         s1++, s2++;
     return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
+
+size_t strlen(const char *str)
+{
+    const char *s;
+    for (s = str; *s; ++s)
+            ;
+    return (s - str);
+}
