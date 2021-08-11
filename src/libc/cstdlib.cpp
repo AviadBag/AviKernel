@@ -45,3 +45,8 @@ void free(void* addr)
 {
     Heap::free(addr);
 }
+
+void* realloc(void *ptr, size_t new_size)
+{
+    return Heap::realloc(ptr, new_size);
+}

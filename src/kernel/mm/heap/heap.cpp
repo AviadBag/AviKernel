@@ -5,6 +5,7 @@
 #include "kernel/panic.h"
 
 #include <cstdio.h>
+#include <cstring.h>
 
 // Adds <amount> to the void pointer <void_p>
 #define HEAP_ADD_TO_VOID_P(void_p, amount) ((void_p) = (void*)(((char*)(void_p)) + amount))
@@ -212,6 +213,8 @@ void Heap::merge(heap_header* header)
 
 void Heap::free(void* addr)
 {
+    /* Warning: When using this code in other places, do "- sizeof(size_t)", because the size indicator counts itself
+    as well! */
     HEAP_SUBTRACT_FROM_VOID_P(addr, sizeof(size_t)); // Go to the actual beginning of the allocated space.
     size_t how_many_bytes = *(size_t*)(addr);
 
@@ -220,4 +223,23 @@ void Heap::free(void* addr)
     insert_to_holes_list(header);
 
     merge(header);
+}
+
+void* Heap::realloc(void *ptr, size_t new_size) 
+{
+    if (!ptr) return malloc(new_size);
+    else if (new_size == 0) { free(ptr); return nullptr;}
+    
+    void* tmp = ptr;
+    HEAP_SUBTRACT_FROM_VOID_P(tmp, sizeof(size_t));
+    size_t old_size = *(size_t*)(tmp) - sizeof(size_t); // The size indicator counts itself as well.
+
+    void* new_place = malloc(new_size);
+    if (!new_place) return nullptr;
+
+    size_t bytes_to_copy = (new_size > old_size) ? old_size : new_size;
+    memcpy(new_place, ptr, bytes_to_copy);
+    free(ptr);
+
+    return new_place;
 }
