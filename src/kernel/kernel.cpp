@@ -71,6 +71,68 @@ void setup_interrupts()
     InterruptsManager::get_instance()->initialize();
 }
 
+// Registers default handlres to the CPU exceptions (Page Fault, Divide by Zero, etc...)
+void setup_exceptions_handlers()
+{
+    InterruptsManager::get_instance()->set_isr(0, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Division by zero exception");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(1, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Debug exception");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(2, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Non maskable interrupt");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(3, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Breakpoint exception");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(4, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Into detected overflow");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(5, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Out of bounds exception");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(6, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Invalid opcode exception");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(7, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("No coprocessor exception");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(8, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Double fault");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(9, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Coprocessor segment overrun");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(10, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Bad TSS");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(11, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Segment not present");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(12, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Stack fault");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(13, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("General protection fault");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(14, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Page fault");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(15, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Unknown interrupt exception");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(16, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Coprocessor fault");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(17, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Alignment check exception");
+    }, nullptr);
+    InterruptsManager::get_instance()->set_isr(18, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
+        panic("Machine check exception");
+    }, nullptr);
+}
+
 extern "C" void kernel_main(multiboot_info_t* multiboot_info)
 {
     // System Initialization
@@ -78,6 +140,7 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
 
     setup_memory_managment(multiboot_info);
     setup_interrupts();
+    setup_exceptions_handlers();
     setup_drivers();
 
     // Endless loop!
