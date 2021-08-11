@@ -1,10 +1,10 @@
 #include "runtime/icxxabi.h"
 
-#include "hal/drivers/keyboard/keyboard_driver.h"
-#include "hal/drivers/clock/clock_driver.h"
-#include "hal/drivers/pci/pci_driver.h"
-#include "hal/drivers/pic/pic_driver.h"
-#include "hal/hal.h"
+#include "drivers_manager/drivers/keyboard/keyboard_driver.h"
+#include "drivers_manager/drivers/clock/clock_driver.h"
+#include "drivers_manager/drivers/pci/pci_driver.h"
+#include "drivers_manager/drivers/pic/pic_driver.h"
+#include "drivers_manager/drivers_manager.h"
 
 #include "drivers/screen/text_output.h"
 #include "drivers/screen/vga_text.h"
@@ -41,26 +41,26 @@ void setup_memory_managment(multiboot_info_t* multiboot_info)
 
 void setup_drivers()
 {
-    HAL::get_instance()->initialize();
+    DriversManager::get_instance()->initialize();
 
-    PICDriver* pic_driver = (PICDriver*)HAL::get_instance()->get_driver(HAL_PIC_DRIVER);
+    PICDriver* pic_driver = (PICDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PIC_DRIVER);
     if (!pic_driver->exist())
         panic("This PC is unsupported, because it does not have 2 PIC's");
     pic_driver->attach();
     pic_driver->unmask_all_interrupts();
     asm volatile ("sti");
 
-    PCIDriver* pci_driver = (PCIDriver*)HAL::get_instance()->get_driver(HAL_PCI_DRIVER);
+    PCIDriver* pci_driver = (PCIDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
     if (!pci_driver->exist())
         panic("This PC is unsupported, because it has no a PCI bus");
     pci_driver->attach();
 
-    ClockDriver* clock_driver = (ClockDriver*)HAL::get_instance()->get_driver(HAL_CLOCK_DRIVER);
+    ClockDriver* clock_driver = (ClockDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_CLOCK_DRIVER);
     if (!clock_driver->exist())
         panic("This PC is unsupported, because it has no clock");
     clock_driver->attach();
 
-    KeyboardDriver* keyboard_driver = (KeyboardDriver*)HAL::get_instance()->get_driver(HAL_KEYBOARD_DRIVER);
+    KeyboardDriver* keyboard_driver = (KeyboardDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_KEYBOARD_DRIVER);
     if (!keyboard_driver->exist()) 
         panic("No keyboard connected. Press F10 to continue.");
     keyboard_driver->attach();

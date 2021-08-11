@@ -1,5 +1,5 @@
-#include "hal/hal.h"
-#include "hal/drivers/pic/pic_driver.h"
+#include "drivers_manager/drivers_manager.h"
+#include "drivers_manager/drivers/pic/pic_driver.h"
 #include "kernel/interrupts/isr_manager.h"
 
 #define IRQ_START 32
@@ -25,7 +25,7 @@ extern "C" void general_isr_handler(struct registers regs)
     // Send EOI if this is an IRQ.
     if (regs.interrupt_number >= IRQ_START && regs.interrupt_number <= IRQ_END) {
         int irq = regs.interrupt_number - IRQ_START;
-        ((PICDriver*) HAL::get_instance()->get_driver(HAL_PIC_DRIVER))->send_end_of_interrupt(irq);
+        ((PICDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PIC_DRIVER))->send_end_of_interrupt(irq);
     }
 
     // Call the registered handler
