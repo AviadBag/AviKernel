@@ -143,7 +143,7 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     setup_exceptions_handlers();
     setup_drivers();
 
-    putchar('a');
+    puts("Hello, World!\n");
 
     // Endless loop!
     while (1) { }

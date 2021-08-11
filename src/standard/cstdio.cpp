@@ -902,3 +902,9 @@ int fctprintf(void (*out)(char character, void* arg), void* arg, const char* for
     va_end(va);
     return ret;
 }
+
+int puts(const char *s)
+{
+    printf("%s\n", s);
+    return 1;
+}

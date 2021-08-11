@@ -101,6 +101,8 @@ int vprintf_(const char* format, va_list va);
  */
 int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...);
 
+int puts(const char *s);
+
 #ifdef __cplusplus
 }
 #endif
