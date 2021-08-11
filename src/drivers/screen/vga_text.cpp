@@ -13,7 +13,7 @@ void VgaText::initialize()
 {
     x = y = 0;
     clear();
-    kprintf("Initialized VgaText...\n");
+    printf("Initialized VgaText...\n");
 }
 
 void VgaText::putchar(char c)

@@ -271,7 +271,7 @@ extern "C" void isr255();
 
 void IDT::install()
 {
-    kprintf("Initializing IDT...\n");
+    printf("Initializing IDT...\n");
     put_descriptors();
 
     uint32_t idt_size = sizeof(idt_descriptor) * IDT_SIZE - 1;

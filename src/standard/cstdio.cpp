@@ -22,11 +22,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// \brief Tiny kprintf, skprintf and (v)snkprintf implementation, optimized for speed on
+// \brief Tiny printf, sprintf and (v)snprintf implementation, optimized for speed on
 //        embedded systems with a very limited resources. These routines are thread
 //        safe and reentrant!
-//        Use this instead of the bloated standard/newlib kprintf cause these use
-//        malloc for kprintf (and may not be thread safe).
+//        Use this instead of the bloated standard/newlib printf cause these use
+//        malloc for printf (and may not be thread safe).
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -38,10 +38,10 @@
 #include "drivers/screen/text_output.h"
 
 // define this globally (e.g. gcc -DPRINTF_INCLUDE_CONFIG_H ...) to include the
-// kprintf_config.h header file
+// printf_config.h header file
 // default: undefined
 #ifdef PRINTF_INCLUDE_CONFIG_H
-#include "kprintf_config.h"
+#include "printf_config.h"
 #endif
 
 // 'ntoa' conversion buffer size, this must be big enough to hold one converted
@@ -347,7 +347,7 @@ static size_t _ftoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, d
         return _out_rev(out, buffer, idx, maxlen, (flags & FLAGS_PLUS) ? "fni+" : "fni", (flags & FLAGS_PLUS) ? 4U : 3U, width, flags);
 
     // test for very large values
-    // standard kprintf behavior is to print EVERY whole number digit -- which could be 100s of characters overflowing your buffers == bad
+    // standard printf behavior is to print EVERY whole number digit -- which could be 100s of characters overflowing your buffers == bad
     if ((value > PRINTF_MAX_FLOAT) || (value < -PRINTF_MAX_FLOAT)) {
 #if defined(PRINTF_SUPPORT_EXPONENTIAL)
         return _etoa(out, buffer, idx, maxlen, value, prec, width, flags);
@@ -558,8 +558,8 @@ static size_t _etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, d
 #endif // PRINTF_SUPPORT_EXPONENTIAL
 #endif // PRINTF_SUPPORT_FLOAT
 
-// internal vsnkprintf
-static int _vsnkprintf(out_fct_type out, char* buffer, const size_t maxlen, const char* format, va_list va)
+// internal vsnprintf
+static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const char* format, va_list va)
 {
     unsigned int flags, width, precision, n;
     size_t idx = 0U;
@@ -854,51 +854,51 @@ static int _vsnkprintf(out_fct_type out, char* buffer, const size_t maxlen, cons
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int kprintf_(const char* format, ...)
+int printf_(const char* format, ...)
 {
     va_list va;
     va_start(va, format);
     char buffer[1];
-    const int ret = _vsnkprintf(_out_char, buffer, (size_t)-1, format, va);
+    const int ret = _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
     va_end(va);
     return ret;
 }
 
-int skprintf_(char* buffer, const char* format, ...)
+int sprintf_(char* buffer, const char* format, ...)
 {
     va_list va;
     va_start(va, format);
-    const int ret = _vsnkprintf(_out_buffer, buffer, (size_t)-1, format, va);
+    const int ret = _vsnprintf(_out_buffer, buffer, (size_t)-1, format, va);
     va_end(va);
     return ret;
 }
 
-int snkprintf_(char* buffer, size_t count, const char* format, ...)
+int snprintf_(char* buffer, size_t count, const char* format, ...)
 {
     va_list va;
     va_start(va, format);
-    const int ret = _vsnkprintf(_out_buffer, buffer, count, format, va);
+    const int ret = _vsnprintf(_out_buffer, buffer, count, format, va);
     va_end(va);
     return ret;
 }
 
-int vkprintf_(const char* format, va_list va)
+int vprintf_(const char* format, va_list va)
 {
     char buffer[1];
-    return _vsnkprintf(_out_char, buffer, (size_t)-1, format, va);
+    return _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
 }
 
-int vsnkprintf_(char* buffer, size_t count, const char* format, va_list va)
+int vsnprintf_(char* buffer, size_t count, const char* format, va_list va)
 {
-    return _vsnkprintf(_out_buffer, buffer, count, format, va);
+    return _vsnprintf(_out_buffer, buffer, count, format, va);
 }
 
-int fctkprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...)
+int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...)
 {
     va_list va;
     va_start(va, format);
     const out_fct_wrap_type out_fct_wrap = { out, arg };
-    const int ret = _vsnkprintf(_out_fct, (char*)(uintptr_t)&out_fct_wrap, (size_t)-1, format, va);
+    const int ret = _vsnprintf(_out_fct, (char*)(uintptr_t)&out_fct_wrap, (size_t)-1, format, va);
     va_end(va);
     return ret;
 }

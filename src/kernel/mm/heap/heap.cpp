@@ -20,7 +20,7 @@ void* Heap::last_page;
 
 void Heap::initialize()
 {
-    kprintf("Initializing Heap...\n");
+    printf("Initializing Heap...\n");
 
     // kernelEnd is page aligned, and holes_list_head should also be page aligned..
     holes_list_head = holes_list_tail = (heap_header*)(&kernelEnd + VMMGR_PAGE_SIZE);
@@ -69,7 +69,7 @@ bool Heap::extend_heap(size_t size)
     return status;
 }
 
-void* Heap::kmalloc(size_t size)
+void* Heap::malloc(size_t size)
 {
     if (size == 0)
         return NULL;
@@ -93,7 +93,7 @@ void* Heap::kmalloc(size_t size)
         if (!extend_heap(required_size))
             return NULL;
 
-        return kmalloc(size); // Try again
+        return malloc(size); // Try again
     }
 
     size_t allocated_size = split(hole, required_size);
@@ -210,7 +210,7 @@ void Heap::merge(heap_header* header)
         merge_next(header);
 }
 
-void Heap::kfree(void* addr)
+void Heap::free(void* addr)
 {
     HEAP_SUBTRACT_FROM_VOID_P(addr, sizeof(size_t)); // Go to the actual beginning of the allocated space.
     size_t how_many_bytes = *(size_t*)(addr);

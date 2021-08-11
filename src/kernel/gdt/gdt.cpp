@@ -9,7 +9,7 @@ gdt_descriptor GDT::gdt[GDT_DESCRIPTORS_LIMIT];
 
 void GDT::initialize()
 {
-    kprintf("Initializing GDT...\n");
+    printf("Initializing GDT...\n");
 
     descriptors_count = 0;
     init_descriptors();

@@ -36,12 +36,12 @@ char* itoa(int value, char* str, int base)
     return rc;
 }
 
-void* kmalloc(size_t size)
+void* malloc(size_t size)
 {
-    return Heap::kmalloc(size);
+    return Heap::malloc(size);
 }
 
-void kfree(void* addr)
+void free(void* addr)
 {
-    Heap::kfree(addr);
+    Heap::free(addr);
 }

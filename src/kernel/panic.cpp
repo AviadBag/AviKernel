@@ -8,8 +8,8 @@ void panic(const char* format, ...)
     va_list args;
     va_start(args, format);
 
-    kprintf("------------ KERNEL PANIC ------------\n");
-    vkprintf(format, args);
+    printf("------------ KERNEL PANIC ------------\n");
+    vprintf(format, args);
 
     va_end(args);
 

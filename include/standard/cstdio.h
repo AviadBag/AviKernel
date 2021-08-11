@@ -22,9 +22,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// \brief Tiny kprintf, skprintf and snkprintf implementation, optimized for speed on
+// \brief Tiny printf, sprintf and snprintf implementation, optimized for speed on
 //        embedded systems with a very limited resources.
-//        Use this instead of bloated standard/newlib kprintf.
+//        Use this instead of bloated standard/newlib printf.
 //        These routines are thread safe and reentrant.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,35 +40,35 @@ extern "C" {
 #endif
 
 /**
- * Output a character to a custom device like UART, used by the kprintf() function
+ * Output a character to a custom device like UART, used by the printf() function
  * This function is declared here only. You have to write your custom implementation somewhere
  * \param character Character to output
  */
 void _putchar(char character);
 
 /**
- * Tiny kprintf implementation
- * You have to implement _putchar if you use kprintf()
- * To avoid conflicts with the regular kprintf() API it is overridden by macro defines
- * and internal underscore-appended functions like kprintf_() are used
+ * Tiny printf implementation
+ * You have to implement _putchar if you use printf()
+ * To avoid conflicts with the regular printf() API it is overridden by macro defines
+ * and internal underscore-appended functions like printf_() are used
  * \param format A string that specifies the format of the output
  * \return The number of characters that are written into the array, not counting the terminating null character
  */
-#define kprintf kprintf_
-int kprintf_(const char* format, ...);
+#define printf printf_
+int printf_(const char* format, ...);
 
 /**
- * Tiny skprintf implementation
+ * Tiny sprintf implementation
  * Due to security reasons (buffer overflow) YOU SHOULD CONSIDER USING (V)SNPRINTF INSTEAD!
  * \param buffer A pointer to the buffer where to store the formatted string. MUST be big enough to store the output!
  * \param format A string that specifies the format of the output
  * \return The number of characters that are WRITTEN into the buffer, not counting the terminating null character
  */
-#define skprintf skprintf_
-int skprintf_(char* buffer, const char* format, ...);
+#define sprintf sprintf_
+int sprintf_(char* buffer, const char* format, ...);
 
 /**
- * Tiny snkprintf/vsnkprintf implementation
+ * Tiny snprintf/vsnprintf implementation
  * \param buffer A pointer to the buffer where to store the formatted string
  * \param count The maximum number of characters to store in the buffer, including a terminating null character
  * \param format A string that specifies the format of the output
@@ -77,29 +77,29 @@ int skprintf_(char* buffer, const char* format, ...);
  *         null character. A value equal or larger than count indicates truncation. Only when the returned value
  *         is non-negative and less than count, the string has been completely written.
  */
-#define snkprintf snkprintf_
-#define vsnkprintf vsnkprintf_
-int snkprintf_(char* buffer, size_t count, const char* format, ...);
-int vsnkprintf_(char* buffer, size_t count, const char* format, va_list va);
+#define snprintf snprintf_
+#define vsnprintf vsnprintf_
+int snprintf_(char* buffer, size_t count, const char* format, ...);
+int vsnprintf_(char* buffer, size_t count, const char* format, va_list va);
 
 /**
- * Tiny vkprintf implementation
+ * Tiny vprintf implementation
  * \param format A string that specifies the format of the output
  * \param va A value identifying a variable arguments list
  * \return The number of characters that are WRITTEN into the buffer, not counting the terminating null character
  */
-#define vkprintf vkprintf_
-int vkprintf_(const char* format, va_list va);
+#define vprintf vprintf_
+int vprintf_(const char* format, va_list va);
 
 /**
- * kprintf with output function
- * You may use this as dynamic alternative to kprintf() with its fixed _putchar() output
+ * printf with output function
+ * You may use this as dynamic alternative to printf() with its fixed _putchar() output
  * \param out An output function which takes one character and an argument pointer
  * \param arg An argument pointer for user data passed to output function
  * \param format A string that specifies the format of the output
  * \return The number of characters that are sent to the output function, not counting the terminating null character
  */
-int fctkprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...);
+int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...);
 
 #ifdef __cplusplus
 }

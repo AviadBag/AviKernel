@@ -14,8 +14,8 @@ class Heap {
 public:
     static void initialize();
 
-    static void* kmalloc(size_t);
-    static void kfree(void*);
+    static void* malloc(size_t);
+    static void free(void*);
 
 private:
     static bool extend_heap(size_t); // Extends the heap until there is enough space.

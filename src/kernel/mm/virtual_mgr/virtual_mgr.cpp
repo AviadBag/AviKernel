@@ -103,7 +103,7 @@ void VirtualMgr::map_range(virtual_addr v_addr, physical_addr p_addr, size_t cou
 extern "C" void set_cr3(uint32_t);
 void VirtualMgr::initialize()
 {
-    kprintf("Initializing Virtual Memory Manager...\n");
+    printf("Initializing Virtual Memory Manager...\n");
 
     put_page_etable(); // Put the etable in the boot directory.
     map_range((virtual_addr)VMMGR_KERNEL_VIRTUAL_BASE_ADDR, 0, VMMGR_4_MB / VMMGR_PAGE_SIZE, true); // Map kernel

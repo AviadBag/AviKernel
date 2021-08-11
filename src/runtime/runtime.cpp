@@ -5,22 +5,22 @@
 
 void* operator new(size_t size)
 {
-    return kmalloc(size);
+    return malloc(size);
 }
 
 void* operator new[](size_t size)
 {
-    return kmalloc(size);
+    return malloc(size);
 }
 
 void operator delete(void* p)
 {
-    kfree(p);
+    free(p);
 }
 
 void operator delete[](void* p)
 {
-    kfree(p);
+    free(p);
 }
 
 /* Virtual function hundler */
