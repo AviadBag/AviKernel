@@ -1,5 +1,5 @@
 #include "drivers_manager/drivers/keyboard/keyboard_ps2_driver.h"
-#include "drivers/serial_ports/serial_ports.h"
+#include "utils/io.h"
 #include "kernel/interrupts/interrupts_manager.h"
 
 #define PS2_INTERRUPT_NUBMER 33
@@ -114,7 +114,7 @@ void KeyboardPS2Driver::on_break_scan_code(uint8_t scan_code)
 
 uint8_t KeyboardPS2Driver::ke_read_data()
 {
-    return SerialPorts::inb(KE_PORT);
+    return IO::inb(KE_PORT);
 }
 
 bool KeyboardPS2Driver::exist()

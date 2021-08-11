@@ -1,6 +1,6 @@
 #include "drivers_manager/drivers/pci/pci_driver.h"
 #include "drivers_manager/drivers/pci/pci_device.h"
-#include "drivers/serial_ports/serial_ports.h"
+#include "utils/io.h"
 
 #define PCI_NUMBER_OF_BUSES 256
 #define PCI_NUMBER_OF_DEVICES_PER_BUS 32
@@ -99,8 +99,8 @@ uint32_t PCIDriver::pci_config_read_32_bits(PCIDevice d, uint8_t offset)
     address |= (function_32 << 8);
     address |= offset_32;
 
-    SerialPorts::outl(PCI_CONFIG_ADDRESS_PORT, address);
-    return SerialPorts::inl(PCI_CONFIG_DATA);
+    IO::outl(PCI_CONFIG_ADDRESS_PORT, address);
+    return IO::inl(PCI_CONFIG_DATA);
 }
 
 uint16_t PCIDriver::get_vendor_id(PCIDevice d)

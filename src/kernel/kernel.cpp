@@ -8,7 +8,7 @@
 
 #include "drivers/screen/text_output.h"
 #include "drivers/screen/vga_text.h"
-#include "drivers/serial_ports/serial_ports.h"
+#include "utils/io.h"
 
 #include "kernel/gdt/gdt.h"
 #include "kernel/interrupts/interrupts_manager.h"

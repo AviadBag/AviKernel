@@ -1,6 +1,6 @@
 #include "drivers_manager/drivers/clock/clock_pit_driver.h"
 #include "kernel/interrupts/interrupts_manager.h"
-#include "drivers/serial_ports/serial_ports.h"
+#include "utils/io.h"
 #include "kernel/panic.h"
 
 #define PIT_DIVIDEND 1193180
@@ -36,13 +36,13 @@ void ClockPITDriver::configure_pit()
         panic("Cannot initial PIT with frequency of %d, because the maximum is %d (16 bits unsigned)", divisor, UINT16_T_MAX);
 
     // send the command byte
-    SerialPorts::outb(PIT_COMMAND_PORT, 0x36);
+    IO::outb(PIT_COMMAND_PORT, 0x36);
 
     // Divisor should be sent byte by byte
     uint8_t low = (uint8_t)(divisor & 0xFF);
     uint8_t high = (uint8_t)((divisor >> 8) & 0xFF);
 
-    SerialPorts::outb(PIT_CHANNEL_0_PORT, low);
-    SerialPorts::outb(PIT_CHANNEL_0_PORT, high);    
+    IO::outb(PIT_CHANNEL_0_PORT, low);
+    IO::outb(PIT_CHANNEL_0_PORT, high);    
 }
 

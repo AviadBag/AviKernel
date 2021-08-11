@@ -1,5 +1,5 @@
 #include "drivers_manager/drivers/pic/pic_driver.h"
-#include "drivers/serial_ports/serial_ports.h"
+#include "utils/io.h"
 
 #define MASTER 0
 #define SLAVE 1
@@ -28,26 +28,26 @@ void PICDriver::attach()
 {
     // ICW1
     send_command(MASTER, ICW1);
-    SerialPorts::io_wait();
+    IO::io_wait();
     send_command(SLAVE, ICW1);
-    SerialPorts::io_wait();
+    IO::io_wait();
 
     // ICW2
     send_data(MASTER, ICW2_MASTER);
-    SerialPorts::io_wait();
+    IO::io_wait();
     send_data(SLAVE, ICW2_SLAVE);
-    SerialPorts::io_wait();
+    IO::io_wait();
 
     // ICW3
     send_data(MASTER, ICW3_MASTER);
-    SerialPorts::io_wait();
+    IO::io_wait();
     send_data(SLAVE, ICW3_SLAVE);
-    SerialPorts::io_wait();
+    IO::io_wait();
 
     send_data(MASTER, ICW4);
-    SerialPorts::io_wait();
+    IO::io_wait();
     send_data(SLAVE, ICW4);
-    SerialPorts::io_wait();
+    IO::io_wait();
 }
 
 void PICDriver::detach() {} // Nothing here
@@ -65,7 +65,7 @@ void PICDriver::send_command(int pic, uint8_t command)
         return; // We have only two PIC's...
 
     uint16_t port = (pic == MASTER) ? MASTER_PIC_COMMAND_PORT : SLAVE_PIC_COMMAND_PORT;
-    SerialPorts::outb(port, command);
+    IO::outb(port, command);
 }
 
 // pic=0: master, pic=1: slave
@@ -75,7 +75,7 @@ uint8_t PICDriver::read_data(int pic)
         return 0; // We have only two PIC's...
 
     uint16_t port = (pic == MASTER) ? MASTER_PIC_DATA_PORT : SLAVE_PIC_DATA_PORT;
-    return SerialPorts::inb(port);
+    return IO::inb(port);
 }
 
 // pic=0: master, pic=1: slave
@@ -85,7 +85,7 @@ void PICDriver::send_data(int pic, uint8_t data)
         return; // We have only two PIC's...
 
     uint16_t port = (pic == MASTER) ? MASTER_PIC_DATA_PORT : SLAVE_PIC_DATA_PORT;
-    SerialPorts::outb(port, data);
+    IO::outb(port, data);
 }
 
 void PICDriver::send_end_of_interrupt(uint8_t irq)

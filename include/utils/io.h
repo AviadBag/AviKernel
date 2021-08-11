@@ -1,17 +1,17 @@
-#ifndef _SERIAL_PORTS_H
-#define _SERIAL_PORTS_H
+#ifndef __IO_H__
+#define __IO_H__
 
 #include <stdint.h>
 
-class SerialPorts {
+class IO
+{
 public:
     static void outb(uint16_t port, uint8_t val);
     static void outl(uint16_t port, uint32_t val);
 
-    static uint8_t inb(uint16_t port);
+    static uint8_t  inb(uint16_t port);
     static uint32_t inl(uint16_t port);
 
-    static void io_wait(void);
+    static void io_wait();
 };
-
-#endif
+#endif // __IO_H__
