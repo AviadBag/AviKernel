@@ -2,7 +2,6 @@ bin/
 isodir/
 os.iso
 **/*.ob
-.vscode/
 .vimrc
 compile_commands.json
 .cache/
