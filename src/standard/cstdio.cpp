@@ -126,7 +126,7 @@ typedef struct
     void* arg;
 } out_fct_wrap_type;
 
-void _putchar(char c)
+void putchar(char c)
 {
     TextOutput::putchar(c);
 }
@@ -155,7 +155,7 @@ static inline void _out_char(char character, void* buffer, size_t idx, size_t ma
     (void)idx;
     (void)maxlen;
     if (character) {
-        _putchar(character);
+        putchar(character);
     }
 }
 
