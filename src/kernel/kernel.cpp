@@ -26,8 +26,13 @@
 #include <cstring.h>
 #include <stdint.h>
 
+#define MULTIBOOT_FLAGS_HAS_MEMORY_MAP 1 << 0
+
 void setup_memory_managment(multiboot_info_t* multiboot_info)
 {
+    if (!(multiboot_info->flags & MULTIBOOT_FLAGS_HAS_MEMORY_MAP))
+        panic("Bootloader didn't provide a memory map!.");
+    
     GDT::initialize();
     PhysicalMgr::initialize(multiboot_info->mem_upper * 1024, multiboot_info->mmap_addr, multiboot_info->mmap_length);
     VirtualMgr::initialize();
@@ -70,7 +75,7 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
 {
     // System Initialization
     VgaText::initialize();
-    
+
     setup_memory_managment(multiboot_info);
     setup_interrupts();
     setup_drivers();
