@@ -21,12 +21,12 @@ KeyboardGenericDriver::~KeyboardGenericDriver()
         delete drivers_holder.get_all_drivers().get(i);
 }
 
-void KeyboardGenericDriver::attach()
+void KeyboardGenericDriver::setup_driver_and_device()
 {
     for (int i = 0; i < drivers_holder.get_existing_drivers().size(); i++)
     {
         Driver* d = drivers_holder.get_existing_drivers().get(i);
-        d->attach();
+        d->setup_driver_and_device();
     }
 }
 

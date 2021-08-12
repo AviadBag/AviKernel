@@ -10,7 +10,7 @@ typedef void (*keyboard_on_release_listener)(ExtendedChar);
 
 class KeyboardPS2Driver : public KeyboardDriver {
 public:
-    virtual void attach() override;
+    virtual void setup_driver_and_device() override;
     virtual void detach() override;
     virtual bool exist () override;
 

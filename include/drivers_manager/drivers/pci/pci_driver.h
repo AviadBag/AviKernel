@@ -11,7 +11,7 @@
 class PCIDriver : public Driver
 {
 public:
-    virtual void attach() override;
+    virtual void setup_driver_and_device() override;
     virtual void detach() override;
     virtual bool exist () override;
 

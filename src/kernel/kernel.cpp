@@ -46,24 +46,24 @@ void setup_drivers()
     PICDriver* pic_driver = (PICDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PIC_DRIVER);
     if (!pic_driver->exist())
         panic("This PC is unsupported, because it does not have 2 PIC's");
-    pic_driver->attach();
+    pic_driver->setup_driver_and_device();
     pic_driver->unmask_all_interrupts();
     asm volatile ("sti");
 
     PCIDriver* pci_driver = (PCIDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
     if (!pci_driver->exist())
         panic("This PC is unsupported, because it has no a PCI bus");
-    pci_driver->attach();
+    pci_driver->setup_driver_and_device();
 
     ClockDriver* clock_driver = (ClockDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_CLOCK_DRIVER);
     if (!clock_driver->exist())
         panic("This PC is unsupported, because it has no clock");
-    clock_driver->attach();
+    clock_driver->setup_driver_and_device();
 
     KeyboardDriver* keyboard_driver = (KeyboardDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_KEYBOARD_DRIVER);
     if (!keyboard_driver->exist()) 
         panic("No keyboard connected. Press F10 to continue.");
-    keyboard_driver->attach();
+    keyboard_driver->setup_driver_and_device();
 }
 
 void setup_interrupts()

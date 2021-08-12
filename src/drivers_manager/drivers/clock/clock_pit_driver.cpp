@@ -12,7 +12,7 @@
 
 #define UINT16_T_MAX 65535 // The maximum number that can fit into uint16_t
 
-void ClockPITDriver::attach() 
+void ClockPITDriver::setup_driver_and_device() 
 {
     configure_pit();
     InterruptsManager::get_instance()->set_isr(PIT_IRQ_NUMBER, on_tick, this); // Register the callback

@@ -24,7 +24,7 @@
 #define ICW3_SLAVE 0x02
 #define ICW4 0x01
 
-void PICDriver::attach() 
+void PICDriver::setup_driver_and_device() 
 {
     // ICW1
     send_command(MASTER, ICW1);

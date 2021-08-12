@@ -42,7 +42,7 @@ enum PCI_FIELDS_SHIFT // How many do I have to shift after masking?
     PCI_PROG_IF_SHIFT = 8
 };
 
-void PCIDriver::attach() 
+void PCIDriver::setup_driver_and_device() 
 {
     enumerate_devices();
 }

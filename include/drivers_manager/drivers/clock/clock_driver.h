@@ -14,7 +14,7 @@ public:
 
     void set_on_tick_listener(clock_on_tick_listener);
     
-    // In HZ. IF CALLED, CALL BEFORE attach(). Does not have to be called; Default value is once in every 0.01 seconds.
+    // In HZ. IF CALLED, CALL BEFORE setup_driver_and_device(). Does not have to be called; Default value is once in every 0.01 seconds.
     void set_frequency(uint32_t);
 
 protected:
