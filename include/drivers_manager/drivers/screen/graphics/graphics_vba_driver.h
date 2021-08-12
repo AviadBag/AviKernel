@@ -10,7 +10,6 @@ public:
     void set_multiboot_info(multiboot_info_t* _multiboot_info); // MUST be called before attach and exist!!!
 
     virtual void setup_driver_and_device() override;
-    virtual void detach() override;
     virtual bool exist()  override; // Will return false if the multiboot info does not contains the required information.
 
 private:

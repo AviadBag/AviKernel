@@ -2,5 +2,4 @@ The driver class represents an abstract driver. All of the drivers are children 
 
 It has 3 functions:
 1. setup_driver_and_device() - Does whatever necessery for the driver to work.
-2. detach() - Detaches the driver from it's device.
 3. exist()  - Does the corresponding device exist? Does not have to be called after attach.

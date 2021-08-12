@@ -50,8 +50,6 @@ void PICDriver::setup_driver_and_device()
     IO::io_wait();
 }
 
-void PICDriver::detach() {} // Nothing here
-
 void PICDriver::unmask_all_interrupts()
 {
     send_data(MASTER, 0x0);

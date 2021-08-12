@@ -6,7 +6,6 @@ public:
     virtual ~Driver() {};
 
     virtual void setup_driver_and_device() = 0; // Undefined results if called when exist() returns false.
-    virtual void detach() = 0; // Undefined results if attach was not called before.
     virtual bool exist() = 0; // Does this device/s exist? CAN BE CALLED BEFORE setup_driver_and_device()!
 };
 

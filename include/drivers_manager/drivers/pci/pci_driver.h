@@ -12,7 +12,6 @@ class PCIDriver : public Driver
 {
 public:
     virtual void setup_driver_and_device() override;
-    virtual void detach() override;
     virtual bool exist () override;
 
     Vector<PCIDevice>* get_devices();

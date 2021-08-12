@@ -18,11 +18,6 @@ void ClockPITDriver::setup_driver_and_device()
     InterruptsManager::get_instance()->set_isr(PIT_IRQ_NUMBER, on_tick, this); // Register the callback
 }
 
-void ClockPITDriver::detach() 
-{
-    InterruptsManager::get_instance()->remove_isr(PIT_IRQ_NUMBER);
-}
-
 bool ClockPITDriver::exist() 
 {
     return true; // TODO: Implement it.

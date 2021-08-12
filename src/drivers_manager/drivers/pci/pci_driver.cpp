@@ -52,8 +52,6 @@ Vector<PCIDevice>* PCIDriver::get_devices()
     return &devices;
 }
 
-void PCIDriver::detach() {} // Nothing here
-
 bool PCIDriver::exist() 
 {
     return true; // TODO: Implement it.

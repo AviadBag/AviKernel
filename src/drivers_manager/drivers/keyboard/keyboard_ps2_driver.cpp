@@ -26,11 +26,6 @@ void KeyboardPS2Driver::setup_driver_and_device()
         this);
 }
 
-void KeyboardPS2Driver::detach() 
-{
-    InterruptsManager::get_instance()->remove_isr(PS2_INTERRUPT_NUBMER);
-}
-
 void KeyboardPS2Driver::on_ke_data()
 {
     uint8_t data = ke_read_data();

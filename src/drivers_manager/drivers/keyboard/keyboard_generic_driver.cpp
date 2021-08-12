@@ -51,15 +51,6 @@ void KeyboardGenericDriver::set_on_release_listener(keyboard_on_release_listener
     }
 }
 
-void KeyboardGenericDriver::detach()
-{
-    for (int i = 0; i < drivers_holder.get_existing_drivers().size(); i++)
-    {
-        KeyboardDriver* keyboard_driver = (KeyboardDriver*) drivers_holder.get_existing_drivers().get(i);
-        keyboard_driver->detach();
-    }
-}
-
 bool KeyboardGenericDriver::exist()
 {
     return drivers_holder.get_existing_drivers().size() > 0;

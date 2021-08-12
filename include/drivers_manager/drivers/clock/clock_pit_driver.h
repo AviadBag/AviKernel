@@ -7,7 +7,6 @@ class ClockPITDriver : public ClockDriver
 {
 public:
     virtual void setup_driver_and_device() override;
-    virtual void detach() override;
     virtual bool exist () override;
 
 private:

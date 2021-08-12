@@ -19,8 +19,6 @@ void GraphicsVBADriver::setup_driver_and_device()
     printf("Video Mode: %d\n", multiboot_info->vbe_mode);
 }
 
-void GraphicsVBADriver::detach() {} // Empty
-
 bool GraphicsVBADriver::exist() 
 {
     if (!multiboot_info)
