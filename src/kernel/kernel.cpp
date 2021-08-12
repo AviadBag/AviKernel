@@ -5,6 +5,7 @@
 #include "drivers_manager/drivers/pci/pci_driver.h"
 #include "drivers_manager/drivers/pic/pic_driver.h"
 #include "drivers_manager/drivers_manager.h"
+#include "drivers_manager/drivers/storage/storage_driver.h"
 
 #include "drivers/screen/text_output.h"
 #include "drivers/screen/vga_text.h"
@@ -53,12 +54,16 @@ void setup_drivers()
     PCIDriver* pci_driver = (PCIDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
     if (!pci_driver->exist())
         panic("This PC is unsupported, because it has no a PCI bus");
+
     pci_driver->setup_driver_and_device();
 
     ClockDriver* clock_driver = (ClockDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_CLOCK_DRIVER);
     if (!clock_driver->exist())
         panic("This PC is unsupported, because it has no clock");
     clock_driver->setup_driver_and_device();
+
+    StorageDriver* storage_driver = (StorageDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
+    printf("Storage Driver Exists? %s\n", (storage_driver->exist() ? "yes" : "no"));
 
     KeyboardDriver* keyboard_driver = (KeyboardDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_KEYBOARD_DRIVER);
     if (!keyboard_driver->exist()) 
