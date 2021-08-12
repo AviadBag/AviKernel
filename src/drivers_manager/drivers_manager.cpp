@@ -3,6 +3,7 @@
 #include "drivers_manager/drivers/keyboard/keyboard_generic_driver.h"
 #include "drivers_manager/drivers/pci/pci_driver.h"
 #include "drivers_manager/drivers/pic/pic_driver.h"
+#include "drivers_manager/drivers/storage/pata/storage_pata_pio_driver.h"
 
 #include "drivers_manager/drivers/clock/clock_pit_driver.h"
 
@@ -17,6 +18,7 @@ void DriversManager::initialize()
     general_drivers[DRIVERS_MANAGER_CLOCK_DRIVER]    = new ClockPITDriver();
     general_drivers[DRIVERS_MANAGER_PCI_DRIVER]      = new PCIDriver();
     general_drivers[DRIVERS_MANAGER_PIC_DRIVER]      = new PICDriver();
+    general_drivers[DRIVERS_MANAGER_STORAGE_DRIVER]  = new StoragePataPIODriver();
 }
 
 Driver* DriversManager::get_driver(DRIVERS_MANAGER_GENERAL_DRIVER_TYPE driver_type)
