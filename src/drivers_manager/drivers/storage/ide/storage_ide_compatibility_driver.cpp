@@ -1,4 +1,4 @@
-#include "drivers_manager/drivers/storage/ide/storage_pci_ide_compatibility_driver.h"
+#include "drivers_manager/drivers/storage/ide/storage_ide_compatibility_driver.h"
 #include "drivers_manager/drivers/pci/pci_driver.h"
 #include "drivers_manager/drivers/pci/pci_device.h"
 #include "drivers_manager/drivers_manager.h"
@@ -10,35 +10,36 @@
 #define PCI_CLASS_MASS_STORAGE_CONTROLLER 0x1
 #define PCI_SUBCLASS_IDE_CONTROLLER       0x1
 
-StoragePCIIDECompatibilityDriver::StoragePCIIDECompatibilityDriver() 
+StorageIDECompatibilityDriver::StorageIDECompatibilityDriver() 
 {
     pci_driver = (PCIDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
 }
 
-StoragePCIIDECompatibilityDriver::~StoragePCIIDECompatibilityDriver() 
+StorageIDECompatibilityDriver::~StorageIDECompatibilityDriver() 
 {
     if (ide_controller)
         delete ide_controller;
 }
 
-void StoragePCIIDECompatibilityDriver::setup_driver_and_device() 
+void StorageIDECompatibilityDriver::setup_driver_and_device() 
 {
     // Here initialize ide_controller var.
 }
 
-bool StoragePCIIDECompatibilityDriver::exist()
+bool StorageIDECompatibilityDriver::exist()
 {
     // Check in the PCI if there is an IDE controller
     PCIDevice _ide_controller;
     if (!get_pci_ide_controller(&_ide_controller))
         return false;
-
     printf("Found an IDE Controller! PROG IF = 0x%X\n", pci_driver->get_prog_if(_ide_controller));
     
+    // Check if this device suports compitability mode
+
     return true;
 }
 
-bool StoragePCIIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_p) 
+bool StorageIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_p) 
 {
     Vector<PCIDevice>* pci_devices = pci_driver->get_devices();
     for (int i = 0; i < pci_devices->size(); i++)
@@ -56,12 +57,12 @@ bool StoragePCIIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_
     return false;
 }
 
-void StoragePCIIDECompatibilityDriver::read_sector([[gnu::unused]] uint64_t lba) 
+void StorageIDECompatibilityDriver::read_sector([[gnu::unused]] uint64_t lba) 
 {
 
 }
 
-void StoragePCIIDECompatibilityDriver::write_sector([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* sector) 
+void StorageIDECompatibilityDriver::write_sector([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* sector) 
 {
 
 }

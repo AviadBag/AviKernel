@@ -4,11 +4,11 @@
 #include "drivers_manager/drivers/storage/storage_driver.h"
 #include "drivers_manager/drivers/pci/pci_driver.h"
 
-class StoragePCIIDECompatibilityDriver : public StorageDriver
+class StorageIDECompatibilityDriver : public StorageDriver
 {
 public:
-    StoragePCIIDECompatibilityDriver();
-    ~StoragePCIIDECompatibilityDriver();
+    StorageIDECompatibilityDriver();
+    ~StorageIDECompatibilityDriver();
 
     virtual void setup_driver_and_device() override;
     virtual bool exist() override;
