@@ -1,4 +1,4 @@
-#include "drivers_manager/drivers/storage/ide/storage_pci_ide_driver.h"
+#include "drivers_manager/drivers/storage/ide/storage_pci_ide_compatibility_driver.h"
 #include "drivers_manager/drivers/pci/pci_driver.h"
 #include "drivers_manager/drivers/pci/pci_device.h"
 #include "drivers_manager/drivers_manager.h"
@@ -10,23 +10,23 @@
 #define PCI_CLASS_MASS_STORAGE_CONTROLLER 0x1
 #define PCI_SUBCLASS_IDE_CONTROLLER       0x1
 
-StoragePCIIDEDriver::StoragePCIIDEDriver() 
+StoragePCIIDECompatibilityDriver::StoragePCIIDECompatibilityDriver() 
 {
     pci_driver = (PCIDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
 }
 
-StoragePCIIDEDriver::~StoragePCIIDEDriver() 
+StoragePCIIDECompatibilityDriver::~StoragePCIIDECompatibilityDriver() 
 {
     if (ide_controller)
         delete ide_controller;
 }
 
-void StoragePCIIDEDriver::setup_driver_and_device() 
+void StoragePCIIDECompatibilityDriver::setup_driver_and_device() 
 {
     // Here initialize ide_controller var.
 }
 
-bool StoragePCIIDEDriver::exist() 
+bool StoragePCIIDECompatibilityDriver::exist() 
 {
     // Check in the PCI if there is an IDE controller
     Vector<PCIDevice>* pci_devices = pci_driver->get_devices();
@@ -45,12 +45,12 @@ bool StoragePCIIDEDriver::exist()
     return false;
 }
 
-void StoragePCIIDEDriver::read_sector([[gnu::unused]] uint64_t lba) 
+void StoragePCIIDECompatibilityDriver::read_sector([[gnu::unused]] uint64_t lba) 
 {
 
 }
 
-void StoragePCIIDEDriver::write_sector([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* sector) 
+void StoragePCIIDECompatibilityDriver::write_sector([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* sector) 
 {
 
 }
