@@ -24,7 +24,8 @@ public:
     uint8_t  get_prog_if(PCIDevice d);
 
 private:
-    void check_device(uint8_t bus, uint8_t device);
+    void add_device(PCIDevice d);
+    bool device_exists(PCIDevice d);
     void enumerate_devices();
 
     uint32_t pci_config_read_32_bits(PCIDevice d, uint8_t offset);
