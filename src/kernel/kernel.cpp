@@ -75,6 +75,8 @@ void setup_drivers()
 
     StorageDriver* storage_driver = (StorageDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
     printf("Storage Driver Exists? %s\n", (storage_driver->exist() ? "yes" : "no"));
+    if (storage_driver->exist())
+        storage_driver->setup_driver_and_device();
 
     KeyboardDriver* keyboard_driver = (KeyboardDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_KEYBOARD_DRIVER);
     if (!keyboard_driver->exist()) 

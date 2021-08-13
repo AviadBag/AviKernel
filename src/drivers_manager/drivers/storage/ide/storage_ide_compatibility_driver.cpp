@@ -4,7 +4,9 @@
 #include "drivers_manager/drivers_manager.h"
 
 #include "utils/vector.h"
+#include "utils/io.h"
 
+#include <stdint.h>
 #include <cstdio.h>
 
 // ICD stands for IDE Compatibility Driver
@@ -18,6 +20,18 @@
 #define ICD_SC_IN_PCI_MODE_MASK (1 << 2)     // Is the secondary channel in PCI mode RIGHT NOW?
 #define ICD_SC_SUPPORTS_SWITCH_MASK (1 << 3) // Can the secondary channel switch modes?
 
+// Ports bases
+#define ICD_PC_COMMAND_PORTS_BASE 0x1F0
+#define ICD_SC_COMMAND_PORTS_BASE 0x170
+
+#define ICD_PC_CONTROL_PORTS_BASE 0x3F6
+#define ICD_SC_CONTROL_PORTS_BASE 0x376 
+
+// Ports
+#define ICD_CONTROL_REGISTER_OFFSET       0x0
+#define ICD_ALTSTATUS_REGISTER_OFFSET     0x0
+#define ICD_SELECT_DRIVER_REGISTER_OFFSET 0x6
+
 StorageIDECompatibilityDriver::StorageIDECompatibilityDriver() 
 {
     pci_driver = (PCIDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
@@ -29,9 +43,75 @@ StorageIDECompatibilityDriver::~StorageIDECompatibilityDriver()
         delete ide_controller;
 }
 
+uint32_t StorageIDECompatibilityDriver::get_command_port_address(icd_channel c, int offset) 
+{
+    uint32_t base;
+    switch (c)
+    {
+        case ICD_PRIMARY_CHANNEL:
+            base = ICD_PC_COMMAND_PORTS_BASE;
+            break;
+        case ICD_SECONDARY_CHANNEL:
+            base = ICD_SC_COMMAND_PORTS_BASE;
+            break;
+        default:
+            panic("StorageIDECompatibilityDriver::get_command_port_address: Invalid given channel!\n");
+    }
+
+    return base + offset;
+}
+
+uint32_t StorageIDECompatibilityDriver::get_control_port_address(icd_channel c, int offset) 
+{
+    uint32_t base;
+    switch (c)
+    {
+        case ICD_PRIMARY_CHANNEL:
+            base = ICD_PC_CONTROL_PORTS_BASE;
+            break;
+        case ICD_SECONDARY_CHANNEL:
+            base = ICD_SC_CONTROL_PORTS_BASE;
+            break;
+        default:
+            panic("StorageIDECompatibilityDriver::get_control_port_address: Invalid given channel!\n");
+    }
+
+    return base + offset;
+}
+
+void StorageIDECompatibilityDriver::write_command_port(uint8_t data, icd_channel c, int offset) 
+{
+    IO::outb(get_command_port_address(c, offset), data);
+}
+
+void StorageIDECompatibilityDriver::write_control_port(uint8_t data, icd_channel c, int offset) 
+{
+    IO::outb(get_control_port_address(c, offset), data);
+}
+
+uint8_t StorageIDECompatibilityDriver::read_command_port(icd_channel c, int offset) 
+{
+    return IO::inb(get_command_port_address(c, offset));
+}
+
+uint8_t StorageIDECompatibilityDriver::read_control_port(icd_channel c, int offset) 
+{
+    return IO::inb(get_control_port_address(c, offset));
+}
+
+void StorageIDECompatibilityDriver::disable_interrupts(icd_channel which) 
+{
+    write_control_port(0b0010, which, ICD_CONTROL_REGISTER_OFFSET);
+}
+
 void StorageIDECompatibilityDriver::setup_driver_and_device() 
 {
-    // Here initialize ide_controller var.
+    // Get the IDE controller
+    get_pci_ide_controller(ide_controller);
+
+    // Disable interrupts for both channels
+    disable_interrupts(ICD_PRIMARY_CHANNEL);
+    disable_interrupts(ICD_SECONDARY_CHANNEL);
 }
 
 bool StorageIDECompatibilityDriver::exist()
