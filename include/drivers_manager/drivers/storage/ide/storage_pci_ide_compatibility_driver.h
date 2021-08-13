@@ -17,6 +17,9 @@ public:
     virtual void write_sector(uint64_t lba, char* sector) override;
 
 private:
+    // Iterates the PCI to find the IDE controller; Returns false if not found.
+    bool get_pci_ide_controller(PCIDevice*);
+
     PCIDriver* pci_driver;
     PCIDevice* ide_controller = nullptr;
 };
