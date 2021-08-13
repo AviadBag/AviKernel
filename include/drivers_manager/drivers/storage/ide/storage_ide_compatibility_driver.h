@@ -4,6 +4,12 @@
 #include "drivers_manager/drivers/storage/storage_driver.h"
 #include "drivers_manager/drivers/pci/pci_driver.h"
 
+enum icd_channel
+{
+    ICD_PRIMARY_CHANNEL,
+    ICD_SECONDARY_CHANNEL
+};
+
 class StorageIDECompatibilityDriver : public StorageDriver
 {
 public:
@@ -19,6 +25,10 @@ public:
 private:
     // Iterates the PCI to find the IDE controller; Returns false if not found.
     bool get_pci_ide_controller(PCIDevice*);
+
+    // Returns true if the channel is now in compatibility mode, or if it can be switched to compatibility mode.
+    // Must be only called if THERE IS an IDE controller.
+    bool channel_supports_compatibility_mode(icd_channel);
 
     PCIDriver* pci_driver;
     PCIDevice* ide_controller = nullptr;

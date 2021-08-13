@@ -7,8 +7,16 @@
 
 #include <cstdio.h>
 
-#define PCI_CLASS_MASS_STORAGE_CONTROLLER 0x1
-#define PCI_SUBCLASS_IDE_CONTROLLER       0x1
+// ICD stands for IDE Compatibility Driver
+
+#define ICD_PCI_CLASS_MASS_STORAGE_CONTROLLER 0x1
+#define ICD_PCI_SUBCLASS_IDE_CONTROLLER       0x1
+
+// PC stands for Primary Channel, SC stands for Secondary Channel
+#define ICD_PC_IN_PCI_MODE_MASK (1 << 0)     // Is the primary channel in PCI mode RIGHT NOW?
+#define ICD_PC_SUPPORTS_SWITCH_MASK (1 << 1) // Can the primary channel switch modes?
+#define ICD_SC_IN_PCI_MODE_MASK (1 << 2)     // Is the secondary channel in PCI mode RIGHT NOW?
+#define ICD_SC_SUPPORTS_SWITCH_MASK (1 << 3) // Can the secondary channel switch modes?
 
 StorageIDECompatibilityDriver::StorageIDECompatibilityDriver() 
 {
@@ -34,9 +42,32 @@ bool StorageIDECompatibilityDriver::exist()
         return false;
     printf("Found an IDE Controller! PROG IF = 0x%X\n", pci_driver->get_prog_if(_ide_controller));
     
-    // Check if this device suports compitability mode
+    // Check if at least one of the channels support compitability mode
+    return channel_supports_compatibility_mode(ICD_PRIMARY_CHANNEL) && channel_supports_compatibility_mode(ICD_SECONDARY_CHANNEL);
+}
 
-    return true;
+bool StorageIDECompatibilityDriver::channel_supports_compatibility_mode(icd_channel channel) 
+{
+    uint8_t now_mask, can_switch_mask;
+    switch (channel)
+    {
+        case ICD_PRIMARY_CHANNEL:
+            now_mask = ICD_PC_IN_PCI_MODE_MASK;
+            can_switch_mask = ICD_PC_SUPPORTS_SWITCH_MASK;
+            break;
+        case ICD_SECONDARY_CHANNEL:
+            now_mask = ICD_SC_IN_PCI_MODE_MASK;
+            can_switch_mask = ICD_SC_SUPPORTS_SWITCH_MASK;
+            break;
+        default:
+            panic("StorageIDECompatibilityDriver::channel_supports_compatibility_mode: Invalid given channel!\n");
+    }
+
+    PCIDevice _ide_controller;
+    get_pci_ide_controller(&_ide_controller);
+    
+    uint8_t prog_if = pci_driver->get_prog_if(_ide_controller);
+    return (prog_if & can_switch_mask) || ((prog_if & now_mask) == 0);
 }
 
 bool StorageIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_p) 
@@ -47,7 +78,7 @@ bool StorageIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_p)
         PCIDevice device = pci_devices->get(i);
         uint8_t class_code = pci_driver->get_class_code(device);
         uint8_t sub_class_code = pci_driver->get_sub_class_code(device);
-        if (class_code == PCI_CLASS_MASS_STORAGE_CONTROLLER && sub_class_code == PCI_SUBCLASS_IDE_CONTROLLER)
+        if (class_code == ICD_PCI_CLASS_MASS_STORAGE_CONTROLLER && sub_class_code == ICD_PCI_SUBCLASS_IDE_CONTROLLER)
         {
             *device_p = device;
             return true;
