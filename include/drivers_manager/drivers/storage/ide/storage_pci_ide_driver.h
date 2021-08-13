@@ -8,7 +8,6 @@ class StoragePCIIDEDriver : public StorageDriver
 {
 public:
     StoragePCIIDEDriver();
-    ~StoragePCIIDEDriver();
 
     virtual void setup_driver_and_device() override;
     virtual bool exist() override;
@@ -18,7 +17,7 @@ public:
 
 private:
     PCIDriver* pci_driver;
-    PCIDevice* ide_controller = nullptr;
+    Vector<PCIDevice> ide_controllers;
 };
 
 #endif // __STORAGE_PATA_PIO_DRIVER_H__
