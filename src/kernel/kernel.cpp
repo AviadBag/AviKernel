@@ -20,7 +20,7 @@
 
 #include "multiboot/multiboot.h"
 
-#include "utils/queue.h"
+#include "utils/time.h"
 
 #include <cstdio.h>
 #include <cstdlib.h>
@@ -71,7 +71,9 @@ void setup_drivers()
     ClockDriver* clock_driver = (ClockDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_CLOCK_DRIVER);
     if (!clock_driver->exist())
         panic("This PC is unsupported, because it has no clock");
+    clock_driver->set_frequency(1000); // Once in MS.
     clock_driver->setup_driver_and_device();
+    Time::initialize();
 
     StorageDriver* storage_driver = (StorageDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
     printf("Storage Driver Exists? %s\n", (storage_driver->exist() ? "yes" : "no"));
