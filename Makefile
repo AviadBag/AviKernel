@@ -32,7 +32,7 @@ KERNEL := ${BIN}/kernel.bin
 ISO    := os.iso
 
 VM             := qemu-system-i386
-VM_FLAGS       := -device piix3-ide,id=ide -drive id=disk,file=${ISO},format=raw,if=none -device ide-hd,drive=disk,bus=ide.0
+VM_FLAGS := ${ISO}
 VM_DEBUG_FLAGS := -s -S
 
 all: ${ISO}
