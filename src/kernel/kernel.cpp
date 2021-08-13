@@ -54,8 +54,19 @@ void setup_drivers()
     PCIDriver* pci_driver = (PCIDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
     if (!pci_driver->exist())
         panic("This PC is unsupported, because it has no a PCI bus");
-
     pci_driver->setup_driver_and_device();
+    printf("PCI devices:\n");
+    for (int i = 0; i < pci_driver->get_devices()->size(); i++)
+    {
+        PCIDevice device = pci_driver->get_devices()->get(i);
+        uint8_t bus_nubmer = device.get_bus_number();
+        uint8_t device_number = device.get_device_number();
+        uint8_t function_number = device.get_function_number();
+        uint8_t class_code = pci_driver->get_class_code(device);
+        uint8_t sub_class_code = pci_driver->get_sub_class_code(device);
+
+        printf("Found a device of type 0x%X-0x%X, at PCI %d:%d:%d\n", class_code, sub_class_code, bus_nubmer, device_number, function_number);
+    }
 
     ClockDriver* clock_driver = (ClockDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_CLOCK_DRIVER);
     if (!clock_driver->exist())
