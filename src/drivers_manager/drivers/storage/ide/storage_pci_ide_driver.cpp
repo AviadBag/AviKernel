@@ -15,6 +15,12 @@ StoragePCIIDEDriver::StoragePCIIDEDriver()
     pci_driver = (PCIDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
 }
 
+StoragePCIIDEDriver::~StoragePCIIDEDriver() 
+{
+    if (ide_controller)
+        delete ide_controller;
+}
+
 void StoragePCIIDEDriver::setup_driver_and_device() 
 {
 
@@ -22,8 +28,6 @@ void StoragePCIIDEDriver::setup_driver_and_device()
 
 bool StoragePCIIDEDriver::exist() 
 {
-    bool status = false;
-
     // Check in the PCI if there is an IDE controller
     Vector<PCIDevice>* pci_devices = pci_driver->get_devices();
     for (int i = 0; i < pci_devices->size(); i++)
@@ -33,13 +37,13 @@ bool StoragePCIIDEDriver::exist()
         uint8_t sub_class_code = pci_driver->get_sub_class_code(device);
         if (class_code == PCI_CLASS_MASS_STORAGE_CONTROLLER && sub_class_code == PCI_SUBCLASS_IDE_CONTROLLER)
         {
-            ide_controllers.append(device);
-            printf("Found an IDE Controller! PROG IF = 0x%X\n", pci_driver->get_prog_if(device));
-            status = true;
+            ide_controller = new PCIDevice(device);
+            printf("Found an IDE Controller! PROG IF = 0x%X\n", pci_driver->get_prog_if(*ide_controller));
+            return true;
         }
     }
     
-    return status;
+    return false;
 }
 
 void StoragePCIIDEDriver::read_sector([[gnu::unused]] uint64_t lba) 
