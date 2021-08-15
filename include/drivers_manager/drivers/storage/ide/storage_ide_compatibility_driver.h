@@ -6,28 +6,10 @@
 
 #include <stdint.h>
 
-enum icd_channel
-{
-    ICD_PRIMARY_CHANNEL   = 0,
-    ICD_SECONDARY_CHANNEL = 1
-};
-
-/**
- * It might be confusing, so I will explain:
- * icd_channel_drive help to identify if a drive is slave or master.
- * icd_drive represents a complete drive.
- */
-
-enum icd_channel_drive
-{
-    ICD_MASTER = 0,
-    ICD_SLAVE  = 1
-};
-
 struct icd_drive
 {
-    icd_channel channel;
-    icd_channel_drive drive;
+    uint8_t channel;
+    uint8_t drive;
 };
 
 class StorageIDECompatibilityDriver : public StorageDriver
@@ -48,18 +30,23 @@ private:
 
     // Returns true if the channel is now in compatibility mode, or if it can be switched to compatibility mode.
     // Must be only called if THERE IS an IDE controller.
-    bool channel_supports_compatibility_mode(icd_channel);
+    bool channel_supports_compatibility_mode(uint8_t);
 
-    uint32_t get_command_port_address(icd_channel, int offset);
-    uint32_t get_control_port_address(icd_channel, int offset);
+    uint32_t get_command_port_address(uint8_t, int offset);
+    uint32_t get_control_port_address(uint8_t, int offset);
 
-    uint8_t read_command_port(icd_channel, int offset);
-    uint8_t read_control_port(icd_channel, int offset);
+    uint8_t read_command_port(uint8_t channel, int offset);
+    uint8_t read_control_port(uint8_t channel, int offset);
+    uint8_t read_status(uint8_t channel);
 
-    void write_command_port(uint8_t data, icd_channel, int offset);
-    void write_control_port(uint8_t data, icd_channel, int offset);
+    void write_command_port(uint8_t data, uint8_t, int offset);
+    void write_control_port(uint8_t data, uint8_t, int offset);
 
-    void disable_interrupts(icd_channel which);
+    void send_command(uint8_t command, uint8_t channel);
+
+    void disable_interrupts(uint8_t which);
+    void detect_drives(); // Finds all of the connected drives, adds them to the drives array, and updates the "number_of_drives" var.
+    void ide_select_drive(uint8_t channel, uint8_t drive); // Selects a drive internally.
 
     PCIDriver* pci_driver;
     PCIDevice* ide_controller = nullptr;

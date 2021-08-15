@@ -5,12 +5,21 @@
 
 #include "utils/vector.h"
 #include "utils/io.h"
+#include "utils/time.h"
 
 #include <stdint.h>
 #include <cstdio.h>
 
-// ICD stands for IDE Compatibility Driver
+#define ICD_MASTER = 0
+#define ICD_SLAVE  = 1
 
+#define ICD_PRIMARY_CHANNEL   0
+#define ICD_SECONDARY_CHANNEL 1
+
+#define ICD_NUMBER_OF_CHANNELS 2
+#define ICD_DRIVES_PER_CHANNEL 2
+
+// ICD stands for IDE Compatibility Driver
 #define ICD_PCI_CLASS_MASS_STORAGE_CONTROLLER 0x1
 #define ICD_PCI_SUBCLASS_IDE_CONTROLLER       0x1
 
@@ -28,9 +37,24 @@
 #define ICD_SC_CONTROL_PORTS_BASE 0x376 
 
 // Ports
-#define ICD_CONTROL_REGISTER_OFFSET       0x0
-#define ICD_ALTSTATUS_REGISTER_OFFSET     0x0
-#define ICD_SELECT_DRIVER_REGISTER_OFFSET 0x6
+// Command registers
+#define ICD_SELECT_DRIVER_REG 0x6
+#define ICD_SECTOR_COUNT_REG  0x2
+#define ICD_LBA_LOW_REG       0x3
+#define ICD_LBA_MID_REG       0x4
+#define ICD_LBA_HI_REG        0x5
+#define ICD_COMMAND_REG       0x7
+
+// Control registers
+#define ICD_CONTROL_REG       0x0
+#define ICD_ALTSTATUS_REG     0x0
+
+// Commands
+#define ICD_IDENTIFY 0xEC
+
+// Masks
+#define ICD_STATUS_BSY (1 << 7)
+#define ICD_STATUS_DRQ (1 << 3)
 
 StorageIDECompatibilityDriver::StorageIDECompatibilityDriver() 
 {
@@ -43,7 +67,7 @@ StorageIDECompatibilityDriver::~StorageIDECompatibilityDriver()
         delete ide_controller;
 }
 
-uint32_t StorageIDECompatibilityDriver::get_command_port_address(icd_channel c, int offset) 
+uint32_t StorageIDECompatibilityDriver::get_command_port_address(uint8_t c, int offset) 
 {
     uint32_t base;
     switch (c)
@@ -61,7 +85,7 @@ uint32_t StorageIDECompatibilityDriver::get_command_port_address(icd_channel c, 
     return base + offset;
 }
 
-uint32_t StorageIDECompatibilityDriver::get_control_port_address(icd_channel c, int offset) 
+uint32_t StorageIDECompatibilityDriver::get_control_port_address(uint8_t c, int offset) 
 {
     uint32_t base;
     switch (c)
@@ -79,29 +103,83 @@ uint32_t StorageIDECompatibilityDriver::get_control_port_address(icd_channel c, 
     return base + offset;
 }
 
-void StorageIDECompatibilityDriver::write_command_port(uint8_t data, icd_channel c, int offset) 
+void StorageIDECompatibilityDriver::write_command_port(uint8_t data, uint8_t c, int offset) 
 {
     IO::outb(get_command_port_address(c, offset), data);
 }
 
-void StorageIDECompatibilityDriver::write_control_port(uint8_t data, icd_channel c, int offset) 
+void StorageIDECompatibilityDriver::write_control_port(uint8_t data, uint8_t c, int offset) 
 {
     IO::outb(get_control_port_address(c, offset), data);
 }
 
-uint8_t StorageIDECompatibilityDriver::read_command_port(icd_channel c, int offset) 
+uint8_t StorageIDECompatibilityDriver::read_command_port(uint8_t c, int offset) 
 {
     return IO::inb(get_command_port_address(c, offset));
 }
 
-uint8_t StorageIDECompatibilityDriver::read_control_port(icd_channel c, int offset) 
+uint8_t StorageIDECompatibilityDriver::read_control_port(uint8_t c, int offset) 
 {
     return IO::inb(get_control_port_address(c, offset));
 }
 
-void StorageIDECompatibilityDriver::disable_interrupts(icd_channel which) 
+void StorageIDECompatibilityDriver::disable_interrupts(uint8_t which) 
 {
-    write_control_port(0b0010, which, ICD_CONTROL_REGISTER_OFFSET);
+    write_control_port(0b0010, which, ICD_CONTROL_REG);
+}
+
+void StorageIDECompatibilityDriver::ide_select_drive(uint8_t channel, uint8_t drive) 
+{
+    uint8_t drive_identifier = 0xA0 | (drive << 4);
+    write_command_port(drive_identifier, channel, ICD_SELECT_DRIVER_REG);
+    Time::sleep(1); // Give the IDE time.
+}
+
+uint8_t StorageIDECompatibilityDriver::read_status(uint8_t channel) 
+{
+    return read_control_port(channel, ICD_ALTSTATUS_REG);
+}
+
+void StorageIDECompatibilityDriver::send_command(uint8_t command, uint8_t channel) 
+{
+    // Wait for BSY and DRQ to be clear
+    // WARNING: IF USING DMA, MAKE SURE ALSO THAT "DMACK- is not asserted" BEFORE SENDING A COMMAND!
+    while (1)
+    {
+        uint8_t status = read_status(channel);
+        if ((status & ICD_STATUS_BSY) == 0 && (status & ICD_STATUS_DRQ) == 0)
+            break;
+    }
+
+    write_command_port(command, channel, ICD_COMMAND_REG);
+}
+
+void StorageIDECompatibilityDriver::detect_drives() 
+{
+    for (int channel = 0; channel < ICD_NUMBER_OF_CHANNELS; channel++)
+    {
+        for (int drive = 0; drive < ICD_DRIVES_PER_CHANNEL; drive++)
+        {
+            // (I) Select the drive
+            ide_select_drive(channel, drive);
+
+            // (II) Set important values
+            write_command_port(0, channel, ICD_SECTOR_COUNT_REG);
+            write_command_port(0, channel, ICD_LBA_LOW_REG);
+            write_command_port(0, channel, ICD_LBA_MID_REG);
+            write_command_port(0, channel, ICD_LBA_HI_REG);
+
+            // (III) Send the IDENTIFY command
+            write_command_port(ICD_IDENTIFY, channel, ICD_COMMAND_REG);
+            Time::sleep(1); // Wait one MS.
+
+            // (IV) Does this device exist?
+            uint8_t status = read_status(channel);
+            if (status == 0) continue; // Does not exist
+
+            printf("FOUND A DEVICE!\n");
+        }
+    }
 }
 
 void StorageIDECompatibilityDriver::setup_driver_and_device() 
@@ -112,6 +190,8 @@ void StorageIDECompatibilityDriver::setup_driver_and_device()
     // Disable interrupts for both channels
     disable_interrupts(ICD_PRIMARY_CHANNEL);
     disable_interrupts(ICD_SECONDARY_CHANNEL);
+
+    detect_drives();
 }
 
 bool StorageIDECompatibilityDriver::exist()
@@ -126,7 +206,7 @@ bool StorageIDECompatibilityDriver::exist()
     return channel_supports_compatibility_mode(ICD_PRIMARY_CHANNEL) && channel_supports_compatibility_mode(ICD_SECONDARY_CHANNEL);
 }
 
-bool StorageIDECompatibilityDriver::channel_supports_compatibility_mode(icd_channel channel) 
+bool StorageIDECompatibilityDriver::channel_supports_compatibility_mode(uint8_t channel) 
 {
     uint8_t now_mask, can_switch_mask;
     switch (channel)
