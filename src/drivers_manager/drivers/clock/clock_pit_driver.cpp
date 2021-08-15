@@ -30,6 +30,9 @@ void ClockPITDriver::configure_pit()
     if (divisor > UINT16_T_MAX)
         panic("Cannot initial PIT with frequency of %d, because the maximum is %d (16 bits unsigned)", divisor, UINT16_T_MAX);
 
+    // Disable interrupts
+    asm volatile ("cli");
+
     // send the command byte
     IO::outb(PIT_COMMAND_PORT, 0x36);
 
@@ -38,6 +41,9 @@ void ClockPITDriver::configure_pit()
     uint8_t high = (uint8_t)((divisor >> 8) & 0xFF);
 
     IO::outb(PIT_CHANNEL_0_PORT, low);
-    IO::outb(PIT_CHANNEL_0_PORT, high);    
+    IO::outb(PIT_CHANNEL_0_PORT, high);
+
+    // Enable interrupts
+    asm volatile ("sti");
 }
 
