@@ -32,8 +32,9 @@ private:
     // Must be only called if THERE IS an IDE controller.
     bool channel_supports_compatibility_mode(uint8_t);
 
-    uint32_t get_command_port_address(uint8_t, int offset);
-    uint32_t get_control_port_address(uint8_t, int offset);
+    // Generate port address from channel and port offset
+    uint32_t get_command_port_address(uint8_t channel, int offset);
+    uint32_t get_control_port_address(uint8_t channel, int offset);
 
     uint8_t read_command_port(uint8_t channel, int offset);
     uint8_t read_control_port(uint8_t channel, int offset);
