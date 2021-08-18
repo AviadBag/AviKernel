@@ -55,6 +55,7 @@
 // Masks
 #define ICD_STATUS_BSY (1 << 7)
 #define ICD_STATUS_DRQ (1 << 3)
+#define ICD_STATUS_ERR (1 << 0)
 
 StorageIDECompatibilityDriver::StorageIDECompatibilityDriver() 
 {
@@ -123,9 +124,9 @@ uint8_t StorageIDECompatibilityDriver::read_control_port(uint8_t c, int offset)
     return IO::inb(get_control_port_address(c, offset));
 }
 
-void StorageIDECompatibilityDriver::disable_interrupts(uint8_t which) 
+void StorageIDECompatibilityDriver::disable_interrupts(uint8_t channel) 
 {
-    write_control_port(0b0010, which, ICD_CONTROL_REG);
+    write_control_port(0b0010, channel, ICD_CONTROL_REG);
 }
 
 void StorageIDECompatibilityDriver::ide_select_drive(uint8_t channel, uint8_t drive) 
@@ -142,8 +143,8 @@ uint8_t StorageIDECompatibilityDriver::read_status(uint8_t channel)
 
 void StorageIDECompatibilityDriver::send_command(uint8_t command, uint8_t channel) 
 {
-    // Wait for BSY and DRQ to be clear
     // WARNING: IF USING DMA, MAKE SURE ALSO THAT "DMACK- is not asserted" BEFORE SENDING A COMMAND!
+    // Wait for BSY and DRQ to be clear
     while (1)
     {
         uint8_t status = read_status(channel);
@@ -171,13 +172,35 @@ void StorageIDECompatibilityDriver::detect_drives()
 
             // (III) Send the IDENTIFY command
             write_command_port(ICD_IDENTIFY, channel, ICD_COMMAND_REG);
-            Time::sleep(1); // Wait one MS.
+            Time::sleep(1);
 
             // (IV) Does this device exist?
             uint8_t status = read_status(channel);
             if (status == 0) continue; // Does not exist
+            
+            // There is a device. Let it's BSY clear.
+            do
+            {
+                status = read_status(channel);
+            } while (status & ICD_STATUS_BSY);
 
-            printf("FOUND A DEVICE!\n");
+            // Now - continue polling status. If ERR - the device is not ATA. If DRQ - we can continue.
+            bool not_ata = false;
+            do
+            {
+                status = read_status(channel);
+                if (status & ICD_STATUS_ERR)
+                {
+                    not_ata = true;
+                    break;
+                }
+                if (status & ICD_STATUS_DRQ)
+                    break;
+            } while (true);
+
+            if (not_ata) continue; // This is not ATA - we can continue to the next device.
+
+            printf("FOUND A DRIVE! channel=%d, drive=%d\n", channel, drive);
         }
     }
 }
@@ -200,7 +223,6 @@ bool StorageIDECompatibilityDriver::exist()
     PCIDevice _ide_controller;
     if (!get_pci_ide_controller(&_ide_controller))
         return false;
-    printf("Found an IDE Controller! PROG IF = 0x%X\n", pci_driver->get_prog_if(_ide_controller));
     
     // Check if at least one of the channels support compitability mode
     return channel_supports_compatibility_mode(ICD_PRIMARY_CHANNEL) && channel_supports_compatibility_mode(ICD_SECONDARY_CHANNEL);

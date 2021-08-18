@@ -45,7 +45,7 @@ private:
 
     void send_command(uint8_t command, uint8_t channel);
 
-    void disable_interrupts(uint8_t which);
+    void disable_interrupts(uint8_t channel);
     void detect_drives(); // Finds all of the connected drives, adds them to the drives array, and updates the "number_of_drives" var.
     void ide_select_drive(uint8_t channel, uint8_t drive); // Selects a drive internally.
 
