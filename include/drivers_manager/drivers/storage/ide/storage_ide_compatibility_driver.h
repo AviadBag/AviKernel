@@ -31,7 +31,7 @@ private:
 
     // Returns true if the channel is now in compatibility mode, or if it can be switched to compatibility mode.
     // Must be only called if THERE IS an IDE controller.
-    bool channel_supports_compatibility_mode(uint8_t);
+    bool channel_supports_compatibility_mode(uint8_t channel);
 
     void disable_interrupts(uint8_t channel);
     void detect_drives(); // Finds all of the connected drives, adds them to the drives array, and updates the "number_of_drives" var.

@@ -10,8 +10,8 @@
 #include <stdint.h>
 #include <cstdio.h>
 
-#define ICD_MASTER 0
-#define ICD_SLAVE  1
+#define ICD_MASTER_DRIVE 0
+#define ICD_SLAVE_DRIVE  1
 
 #define ICD_PRIMARY_CHANNEL   0
 #define ICD_SECONDARY_CHANNEL 1
@@ -62,8 +62,9 @@ void StorageIDECompatibilityDriver::disable_interrupts(uint8_t channel)
 
 void StorageIDECompatibilityDriver::ide_select_drive(uint8_t channel, uint8_t drive) 
 {
-    uint8_t drive_identifier = 0xA0 | (drive << 4);
-    get_ide_controller(channel)->write_drive_head_register(drive_identifier);
+    // WARNING: CHANGE IT WHEN USING LBA!!!
+    uint8_t data = 0xA0 | (drive << 4);
+    get_ide_controller(channel)->write_drive_head_register(data);
     Time::sleep(1); // Give the IDE time.
 }
 
