@@ -22,6 +22,22 @@ uint8_t IO::inb(uint16_t port)
     return ret;
 }
 
+void IO::outw(uint16_t port, uint16_t val) 
+{
+    asm volatile("outw %0, %1"
+                 :
+                 : "a"(val), "Nd"(port));
+}
+
+uint16_t IO::inw(uint16_t port) 
+{
+    uint16_t ret;
+    asm volatile("inw %1, %0"
+                 : "=a"(ret)
+                 : "Nd"(port));
+    return ret;
+}
+
 void IO::outl(uint16_t port, uint32_t val)
 {
     asm volatile("outl %0, %1"
