@@ -10,8 +10,8 @@
 #include <stdint.h>
 #include <cstdio.h>
 
-#define ICD_MASTER = 0
-#define ICD_SLAVE  = 1
+#define ICD_MASTER 0
+#define ICD_SLAVE  1
 
 #define ICD_PRIMARY_CHANNEL   0
 #define ICD_SECONDARY_CHANNEL 1
@@ -29,26 +29,6 @@
 #define ICD_SC_IN_PCI_MODE_MASK (1 << 2)     // Is the secondary channel in PCI mode RIGHT NOW?
 #define ICD_SC_SUPPORTS_SWITCH_MASK (1 << 3) // Can the secondary channel switch modes?
 
-// Ports bases
-#define ICD_PC_COMMAND_PORTS_BASE 0x1F0
-#define ICD_SC_COMMAND_PORTS_BASE 0x170
-
-#define ICD_PC_CONTROL_PORTS_BASE 0x3F6
-#define ICD_SC_CONTROL_PORTS_BASE 0x376 
-
-// Ports
-// Command registers
-#define ICD_SELECT_DRIVER_REG 0x6
-#define ICD_SECTOR_COUNT_REG  0x2
-#define ICD_LBA_LOW_REG       0x3
-#define ICD_LBA_MID_REG       0x4
-#define ICD_LBA_HI_REG        0x5
-#define ICD_COMMAND_REG       0x7
-
-// Control registers
-#define ICD_CONTROL_REG       0x0
-#define ICD_ALTSTATUS_REG     0x0
-
 // Commands
 #define ICD_IDENTIFY 0xEC
 
@@ -60,99 +40,31 @@
 StorageIDECompatibilityDriver::StorageIDECompatibilityDriver() 
 {
     pci_driver = (PCIDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
+    primary_ide_controller = new IDEController(0x1F0, 0x3F6);
+    secondary_ide_controller = new IDEController(0x170, 0x376);
 }
 
 StorageIDECompatibilityDriver::~StorageIDECompatibilityDriver() 
 {
-    if (ide_controller)
-        delete ide_controller;
+    delete primary_ide_controller;
+    delete secondary_ide_controller;
 }
 
-uint32_t StorageIDECompatibilityDriver::get_command_port_address(uint8_t c, int offset) 
+IDEController* StorageIDECompatibilityDriver::get_ide_controller(uint8_t channel) 
 {
-    uint32_t base;
-    switch (c)
-    {
-        case ICD_PRIMARY_CHANNEL:
-            base = ICD_PC_COMMAND_PORTS_BASE;
-            break;
-        case ICD_SECONDARY_CHANNEL:
-            base = ICD_SC_COMMAND_PORTS_BASE;
-            break;
-        default:
-            panic("StorageIDECompatibilityDriver::get_command_port_address: Invalid given channel!\n");
-    }
-
-    return base + offset;
-}
-
-uint32_t StorageIDECompatibilityDriver::get_control_port_address(uint8_t c, int offset) 
-{
-    uint32_t base;
-    switch (c)
-    {
-        case ICD_PRIMARY_CHANNEL:
-            base = ICD_PC_CONTROL_PORTS_BASE;
-            break;
-        case ICD_SECONDARY_CHANNEL:
-            base = ICD_SC_CONTROL_PORTS_BASE;
-            break;
-        default:
-            panic("StorageIDECompatibilityDriver::get_control_port_address: Invalid given channel!\n");
-    }
-
-    return base + offset;
-}
-
-void StorageIDECompatibilityDriver::write_command_port(uint8_t data, uint8_t c, int offset) 
-{
-    IO::outb(get_command_port_address(c, offset), data);
-}
-
-void StorageIDECompatibilityDriver::write_control_port(uint8_t data, uint8_t c, int offset) 
-{
-    IO::outb(get_control_port_address(c, offset), data);
-}
-
-uint8_t StorageIDECompatibilityDriver::read_command_port(uint8_t c, int offset) 
-{
-    return IO::inb(get_command_port_address(c, offset));
-}
-
-uint8_t StorageIDECompatibilityDriver::read_control_port(uint8_t c, int offset) 
-{
-    return IO::inb(get_control_port_address(c, offset));
+    return channel == ICD_PRIMARY_CHANNEL ? primary_ide_controller : secondary_ide_controller;
 }
 
 void StorageIDECompatibilityDriver::disable_interrupts(uint8_t channel) 
 {
-    write_control_port(0b0010, channel, ICD_CONTROL_REG);
+    get_ide_controller(channel)->write_digital_output_register(0b0010);
 }
 
 void StorageIDECompatibilityDriver::ide_select_drive(uint8_t channel, uint8_t drive) 
 {
     uint8_t drive_identifier = 0xA0 | (drive << 4);
-    write_command_port(drive_identifier, channel, ICD_SELECT_DRIVER_REG);
+    get_ide_controller(channel)->write_drive_head_register(drive_identifier);
     Time::sleep(1); // Give the IDE time.
-}
-
-uint8_t StorageIDECompatibilityDriver::read_status(uint8_t channel) 
-{
-    return read_control_port(channel, ICD_ALTSTATUS_REG);
-}
-
-void StorageIDECompatibilityDriver::send_command(uint8_t command, uint8_t channel) 
-{
-    // WARNING: IF USING DMA, MAKE SURE ALSO THAT "DMACK- is not asserted" BEFORE SENDING A COMMAND!
-    // Wait for BSY and DRQ to be clear
-    while (1)
-    {
-        uint8_t status = read_status(channel);
-        if ((status & ICD_STATUS_BSY) == 0 && (status & ICD_STATUS_DRQ) == 0)
-            break;
-    }
-
-    write_command_port(command, channel, ICD_COMMAND_REG);
 }
 
 void StorageIDECompatibilityDriver::detect_drives() 
@@ -165,30 +77,30 @@ void StorageIDECompatibilityDriver::detect_drives()
             ide_select_drive(channel, drive);
 
             // (II) Set important values
-            write_command_port(0, channel, ICD_SECTOR_COUNT_REG);
-            write_command_port(0, channel, ICD_LBA_LOW_REG);
-            write_command_port(0, channel, ICD_LBA_MID_REG);
-            write_command_port(0, channel, ICD_LBA_HI_REG);
+            get_ide_controller(channel)->write_sector_count_register(0);
+            get_ide_controller(channel)->write_sector_number_register(0);
+            get_ide_controller(channel)->write_cylinder_LSB_register(0);
+            get_ide_controller(channel)->write_cylinder_MSB_register(0);
 
             // (III) Send the IDENTIFY command
-            write_command_port(ICD_IDENTIFY, channel, ICD_COMMAND_REG);
+            get_ide_controller(channel)->write_command_register(ICD_IDENTIFY);
             Time::sleep(1);
 
             // (IV) Does this device exist?
-            uint8_t status = read_status(channel);
+            uint8_t status = get_ide_controller(channel)->read_alternate_status_register();
             if (status == 0) continue; // Does not exist
             
             // There is a device. Let it's BSY clear.
             do
             {
-                status = read_status(channel);
+                status = get_ide_controller(channel)->read_alternate_status_register();
             } while (status & ICD_STATUS_BSY);
 
             // Now - continue polling status. If ERR - the device is not ATA. If DRQ - we can continue.
             bool not_ata = false;
             do
             {
-                status = read_status(channel);
+                status = get_ide_controller(channel)->read_alternate_status_register();
                 if (status & ICD_STATUS_ERR)
                 {
                     not_ata = true;
@@ -207,9 +119,6 @@ void StorageIDECompatibilityDriver::detect_drives()
 
 void StorageIDECompatibilityDriver::setup_driver_and_device() 
 {
-    // Get the IDE controller
-    get_pci_ide_controller(ide_controller);
-
     // Disable interrupts for both channels
     disable_interrupts(ICD_PRIMARY_CHANNEL);
     disable_interrupts(ICD_SECONDARY_CHANNEL);
