@@ -42,6 +42,8 @@ StorageIDECompatibilityDriver::StorageIDECompatibilityDriver()
     pci_driver = (PCIDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
     primary_ide_controller = new IDEController(0x1F0, 0x3F6);
     secondary_ide_controller = new IDEController(0x170, 0x376);
+
+    // TODO: Switch controller to compatibility mode if needed!
 }
 
 StorageIDECompatibilityDriver::~StorageIDECompatibilityDriver() 
