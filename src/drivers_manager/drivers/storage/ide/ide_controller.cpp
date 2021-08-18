@@ -57,6 +57,13 @@ uint8_t IDEController::read_driver_address_register()
     return IO::inb(ports2_base + 1);
 }
 
+void IDEController::read_data_register_buffer(uint16_t* buf, unsigned int size) 
+{
+    unsigned int count = size / sizeof(uint16_t);
+    for (unsigned int i = 0; i < count; i++)
+        buf[i] = read_data_register();
+}
+
 void IDEController::write_data_register(uint16_t data) 
 {
     IO::outw(ports1_base + 0, data);

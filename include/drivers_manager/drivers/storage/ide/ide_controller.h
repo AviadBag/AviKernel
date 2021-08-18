@@ -22,6 +22,9 @@ public:
     uint8_t  read_alternate_status_register();
     uint8_t  read_driver_address_register();
 
+    // <size> is in bytes!
+    void read_data_register_buffer(uint16_t* buf, unsigned int size);
+
     void write_data_register(uint16_t data);
     void write_precompensation_register(uint8_t data);
     void write_sector_count_register(uint8_t data);
