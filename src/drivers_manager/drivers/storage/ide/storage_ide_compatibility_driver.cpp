@@ -7,6 +7,8 @@
 #include "utils/io.h"
 #include "utils/time.h"
 
+#define SECTOR_SIZE 512
+
 #include <stdint.h>
 #include <cstdio.h>
 
@@ -30,7 +32,8 @@
 #define ICD_SC_SUPPORTS_SWITCH_MASK (1 << 3) // Can the secondary channel switch modes?
 
 // Commands
-#define ICD_IDENTIFY 0xEC
+#define ICD_IDENTIFY    0xEC
+#define ICD_READ_PIO_48 0x24
 
 // Masks
 #define ICD_STATUS_BSY (1 << 7)
@@ -70,10 +73,10 @@ void StorageIDECompatibilityDriver::disable_interrupts(uint8_t channel)
     get_ide_controller(channel)->write_digital_output_register(0b0010);
 }
 
-void StorageIDECompatibilityDriver::ide_select_drive(uint8_t channel, uint8_t drive) 
+void StorageIDECompatibilityDriver::ide_select_drive(uint8_t channel, uint8_t drive, bool lba) 
 {
-    // WARNING: CHANGE IT WHEN USING LBA!!!
-    uint8_t data = 0xA0 | (drive << 4);
+    uint8_t tmp = (lba ? 0xA0 : 0xE0);
+    uint8_t data = tmp | (drive << 4);
     get_ide_controller(channel)->write_drive_head_register(data);
     Time::sleep(1); // Give the IDE time.
 }
@@ -101,7 +104,7 @@ void StorageIDECompatibilityDriver::add_drive(uint8_t channel, uint8_t drive, ui
     else
         drive_to_add.number_of_sectors = buf[ICD_IDENT_28_BITS_SECTORS];
 
-    uint64_t bytes = drive_to_add.number_of_sectors * 512;
+    uint64_t bytes = drive_to_add.number_of_sectors * SECTOR_SIZE;
     uint64_t kb = bytes / 1024;
     printf("Size KB: %lu\n", kb);
 
@@ -116,7 +119,7 @@ void StorageIDECompatibilityDriver::detect_drives()
         for (int drive = 0; drive < ICD_DRIVES_PER_CHANNEL; drive++)
         {
             // (I) Select the drive
-            ide_select_drive(channel, drive);
+            ide_select_drive(channel, drive, false);
 
             // (II) Send the IDENTIFY command
             get_ide_controller(channel)->write_command_register(ICD_IDENTIFY);
@@ -222,25 +225,59 @@ void StorageIDECompatibilityDriver::select_drive(int d)
 {
     StorageDriver::select_drive(d);
     icd_drive drive = drives.get(selected_drive);
-    ide_select_drive(drive.channel, drive.drive);
+    ide_select_drive(drive.channel, drive.drive, false);
 }
 
 void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char* buffer) 
 {
-    panic("read_sector_48_bits(): Not implemented!");
+    // Get controller
+    icd_drive drive = drives.get(selected_drive);
+    IDEController* controller = get_ide_controller(drive.channel);
+
+    // Wait for drive to be not BSY
+    while (controller->read_alternate_status_register() & ICD_STATUS_BSY)
+        ;
+
+    // Select current drive as LBA
+    ide_select_drive(drive.channel, drive.drive, true);
+
+    // Generate LBA values
+    uint8_t lba0 = lba >> 0;
+    uint8_t lba1 = lba >> 8;
+    uint8_t lba2 = lba >> 16;
+    uint8_t lba3 = lba >> 24;
+    uint8_t lba4 = lba >> 32;
+    uint8_t lba5 = lba >> 40;
+
+    // Write LBA values
+    controller->write_LBAlo_register_48(lba0, lba3);
+    controller->write_LBAmid_register_48(lba1, lba4);
+    controller->write_LBIhi_register_48(lba2, lba5);
+
+    // Write sector count
+    controller->write_sector_count_register_48(1, 0);
+
+    // Write command
+    controller->write_command_register(ICD_READ_PIO_48);
+
+    // Wait for drive to be not BSY
+    while (controller->read_alternate_status_register() & ICD_STATUS_BSY)
+        ;
+
+    controller->read_data_register_buffer((uint16_t*) buffer, SECTOR_SIZE);
 }
 
-void StorageIDECompatibilityDriver::read_sector_28_bits(uint64_t lba, char* buffer) 
+void StorageIDECompatibilityDriver::read_sector_28_bits([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* buffer) 
 {
     panic("read_sector_28_bits(): Not implemented!");
 }
 
-void StorageIDECompatibilityDriver::read_sector_chs(uint64_t lba, char* buffer) 
+void StorageIDECompatibilityDriver::read_sector_chs([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* buffer) 
 {
     panic("read_sector_chs(): Not implemented!");
 }
 
-void StorageIDECompatibilityDriver::read_sector([[gnu::unused]] uint64_t lba, char* buffer) 
+void StorageIDECompatibilityDriver::read_sector(uint64_t lba, char* buffer) 
 {
     icd_drive drive = drives.get(selected_drive);
     if (drive.supports_lba)

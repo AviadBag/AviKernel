@@ -40,7 +40,7 @@ private:
 
     void disable_interrupts(uint8_t channel);
     void detect_drives(); // Finds all of the connected drives, adds them to the drives array, and updates the "number_of_drives" var.
-    void ide_select_drive(uint8_t channel, uint8_t drive); // Selects a drive internally.
+    void ide_select_drive(uint8_t channel, uint8_t drive, bool lba); // Selects a drive internally.
     IDEController* get_ide_controller(uint8_t channel); // Returns the appropriate IDE controller for the given channel.
     void add_drive(uint8_t channel, uint8_t drive, uint16_t* buf); // Adds a drive to the drives list; Gets the device's buffer as an input.
 
