@@ -7,15 +7,6 @@
 
 #include <stdint.h>
 
-struct icd_drive
-{
-    uint8_t channel;
-    uint8_t drive;
-    bool supports_lba;
-    bool address_48_bits_mode; // If false - 28 bits.
-    uint64_t number_of_sectors;
-};
-
 class StorageIDECompatibilityDriver : public StorageDriver
 {
 public:
@@ -50,7 +41,6 @@ private:
 
     PCIDriver* pci_driver;
     IDEController *primary_ide_controller, *secondary_ide_controller;
-    Vector<icd_drive> drives;
 };
 
 #endif // __STORAGE_PATA_PIO_DRIVER_H__

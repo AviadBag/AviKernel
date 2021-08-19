@@ -2,6 +2,7 @@
 #include "drivers_manager/drivers/pci/pci_driver.h"
 #include "drivers_manager/drivers/pci/pci_device.h"
 #include "drivers_manager/drivers_manager.h"
+#include "drivers_manager/drivers/storage/ide/ide_drive.h"
 
 #include "utils/vector.h"
 #include "utils/io.h"
@@ -83,32 +84,24 @@ void StorageIDECompatibilityDriver::ide_select_drive(uint8_t channel, uint8_t dr
 
 void StorageIDECompatibilityDriver::add_drive(uint8_t channel, uint8_t drive, uint16_t* buf) 
 {
-    icd_drive drive_to_add;
-
-    drive_to_add.channel = channel;
-    drive_to_add.drive = drive;
+    bool supports_lba, uses_48_bits_mode;
+    uint64_t number_of_sectors;
 
     uint32_t capabilities = *((uint32_t*)(&(buf[ICD_IDENT_CAPABILITIES])));
-    printf("Is LBA supported? %s\n", IS_SET(capabilities, 9) ? "Yes" : "No");
-    drive_to_add.supports_lba = IS_SET(capabilities, 9);
+    supports_lba = IS_SET(capabilities, 9);
 
-    if (drive_to_add.supports_lba)
+    if (supports_lba)
     {
         uint64_t commands_set = *((uint64_t*)(&(buf[ICD_IDENT_CMDS_SET])));
-        printf("Is 48 bits supported? %s\n", IS_SET(commands_set, 26) ? "Yes" : "No");
-        drive_to_add.address_48_bits_mode = IS_SET(commands_set, 26);
-    } else drive_to_add.address_48_bits_mode = false;
+        uses_48_bits_mode = IS_SET(commands_set, 26);
+    } else uses_48_bits_mode = false;
 
-    if (drive_to_add.address_48_bits_mode)
-        drive_to_add.number_of_sectors = *((uint64_t*)(&(buf[ICD_IDENT_48_BITS_SECTORS])));
+    if (uses_48_bits_mode)
+        number_of_sectors = *((uint64_t*)(&(buf[ICD_IDENT_48_BITS_SECTORS])));
     else
-        drive_to_add.number_of_sectors = buf[ICD_IDENT_28_BITS_SECTORS];
+        number_of_sectors = buf[ICD_IDENT_28_BITS_SECTORS];
 
-    uint64_t bytes = drive_to_add.number_of_sectors * SECTOR_SIZE;
-    uint64_t kb = bytes / 1024;
-    printf("Number of sectors: %lu, ", drive_to_add.number_of_sectors);
-    printf("Size KB: %lu\n", kb);
-
+    IDEDrive* drive_to_add = new IDEDrive(channel, drive, supports_lba, uses_48_bits_mode, SECTOR_SIZE, number_of_sectors);
     drives.append(drive_to_add);
     number_of_drives++;
 }
@@ -150,8 +143,6 @@ void StorageIDECompatibilityDriver::detect_drives()
             } while (true);
 
             if (not_ata) continue; // This is not ATA - we can continue to the next device.
-
-            printf("\n-------Found a drive! channel=%d, drive=%d-------\n", channel, drive);
 
             uint16_t buf[256];
             get_ide_controller(channel)->read_data_register_buffer(buf, 512);
@@ -225,15 +216,15 @@ bool StorageIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_p)
 void StorageIDECompatibilityDriver::select_drive(int d) 
 {
     StorageDriver::select_drive(d);
-    icd_drive drive = drives.get(selected_drive);
-    ide_select_drive(drive.channel, drive.drive, false);
+    IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
+    ide_select_drive(drive->get_channel(), drive->get_drive_in_channel(), false);
 }
 
 void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char* buffer) 
 {
     // Get controller
-    icd_drive drive = drives.get(selected_drive);
-    IDEController* controller = get_ide_controller(drive.channel);
+    IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
+    IDEController* controller = get_ide_controller(drive->get_channel());
 
     // Wait for drive to be not BSY
     uint8_t status;
@@ -243,7 +234,7 @@ void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char* buff
     } while (status & ICD_STATUS_BSY);
 
     // Select current drive as LBA
-    ide_select_drive(drive.channel, drive.drive, true);
+    ide_select_drive(drive->get_channel(), drive->get_drive_in_channel(), true);
 
     // Generate LBA values
     uint8_t lba0 = lba >> 0;
@@ -285,10 +276,10 @@ void StorageIDECompatibilityDriver::read_sector_chs([[gnu::unused]] uint64_t lba
 
 void StorageIDECompatibilityDriver::read_sector(uint64_t lba, char* buffer) 
 {
-    icd_drive drive = drives.get(selected_drive);
-    if (drive.supports_lba)
+    IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
+    if (drive->get_supports_lba())
     {
-        if (drive.address_48_bits_mode)
+        if (drive->get_uses_48_bits_mode())
             read_sector_48_bits(lba, buffer);
         else
             read_sector_28_bits(lba, buffer);
