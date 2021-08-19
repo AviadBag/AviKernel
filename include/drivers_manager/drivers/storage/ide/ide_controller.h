@@ -22,13 +22,6 @@ public:
     uint8_t  read_alternate_status_register   ();
     uint8_t  read_driver_address_register     ();
 
-    // // 48 bits mode registers
-    // uint16_t read_error_register_48           ();   
-    // uint16_t read_sector_count_register_48    ();
-    // uint16_t read_LBAlo_register_48           ();
-    // uint16_t read_LBAmid_register_48          ();
-    // uint16_t read_LBIhi_register_48           ();
-
     // <size> is in bytes!
     void     read_data_register_buffer        (uint16_t* buf, unsigned int size);
 
