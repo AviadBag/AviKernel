@@ -81,11 +81,18 @@ void setup_drivers()
         storage_driver->setup_driver_and_device();
     if (storage_driver->get_number_of_drives() > 0)
     {
+        printf("Reading the first sector from drive 0...\n");
         storage_driver->select_drive(0);
         char buf[512];
         storage_driver->read_sector(0, buf);
+        int k = 0;
         for (int i = 0; i < 512; i++)
-            printf("%X ", buf[i]);
+        {
+            k++;
+            printf("%02X ", buf[i] & 0xFF);
+            if (k % 26 == 0)
+                putchar('\n');
+        }
     }
 
     KeyboardDriver* keyboard_driver = (KeyboardDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_KEYBOARD_DRIVER);

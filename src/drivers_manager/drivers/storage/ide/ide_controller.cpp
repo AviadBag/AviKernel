@@ -66,6 +66,7 @@ void IDEController::read_data_register_buffer(uint16_t* buf, unsigned int size)
 
 // uint16_t IDEController::read_error_register_48() 
 // {
+//     SHOULD BE INB?
 //     return IO::inw(ports1_base + 1);
 // }
 
@@ -136,30 +137,30 @@ void IDEController::write_digital_output_register(uint8_t data)
 
 void IDEController::write_precompensation_register_48(uint8_t low, uint8_t high) 
 {
-    IO::outw(ports1_base + 1, high);
-    IO::outw(ports1_base + 1, low);
+    IO::outb(ports1_base + 1, high);
+    IO::outb(ports1_base + 1, low);
 }
 
 void IDEController::write_sector_count_register_48(uint8_t low, uint8_t high) 
 {
-    IO::outw(ports1_base + 2, high);
-    IO::outw(ports1_base + 2, low);
+    IO::outb(ports1_base + 2, high);
+    IO::outb(ports1_base + 2, low);
 }
 
 void IDEController::write_LBAlo_register_48(uint8_t low, uint8_t high) 
 {
-    IO::outw(ports1_base + 3, high);
-    IO::outw(ports1_base + 3, low);
+    IO::outb(ports1_base + 3, high);
+    IO::outb(ports1_base + 3, low);
 }
 
 void IDEController::write_LBAmid_register_48(uint8_t low, uint8_t high) 
 {
-    IO::outw(ports1_base + 4, high);
-    IO::outw(ports1_base + 4, low);
+    IO::outb(ports1_base + 4, high);
+    IO::outb(ports1_base + 4, low);
 }
 
 void IDEController::write_LBIhi_register_48(uint8_t low, uint8_t high) 
 {
-    IO::outw(ports1_base + 5, high);
-    IO::outw(ports1_base + 5, low);
+    IO::outb(ports1_base + 5, high);
+    IO::outb(ports1_base + 5, low);
 }

@@ -75,7 +75,7 @@ void StorageIDECompatibilityDriver::disable_interrupts(uint8_t channel)
 
 void StorageIDECompatibilityDriver::ide_select_drive(uint8_t channel, uint8_t drive, bool lba) 
 {
-    uint8_t tmp = (lba ? 0xA0 : 0xE0);
+    uint8_t tmp = (lba ? 0xE0 : 0xA0);
     uint8_t data = tmp | (drive << 4);
     get_ide_controller(channel)->write_drive_head_register(data);
     Time::sleep(1); // Give the IDE time.
@@ -106,6 +106,7 @@ void StorageIDECompatibilityDriver::add_drive(uint8_t channel, uint8_t drive, ui
 
     uint64_t bytes = drive_to_add.number_of_sectors * SECTOR_SIZE;
     uint64_t kb = bytes / 1024;
+    printf("Number of sectors: %lu, ", drive_to_add.number_of_sectors);
     printf("Size KB: %lu\n", kb);
 
     drives.append(drive_to_add);
@@ -235,8 +236,11 @@ void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char* buff
     IDEController* controller = get_ide_controller(drive.channel);
 
     // Wait for drive to be not BSY
-    while (controller->read_alternate_status_register() & ICD_STATUS_BSY)
-        ;
+    uint8_t status;
+    do
+    {
+        status = controller->read_alternate_status_register();
+    } while (status & ICD_STATUS_BSY);
 
     // Select current drive as LBA
     ide_select_drive(drive.channel, drive.drive, true);
@@ -261,8 +265,10 @@ void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char* buff
     controller->write_command_register(ICD_READ_PIO_48);
 
     // Wait for drive to be not BSY
-    while (controller->read_alternate_status_register() & ICD_STATUS_BSY)
-        ;
+    do
+    {
+        status = controller->read_alternate_status_register();
+    } while (status & ICD_STATUS_BSY);
 
     controller->read_data_register_buffer((uint16_t*) buffer, SECTOR_SIZE);
 }
