@@ -25,9 +25,9 @@ public:
     virtual void setup_driver_and_device() override;
     virtual bool exist() override;
 
-    virtual void select_drive(int d);
+    virtual void select_drive(int d) override;
 
-    virtual void read_sector(uint64_t lba) override;
+    virtual void read_sector(uint64_t lba, char* buffer) override;
     virtual void write_sector(uint64_t lba, char* sector) override;
 
 private:

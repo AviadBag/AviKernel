@@ -225,9 +225,10 @@ void StorageIDECompatibilityDriver::select_drive(int d)
     ide_select_drive(drive.channel, drive.drive);
 }
 
-void StorageIDECompatibilityDriver::read_sector([[gnu::unused]] uint64_t lba) 
+void StorageIDECompatibilityDriver::read_sector([[gnu::unused]] uint64_t lba, char* buffer) 
 {
     icd_drive drive = drives.get(selected_drive);
+
 }
 
 void StorageIDECompatibilityDriver::write_sector([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* sector) 

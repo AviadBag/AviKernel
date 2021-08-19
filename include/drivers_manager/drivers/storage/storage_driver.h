@@ -11,7 +11,8 @@ public:
     virtual void setup_driver_and_device() = 0;
     virtual bool exist() = 0;
 
-    virtual void read_sector(uint64_t lba) = 0;
+    // A sector is of size of 512 bytes.
+    virtual void read_sector(uint64_t lba, char* buffer) = 0;
     virtual void write_sector(uint64_t lba, char* sector) = 0;
 
     virtual void select_drive(int d); // Starting from drive 0.
