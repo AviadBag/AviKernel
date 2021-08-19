@@ -9,3 +9,9 @@ int StorageDriver::get_number_of_drives()
 {
     return number_of_drives;
 }
+
+
+Drive StorageDriver::get_drive(int i) 
+{
+    return drives.get(i);
+}
