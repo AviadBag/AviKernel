@@ -225,10 +225,31 @@ void StorageIDECompatibilityDriver::select_drive(int d)
     ide_select_drive(drive.channel, drive.drive);
 }
 
+void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char* buffer) 
+{
+    panic("read_sector_48_bits(): Not implemented!");
+}
+
+void StorageIDECompatibilityDriver::read_sector_28_bits(uint64_t lba, char* buffer) 
+{
+    panic("read_sector_28_bits(): Not implemented!");
+}
+
+void StorageIDECompatibilityDriver::read_sector_chs(uint64_t lba, char* buffer) 
+{
+    panic("read_sector_chs(): Not implemented!");
+}
+
 void StorageIDECompatibilityDriver::read_sector([[gnu::unused]] uint64_t lba, char* buffer) 
 {
     icd_drive drive = drives.get(selected_drive);
-
+    if (drive.supports_lba)
+    {
+        if (drive.address_48_bits_mode)
+            read_sector_48_bits(lba, buffer);
+        else
+            read_sector_28_bits(lba, buffer);
+    } else read_sector_chs(lba, buffer);
 }
 
 void StorageIDECompatibilityDriver::write_sector([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* sector) 
