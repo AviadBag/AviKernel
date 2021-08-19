@@ -22,7 +22,7 @@ public:
     bool empty() const;
     int size() const;
     void append(T); // Panics if there is no enough memory
-    T get(int index); // Will cause unexpected results if the index is too big!
+    T get(int index); // Panic if index is out of range
 
 private:
     VectorNode<T>* head;
@@ -90,6 +90,9 @@ void Vector<T>::append(T data)
 template <class T>
 T Vector<T>::get(int index)
 {
+    if (index > size() + 1)
+        panic("Vector: Index %d out of range", index);
+
     VectorNode<T>* node = head;
     while (index--)
         node = node->next;
