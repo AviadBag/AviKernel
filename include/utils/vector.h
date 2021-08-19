@@ -90,8 +90,8 @@ void Vector<T>::append(T data)
 template <class T>
 T Vector<T>::get(int index)
 {
-    if (index > size() + 1)
-        panic("Vector: Index %d out of range", index);
+    if (index + 1 > size())
+        panic("Vector: Index \"%d\" is out of range", index);
 
     VectorNode<T>* node = head;
     while (index--)
