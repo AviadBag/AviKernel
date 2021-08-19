@@ -218,6 +218,13 @@ bool StorageIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_p)
     return false;
 }
 
+void StorageIDECompatibilityDriver::select_drive(int d) 
+{
+    StorageDriver::select_drive(d);
+    icd_drive drive = drives.get(selected_drive);
+    ide_select_drive(drive.channel, drive.drive);
+}
+
 void StorageIDECompatibilityDriver::read_sector([[gnu::unused]] uint64_t lba) 
 {
     icd_drive drive = drives.get(selected_drive);

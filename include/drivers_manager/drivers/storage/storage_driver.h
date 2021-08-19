@@ -14,7 +14,7 @@ public:
     virtual void read_sector(uint64_t lba) = 0;
     virtual void write_sector(uint64_t lba, char* sector) = 0;
 
-    void select_drive(int d); // Starting from drive 0.
+    virtual void select_drive(int d); // Starting from drive 0.
     int get_number_of_drives();
 
 protected:
