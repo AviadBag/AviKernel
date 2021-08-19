@@ -11,6 +11,9 @@ struct icd_drive
 {
     uint8_t channel;
     uint8_t drive;
+    bool supports_lba;
+    bool address_48_bits_mode; // If false - 28 bits.
+    uint64_t number_of_sectors;
 };
 
 class StorageIDECompatibilityDriver : public StorageDriver
@@ -37,6 +40,7 @@ private:
     void detect_drives(); // Finds all of the connected drives, adds them to the drives array, and updates the "number_of_drives" var.
     void ide_select_drive(uint8_t channel, uint8_t drive); // Selects a drive internally.
     IDEController* get_ide_controller(uint8_t channel); // Returns the appropriate IDE controller for the given channel.
+    void add_drive(uint8_t channel, uint8_t drive, uint16_t* buf); // Adds a drive to the drives list; Gets the device's buffer as an input.
 
     PCIDriver* pci_driver;
     IDEController *primary_ide_controller, *secondary_ide_controller;

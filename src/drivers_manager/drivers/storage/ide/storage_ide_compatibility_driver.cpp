@@ -37,6 +37,14 @@
 #define ICD_STATUS_DRQ (1 << 3)
 #define ICD_STATUS_ERR (1 << 0)
 
+// Identification space offsets (Offsets in 16 bits size array)
+#define ICD_IDENT_CMDS_SET         82
+#define ICD_IDENT_CAPABILITIES     49
+#define ICD_IDENT_28_BITS_SECTORS  60 // How many sectors there are, when using 28 bits address mode.
+#define ICD_IDENT_48_BITS_SECTORS 100 // How many sectors there are, when using 48 bits address mode.
+
+#define IS_SET(data, offset) (((data) & (1 << (offset))) != 0)
+
 StorageIDECompatibilityDriver::StorageIDECompatibilityDriver() 
 {
     pci_driver = (PCIDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
@@ -70,6 +78,37 @@ void StorageIDECompatibilityDriver::ide_select_drive(uint8_t channel, uint8_t dr
     Time::sleep(1); // Give the IDE time.
 }
 
+void StorageIDECompatibilityDriver::add_drive(uint8_t channel, uint8_t drive, uint16_t* buf) 
+{
+    icd_drive drive_to_add;
+
+    drive_to_add.channel = channel;
+    drive_to_add.drive = drive;
+
+    uint32_t capabilities = *((uint32_t*)(&(buf[ICD_IDENT_CAPABILITIES])));
+    printf("Is LBA supported? %s\n", IS_SET(capabilities, 9) ? "Yes" : "No");
+    drive_to_add.supports_lba = IS_SET(capabilities, 9);
+
+    if (drive_to_add.supports_lba)
+    {
+        uint64_t commands_set = *((uint64_t*)(&(buf[ICD_IDENT_CMDS_SET])));
+        printf("Is 48 bits supported? %s\n", IS_SET(commands_set, 26) ? "Yes" : "No");
+        drive_to_add.address_48_bits_mode = IS_SET(commands_set, 26);
+    } else drive_to_add.address_48_bits_mode = false;
+
+    if (drive_to_add.address_48_bits_mode)
+        drive_to_add.number_of_sectors = *((uint64_t*)(&(buf[ICD_IDENT_48_BITS_SECTORS])));
+    else
+        drive_to_add.number_of_sectors = buf[ICD_IDENT_28_BITS_SECTORS];
+
+    uint64_t bytes = drive_to_add.number_of_sectors * 512;
+    uint64_t kb = bytes / 1024;
+    printf("Size KB: %lu\n", kb);
+
+    drives.append(drive_to_add);
+    number_of_drives++;
+}
+
 void StorageIDECompatibilityDriver::detect_drives() 
 {
     for (int channel = 0; channel < ICD_NUMBER_OF_CHANNELS; channel++)
@@ -79,17 +118,10 @@ void StorageIDECompatibilityDriver::detect_drives()
             // (I) Select the drive
             ide_select_drive(channel, drive);
 
-            // (II) Set important values
-            get_ide_controller(channel)->write_sector_count_register(0);
-            get_ide_controller(channel)->write_sector_number_register(0);
-            get_ide_controller(channel)->write_cylinder_LSB_register(0);
-            get_ide_controller(channel)->write_cylinder_MSB_register(0);
-
-            // (III) Send the IDENTIFY command
+            // (II) Send the IDENTIFY command
             get_ide_controller(channel)->write_command_register(ICD_IDENTIFY);
-            Time::sleep(1);
 
-            // (IV) Does this device exist?
+            // (III) Does this device exist?
             uint8_t status = get_ide_controller(channel)->read_alternate_status_register();
             if (status == 0) continue; // Does not exist
             
@@ -115,7 +147,11 @@ void StorageIDECompatibilityDriver::detect_drives()
 
             if (not_ata) continue; // This is not ATA - we can continue to the next device.
 
-            printf("FOUND A DRIVE! channel=%d, drive=%d\n", channel, drive);
+            printf("\n-------Found a drive! channel=%d, drive=%d-------\n", channel, drive);
+
+            uint16_t buf[256];
+            get_ide_controller(channel)->read_data_register_buffer(buf, 512);
+            add_drive(channel, drive, buf);
         }
     }
 }
@@ -184,7 +220,7 @@ bool StorageIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_p)
 
 void StorageIDECompatibilityDriver::read_sector([[gnu::unused]] uint64_t lba) 
 {
-
+    icd_drive drive = drives.get(selected_drive);
 }
 
 void StorageIDECompatibilityDriver::write_sector([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* sector) 
