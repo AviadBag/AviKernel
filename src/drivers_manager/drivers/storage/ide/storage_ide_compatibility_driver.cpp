@@ -99,7 +99,7 @@ void StorageIDECompatibilityDriver::add_drive(uint8_t channel, uint8_t drive, ui
     if (uses_48_bits_mode)
         number_of_sectors = *((uint64_t*)(&(buf[ICD_IDENT_48_BITS_SECTORS])));
     else
-        number_of_sectors = buf[ICD_IDENT_28_BITS_SECTORS];
+        number_of_sectors = *((uint32_t*)(&(buf[ICD_IDENT_28_BITS_SECTORS])));
 
     IDEDrive* drive_to_add = new IDEDrive(channel, drive, supports_lba, uses_48_bits_mode, SECTOR_SIZE, number_of_sectors);
     drives.append(drive_to_add);
