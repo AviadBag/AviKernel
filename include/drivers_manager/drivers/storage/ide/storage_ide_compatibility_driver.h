@@ -25,9 +25,10 @@ private:
     // Iterates the PCI to find the IDE controller; Returns false if not found.
     bool get_pci_ide_controller(PCIDevice*);
 
-    // Returns true if the channel is now in compatibility mode, or if it can be switched to compatibility mode.
-    // Must be only called if THERE IS an IDE controller.
-    bool channel_supports_compatibility_mode(uint8_t channel);
+    bool channel_supports_compatibility_mode (uint8_t channel);
+    bool channel_in_compatibility_mode       (uint8_t channel);
+    bool channel_supports_switch             (uint8_t channel);
+    void switch_channel_to_compatibility_mode(uint8_t channel); // Will only work if this channel support it.
 
     void disable_interrupts(uint8_t channel);
     void detect_drives(); // Finds all of the connected drives, adds them to the drives array, and updates the "number_of_drives" var.

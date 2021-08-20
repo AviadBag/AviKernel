@@ -95,7 +95,7 @@ bool PCIDriver::device_exists(PCIDevice d)
     return vendor_id != PCI_VENDOR_ID_DEVICE_DOES_NOT_EXIST;
 }  
 
-uint32_t PCIDriver::pci_config_read_32_bits(PCIDevice d, uint8_t offset)
+uint32_t PCIDriver::generate_pci_config_address(PCIDevice d, uint8_t offset) 
 {
     uint32_t bus_32 = (uint32_t)d.get_bus_number();
     uint32_t device_32 = (uint32_t)d.get_device_number();
@@ -108,8 +108,21 @@ uint32_t PCIDriver::pci_config_read_32_bits(PCIDevice d, uint8_t offset)
     address |= (function_32 << 8);
     address |= offset_32;
 
+    return address;
+}
+
+uint32_t PCIDriver::pci_config_read_32_bits(PCIDevice d, uint8_t offset)
+{
+    uint32_t address = generate_pci_config_address(d, offset);
     IO::outl(PCI_CONFIG_ADDRESS_PORT, address);
     return IO::inl(PCI_CONFIG_DATA);
+}
+
+void PCIDriver::pci_config_write_32_bits(PCIDevice d, uint8_t offset, uint32_t what) 
+{
+    uint32_t address = generate_pci_config_address(d, offset);
+    IO::outl(PCI_CONFIG_ADDRESS_PORT, address);
+    IO::outl(PCI_CONFIG_DATA, what);
 }
 
 uint16_t PCIDriver::get_vendor_id(PCIDevice d)
@@ -140,4 +153,9 @@ uint8_t PCIDriver::get_header_type(PCIDevice d)
 uint8_t PCIDriver::get_prog_if(PCIDevice d) 
 {
     return (pci_config_read_32_bits(d, PCI_PROG_IF_OFFSET) & PCI_PROG_IF_MASK) >> PCI_PROG_IF_SHIFT;
+}
+
+void PCIDriver::set_prog_if(PCIDevice d, uint8_t prog_if) 
+{
+    pci_config_write_32_bits(d, PCI_PROG_IF_OFFSET, prog_if << PCI_PROG_IF_SHIFT);
 }

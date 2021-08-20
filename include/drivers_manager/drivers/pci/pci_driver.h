@@ -23,12 +23,16 @@ public:
     uint8_t  get_header_type(PCIDevice d);
     uint8_t  get_prog_if(PCIDevice d);
 
+    void set_prog_if(PCIDevice d, uint8_t prog_if);
+
 private:
     void add_device(PCIDevice d);
     bool device_exists(PCIDevice d);
     void enumerate_devices();
 
-    uint32_t pci_config_read_32_bits(PCIDevice d, uint8_t offset);
+    uint32_t generate_pci_config_address(PCIDevice d, uint8_t offset);
+    uint32_t pci_config_read_32_bits (PCIDevice d, uint8_t offset);
+    void     pci_config_write_32_bits(PCIDevice d, uint8_t offset, uint32_t what);
 
     Vector<PCIDevice> devices;
 };

@@ -157,6 +157,15 @@ void StorageIDECompatibilityDriver::setup_driver_and_device()
     disable_interrupts(ICD_PRIMARY_CHANNEL);
     disable_interrupts(ICD_SECONDARY_CHANNEL);
 
+    for (int channel = 0; channel < 2; channel++)
+    {
+        if (!channel_in_compatibility_mode(channel))
+        {
+            printf("PCI IDE Driver: Channel %d is not in compatibility mode... Switching.\n");
+            switch_channel_to_compatibility_mode(channel);
+        } else printf("PCI IDE Driver: Channel %d is already in compatibility mode.\n");
+    }
+
     detect_drives();
 }
 
@@ -173,26 +182,63 @@ bool StorageIDECompatibilityDriver::exist()
 
 bool StorageIDECompatibilityDriver::channel_supports_compatibility_mode(uint8_t channel) 
 {
-    uint8_t now_mask, can_switch_mask;
+    return channel_supports_switch(channel) || channel_in_compatibility_mode(channel);
+}
+
+
+void StorageIDECompatibilityDriver::switch_channel_to_compatibility_mode([[gnu::unused]] uint8_t channel) 
+{
+    uint8_t switch_mask = (channel == ICD_PRIMARY_CHANNEL ? 0b1110 : 0b1011);
+
+    PCIDevice _ide_controller;
+    get_pci_ide_controller(&_ide_controller);
+    uint8_t prog_if = pci_driver->get_prog_if(_ide_controller);
+    prog_if &= switch_mask;
+    pci_driver->set_prog_if(_ide_controller, prog_if);
+}
+
+bool StorageIDECompatibilityDriver::channel_supports_switch(uint8_t channel) 
+{
+    uint8_t can_switch_mask;
     switch (channel)
     {
         case ICD_PRIMARY_CHANNEL:
-            now_mask = ICD_PC_IN_PCI_MODE_MASK;
             can_switch_mask = ICD_PC_SUPPORTS_SWITCH_MASK;
             break;
         case ICD_SECONDARY_CHANNEL:
-            now_mask = ICD_SC_IN_PCI_MODE_MASK;
             can_switch_mask = ICD_SC_SUPPORTS_SWITCH_MASK;
             break;
         default:
-            panic("StorageIDECompatibilityDriver::channel_supports_compatibility_mode: Invalid given channel!\n");
+            panic("StorageIDECompatibilityDriver::channel_supports_switch: Invalid given channel!\n");
     }
 
     PCIDevice _ide_controller;
     get_pci_ide_controller(&_ide_controller);
     
     uint8_t prog_if = pci_driver->get_prog_if(_ide_controller);
-    return (prog_if & can_switch_mask) || ((prog_if & now_mask) == 0);
+    return prog_if & can_switch_mask;
+}
+
+bool StorageIDECompatibilityDriver::channel_in_compatibility_mode(uint8_t channel) 
+{
+    uint8_t now_mask;
+    switch (channel)
+    {
+        case ICD_PRIMARY_CHANNEL:
+            now_mask = ICD_PC_IN_PCI_MODE_MASK;
+            break;
+        case ICD_SECONDARY_CHANNEL:
+            now_mask = ICD_SC_IN_PCI_MODE_MASK;
+            break;
+        default:
+            panic("StorageIDECompatibilityDriver::channel_in_compatibility_mode: Invalid given channel!\n");
+    }
+
+    PCIDevice _ide_controller;
+    get_pci_ide_controller(&_ide_controller);
+    
+    uint8_t prog_if = pci_driver->get_prog_if(_ide_controller);
+    return (prog_if & now_mask) == 0;
 }
 
 bool StorageIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_p) 
