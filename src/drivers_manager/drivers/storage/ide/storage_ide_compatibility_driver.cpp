@@ -79,7 +79,7 @@ void StorageIDECompatibilityDriver::ide_select_drive(uint8_t channel, uint8_t dr
     uint8_t tmp = (lba ? 0xE0 : 0xA0);
     uint8_t data = tmp | (drive << 4);
     get_ide_controller(channel)->write_drive_head_register(data);
-    Time::sleep(1); // Give the IDE time.
+    Time::sleep(1); // Give the IDE time to make the switch.
 }
 
 void StorageIDECompatibilityDriver::add_drive(uint8_t channel, uint8_t drive, uint16_t* buf) 
@@ -87,20 +87,24 @@ void StorageIDECompatibilityDriver::add_drive(uint8_t channel, uint8_t drive, ui
     bool supports_lba, uses_48_bits_mode;
     uint64_t number_of_sectors;
 
+    // Do I support LBA?
     uint32_t capabilities = *((uint32_t*)(&(buf[ICD_IDENT_CAPABILITIES])));
     supports_lba = IS_SET(capabilities, 9);
 
+    // If I support LBA, do I support 48 bits addressing mode?
     if (supports_lba)
     {
         uint64_t commands_set = *((uint64_t*)(&(buf[ICD_IDENT_CMDS_SET])));
         uses_48_bits_mode = IS_SET(commands_set, 26);
     } else uses_48_bits_mode = false;
 
+    // How many sectors do I have?
     if (uses_48_bits_mode)
         number_of_sectors = *((uint64_t*)(&(buf[ICD_IDENT_48_BITS_SECTORS])));
     else
         number_of_sectors = *((uint32_t*)(&(buf[ICD_IDENT_28_BITS_SECTORS])));
 
+    // Add me to the drives list!
     IDEDrive* drive_to_add = new IDEDrive(channel, drive, supports_lba, uses_48_bits_mode, SECTOR_SIZE, number_of_sectors);
     drives.append(drive_to_add);
     number_of_drives++;
@@ -157,7 +161,8 @@ void StorageIDECompatibilityDriver::setup_driver_and_device()
     disable_interrupts(ICD_PRIMARY_CHANNEL);
     disable_interrupts(ICD_SECONDARY_CHANNEL);
 
-    for (int channel = 0; channel < 2; channel++)
+    // Switch both channels to compatibility mode, if needed.
+    for (int channel = 0; channel < ICD_NUMBER_OF_CHANNELS; channel++)
     {
         if (!channel_in_compatibility_mode(channel))
         {
@@ -166,6 +171,7 @@ void StorageIDECompatibilityDriver::setup_driver_and_device()
         } else printf("PCI IDE Driver: Channel %d is already in compatibility mode.\n");
     }
 
+    // Fill the drives array!
     detect_drives();
 }
 
@@ -237,6 +243,8 @@ bool StorageIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_p)
 void StorageIDECompatibilityDriver::select_drive(int d) 
 {
     StorageDriver::select_drive(d);
+
+    // Select the desired drive physically.
     IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
     ide_select_drive(drive->get_channel(), drive->get_drive_in_channel(), false);
 }
