@@ -86,18 +86,23 @@ void setup_drivers()
             printf("Drive {%d} -> Drive Size: %f MB\n", i, storage_driver->get_drive(i)->get_size_mb());
         }
 
-        // printf("Reading the first sector from drive 0...\n");
-        // storage_driver->select_drive(0);
-        // char buf[512];
-        // storage_driver->read_sector(0, buf);
-        // int k = 0;
-        // for (int i = 0; i < 512; i++)
-        // {
-        //     k++;
-        //     printf("%02X ", buf[i] & 0xFF);
-        //     if (k % 26 == 0)
-        //         putchar('\n');
-        // }
+        int drive = 0;
+        const char sectors = 3;
+        int lba = 100;
+        printf("Reading %d sectors from drive %d, starting from LBA %d...\n", sectors, drive, lba);
+        storage_driver->select_drive(drive);
+        char buf[sectors * 512];
+        storage_driver->read_sectors(lba, sectors, buf);
+        int k = 0;
+        for (int i = 0; i < sectors * 512; i++)
+        {
+            k++;
+            IO::outb(0x3F8, buf[i]);
+            // printf("%02X ", buf[i] & 0xFF);
+            // if (k % 26 == 0)
+            //     putchar('\n');
+        }
+        printf("DONE!\n");
     }
 
     KeyboardDriver* keyboard_driver = (KeyboardDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_KEYBOARD_DRIVER);

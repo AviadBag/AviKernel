@@ -185,7 +185,6 @@ bool StorageIDECompatibilityDriver::channel_supports_compatibility_mode(uint8_t 
     return channel_supports_switch(channel) || channel_in_compatibility_mode(channel);
 }
 
-
 void StorageIDECompatibilityDriver::switch_channel_to_compatibility_mode([[gnu::unused]] uint8_t channel) 
 {
     uint8_t switch_mask = (channel == ICD_PRIMARY_CHANNEL ? 0b1110 : 0b1011);
@@ -249,11 +248,8 @@ void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char count
     IDEController* controller = get_ide_controller(drive->get_channel());
 
     // Wait for drive to be not BSY
-    uint8_t status;
-    do
-    {
-        status = controller->read_alternate_status_register();
-    } while (status & ICD_STATUS_BSY);
+    while (controller->read_alternate_status_register() & ICD_STATUS_BSY)
+        ;
 
     // Select current drive as LBA
     ide_select_drive(drive->get_channel(), drive->get_drive_in_channel(), true);
@@ -272,18 +268,28 @@ void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char count
     controller->write_LBIhi_register_48(lba2, lba5);
 
     // Write sector count
-    controller->write_sector_count_register_48(1, 0);
+    controller->write_sector_count_register_48(count, 0);
 
     // Write command
     controller->write_command_register(ICD_READ_PIO_48);
 
     // Wait for drive to be not BSY
-    do
-    {
-        status = controller->read_alternate_status_register();
-    } while (status & ICD_STATUS_BSY);
+    while (controller->read_alternate_status_register() & ICD_STATUS_BSY)
+        ;
 
-    controller->read_data_register_buffer((uint16_t*) buffer, SECTOR_SIZE);
+    // For every sector
+    for (int i = 0; i < count; i++)
+    {
+        // Wait for DRQ to be set.
+        uint8_t status;
+        while (((status = controller->read_alternate_status_register()) & ICD_STATUS_DRQ) == 0)
+            ;
+
+        // Read sector
+        controller->read_data_register_buffer((uint16_t*) buffer, SECTOR_SIZE);
+        // Go to next sector
+        buffer += 512;
+    }
 }
 
 void StorageIDECompatibilityDriver::read_sector_28_bits([[gnu::unused]] uint64_t lba, [[gnu::unused]] char count, [[gnu::unused]] char* buffer) 
