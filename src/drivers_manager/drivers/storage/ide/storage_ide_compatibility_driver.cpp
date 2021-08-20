@@ -199,41 +199,17 @@ void StorageIDECompatibilityDriver::switch_channel_to_compatibility_mode([[gnu::
 
 bool StorageIDECompatibilityDriver::channel_supports_switch(uint8_t channel) 
 {
-    uint8_t can_switch_mask;
-    switch (channel)
-    {
-        case ICD_PRIMARY_CHANNEL:
-            can_switch_mask = ICD_PC_SUPPORTS_SWITCH_MASK;
-            break;
-        case ICD_SECONDARY_CHANNEL:
-            can_switch_mask = ICD_SC_SUPPORTS_SWITCH_MASK;
-            break;
-        default:
-            panic("StorageIDECompatibilityDriver::channel_supports_switch: Invalid given channel!\n");
-    }
+    uint8_t can_switch_mask = (channel == ICD_PRIMARY_CHANNEL ? 0b0010 : 0b1000);
 
     PCIDevice _ide_controller;
     get_pci_ide_controller(&_ide_controller);
-    
     uint8_t prog_if = pci_driver->get_prog_if(_ide_controller);
     return prog_if & can_switch_mask;
 }
 
 bool StorageIDECompatibilityDriver::channel_in_compatibility_mode(uint8_t channel) 
 {
-    uint8_t now_mask;
-    switch (channel)
-    {
-        case ICD_PRIMARY_CHANNEL:
-            now_mask = ICD_PC_IN_PCI_MODE_MASK;
-            break;
-        case ICD_SECONDARY_CHANNEL:
-            now_mask = ICD_SC_IN_PCI_MODE_MASK;
-            break;
-        default:
-            panic("StorageIDECompatibilityDriver::channel_in_compatibility_mode: Invalid given channel!\n");
-    }
-
+    uint8_t now_mask = (channel == ICD_PRIMARY_CHANNEL ? 0b0000 : 0b0100);
     PCIDevice _ide_controller;
     get_pci_ide_controller(&_ide_controller);
     
