@@ -15,7 +15,7 @@ public:
     virtual void setup_driver_and_device() = 0;
     virtual bool exist() = 0;
 
-    // A sector is of size of 512 bytes.
+    // count=0 -> 256 sectors.
     virtual void read_sectors(uint64_t lba, char count, char* buffer) = 0;
     virtual void write_sectors(uint64_t lba, char count, char* sector) = 0;
 
