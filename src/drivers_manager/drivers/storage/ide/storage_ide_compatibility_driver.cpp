@@ -242,7 +242,7 @@ void StorageIDECompatibilityDriver::select_drive(int d)
     ide_select_drive(drive->get_channel(), drive->get_drive_in_channel(), false);
 }
 
-void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char* buffer) 
+void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char count, char* buffer) 
 {
     // Get controller
     IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
@@ -286,29 +286,29 @@ void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char* buff
     controller->read_data_register_buffer((uint16_t*) buffer, SECTOR_SIZE);
 }
 
-void StorageIDECompatibilityDriver::read_sector_28_bits([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* buffer) 
+void StorageIDECompatibilityDriver::read_sector_28_bits([[gnu::unused]] uint64_t lba, [[gnu::unused]] char count, [[gnu::unused]] char* buffer) 
 {
     panic("read_sector_28_bits(): Not implemented!");
 }
 
-void StorageIDECompatibilityDriver::read_sector_chs([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* buffer) 
+void StorageIDECompatibilityDriver::read_sector_chs([[gnu::unused]] uint64_t lba, [[gnu::unused]] char count, [[gnu::unused]] char* buffer) 
 {
     panic("read_sector_chs(): Not implemented!");
 }
 
-void StorageIDECompatibilityDriver::read_sector(uint64_t lba, char* buffer) 
+void StorageIDECompatibilityDriver::read_sectors(uint64_t lba, char count, char* buffer) 
 {
     IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
     if (drive->get_supports_lba())
     {
         if (drive->get_uses_48_bits_mode())
-            read_sector_48_bits(lba, buffer);
+            read_sector_48_bits(lba, count, buffer);
         else
-            read_sector_28_bits(lba, buffer);
-    } else read_sector_chs(lba, buffer);
+            read_sector_28_bits(lba, count, buffer);
+    } else read_sector_chs(lba, count, buffer);
 }
 
-void StorageIDECompatibilityDriver::write_sector([[gnu::unused]] uint64_t lba, [[gnu::unused]] char* sector) 
+void StorageIDECompatibilityDriver::write_sectors([[gnu::unused]] uint64_t lba, [[gnu::unused]] char count, [[gnu::unused]] char* sector) 
 {
 
 }
