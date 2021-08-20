@@ -64,6 +64,13 @@ void IDEController::read_data_register_buffer(uint16_t* buf, unsigned int size)
         buf[i] = read_data_register();
 }
 
+void IDEController::write_data_register_buffer(uint16_t* buf, unsigned int size) 
+{
+    unsigned int count = size / sizeof(uint16_t);
+    for (unsigned int i = 0; i < count; i++)
+        write_data_register(buf[i]);
+}
+
 void IDEController::write_data_register(uint16_t data) 
 {
     IO::outw(ports1_base + 0, data);

@@ -24,6 +24,7 @@ public:
 
     // <size> is in bytes!
     void     read_data_register_buffer        (uint16_t* buf, unsigned int size);
+    void     write_data_register_buffer       (uint16_t* buf, unsigned int size);
 
     void     write_data_register              (uint16_t data);
     void     write_precompensation_register   (uint8_t data);
