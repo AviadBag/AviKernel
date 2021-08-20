@@ -33,8 +33,10 @@
 #define ICD_SC_SUPPORTS_SWITCH_MASK (1 << 3) // Can the secondary channel switch modes?
 
 // Commands
-#define ICD_IDENTIFY    0xEC
-#define ICD_READ_PIO_48 0x24
+#define ICD_IDENTIFY       0xEC
+#define ICD_READ_PIO_48    0x24
+#define ICD_WRITE_PIO_48   0x34
+#define ICD_FLUSH_CACHE_48 0xEA
 
 // Masks
 #define ICD_STATUS_BSY (1 << 7)
@@ -249,7 +251,7 @@ void StorageIDECompatibilityDriver::select_drive(int d)
     ide_select_drive(drive->get_channel(), drive->get_drive_in_channel(), false);
 }
 
-void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char count, char* buffer) 
+void StorageIDECompatibilityDriver::setup_rw_48_bits(uint64_t lba, char count) 
 {
     // Get controller
     IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
@@ -277,6 +279,16 @@ void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char count
 
     // Write sector count
     controller->write_sector_count_register_48(count, 0);
+}
+
+void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char count, char* buffer) 
+{
+    // Setup
+    setup_rw_48_bits(lba, count);
+    
+    // Get controller
+    IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
+    IDEController* controller = get_ide_controller(drive->get_channel());
 
     // Write command
     controller->write_command_register(ICD_READ_PIO_48);
@@ -322,7 +334,61 @@ void StorageIDECompatibilityDriver::read_sectors(uint64_t lba, char count, char*
     } else read_sector_chs(lba, count, buffer);
 }
 
-void StorageIDECompatibilityDriver::write_sectors([[gnu::unused]] uint64_t lba, [[gnu::unused]] char count, [[gnu::unused]] char* sector) 
+void StorageIDECompatibilityDriver::write_sector_48_bits(uint64_t lba, char count, char* buffer) 
 {
+    // Setup
+    setup_rw_48_bits(lba, count);
+    
+    // Get controller
+    IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
+    IDEController* controller = get_ide_controller(drive->get_channel());
 
+    // Write command
+    controller->write_command_register(ICD_WRITE_PIO_48);
+
+    // Wait for drive to be not BSY
+    while (controller->read_alternate_status_register() & ICD_STATUS_BSY)
+        ;
+
+    // For every sector
+    for (int i = 0; i < count; i++)
+    {
+        // Wait for DRQ to be set.
+        uint8_t status;
+        while (((status = controller->read_alternate_status_register()) & ICD_STATUS_DRQ) == 0)
+            ;
+
+        // Write!
+        controller->write_data_register_buffer((uint16_t*) buffer, SECTOR_SIZE);
+        // Go to next sector
+        buffer += 512;
+    }
+
+    // Flush cache
+    controller->write_command_register(ICD_FLUSH_CACHE_48);
+    // Wait for drive to be not BSY
+    while (controller->read_alternate_status_register() & ICD_STATUS_BSY)
+        ;
+}
+
+void StorageIDECompatibilityDriver::write_sector_28_bits([[gnu::unused]] uint64_t lba, [[gnu::unused]] char count, [[gnu::unused]] char* buffer) 
+{
+    panic("write_sector_28_bits(): Not implemented!");
+}
+
+void StorageIDECompatibilityDriver::write_sector_chs([[gnu::unused]] uint64_t lba, [[gnu::unused]] char count, [[gnu::unused]] char* buffer) 
+{
+    panic("write_sector_chs(): Not implemented!");
+}
+
+void StorageIDECompatibilityDriver::write_sectors(uint64_t lba, char count, char* buffer) 
+{
+    IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
+    if (drive->get_supports_lba())
+    {
+        if (drive->get_uses_48_bits_mode())
+            write_sector_48_bits(lba, count, buffer);
+        else
+            write_sector_28_bits(lba, count, buffer);
+    } else write_sector_chs(lba, count, buffer);
 }

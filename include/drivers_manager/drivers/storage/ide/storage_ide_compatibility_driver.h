@@ -40,6 +40,13 @@ private:
     void read_sector_28_bits(uint64_t lba, char count, char* buffer);
     void read_sector_chs(uint64_t lba, char count, char* buffer);
 
+    void write_sector_48_bits(uint64_t lba, char count, char* buffer);
+    void write_sector_28_bits(uint64_t lba, char count, char* buffer);
+    void write_sector_chs(uint64_t lba, char count, char* buffer);
+
+    // Does the neccessary setup before I/O: Fills the address and writes sector count.
+    void setup_rw_48_bits(uint64_t lba, char count);
+
     PCIDriver* pci_driver;
     IDEController *primary_ide_controller, *secondary_ide_controller;
 };
