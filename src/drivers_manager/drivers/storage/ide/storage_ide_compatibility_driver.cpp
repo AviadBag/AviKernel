@@ -312,7 +312,7 @@ void StorageIDECompatibilityDriver::fill_address_28_bits(IDEController* controll
     controller->write_drive_head_register(drive_head);
 }
 
-void StorageIDECompatibilityDriver::fill_address_chs(IDEController* controller, uint64_t lba) 
+void StorageIDECompatibilityDriver::fill_address_chs([[gnu::unused]] IDEController* controller, [[gnu::unused]]  uint64_t lba) 
 {
     panic("fill_address_chs(): Not implemented!");
 }
