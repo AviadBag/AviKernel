@@ -94,5 +94,4 @@ clean:
 	rm -rf isodir
 	find . -type f -name '*.ob' -delete
 	rm -f ${ISO}
-	clear
 
