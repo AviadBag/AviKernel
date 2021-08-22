@@ -300,7 +300,23 @@ void StorageIDECompatibilityDriver::fill_address_48_bits(IDEController* controll
 
 void StorageIDECompatibilityDriver::fill_address_28_bits(IDEController* controller, uint64_t lba) 
 {
-    panic("fill_address_28_bits(): Not implemented!");
+    // Generate LBA values
+    uint8_t lba0 = lba >> 0;
+    uint8_t lba1 = lba >> 8;
+    uint8_t lba2 = lba >> 16;
+    uint8_t lba3 = lba >> 24;
+    lba3 &= 0b00001111; // Only the first 4 bytes are used.
+
+    // Write LBA values
+    controller->write_sector_number_register(lba0);
+    controller->write_cylinder_LSB_register(lba1);
+    controller->write_cylinder_MSB_register(lba2);
+
+    // LBA3 is more complicated. It's LOWER 4 bytes should be written to the lower 4 bytes of the drive/head register.
+    uint8_t drive_head = controller->read_drive_head_register();
+    drive_head &= 0b11110000; // Make lower 4 bits zero.
+    drive_head |= lba3;       // Fill the lower 4 bits.
+    controller->write_drive_head_register(drive_head);
 }
 
 void StorageIDECompatibilityDriver::fill_address_chs(IDEController* controller, uint64_t lba) 
