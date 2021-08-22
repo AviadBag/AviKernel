@@ -18,8 +18,8 @@ public:
 
     virtual void select_drive(int d) override;
 
-    virtual void read_sectors(uint64_t lba, char count, char* buffer) override;
-    virtual void write_sectors(uint64_t lba, char count, char* sector) override;
+    virtual void read_sectors(uint64_t lba, uint8_t count, char* buffer) override;
+    virtual void write_sectors(uint64_t lba, uint8_t count, char* sector) override;
 
 private:
     // Iterates the PCI to find the IDE controller; Returns false if not found.
@@ -36,16 +36,16 @@ private:
     IDEController* get_ide_controller(uint8_t channel); // Returns the appropriate IDE controller for the given channel.
     void add_drive(uint8_t channel, uint8_t drive, uint16_t* buf); // Adds a drive to the drives list; Gets the device's buffer as an input.
 
-    void read_sector_48_bits(uint64_t lba, char count, char* buffer);
-    void read_sector_28_bits(uint64_t lba, char count, char* buffer);
-    void read_sector_chs(uint64_t lba, char count, char* buffer);
+    void read_sector_48_bits(uint64_t lba, uint8_t count, char* buffer);
+    void read_sector_28_bits(uint64_t lba, uint8_t count, char* buffer);
+    void read_sector_chs(uint64_t lba, uint8_t count, char* buffer);
 
-    void write_sector_48_bits(uint64_t lba, char count, char* buffer);
-    void write_sector_28_bits(uint64_t lba, char count, char* buffer);
-    void write_sector_chs(uint64_t lba, char count, char* buffer);
+    void write_sector_48_bits(uint64_t lba, uint8_t count, char* buffer);
+    void write_sector_28_bits(uint64_t lba, uint8_t count, char* buffer);
+    void write_sector_chs(uint64_t lba, uint8_t count, char* buffer);
 
     // Does the neccessary setup before I/O: Fills the address and writes sector count.
-    void setup_rw_48_bits(uint64_t lba, char count);
+    void setup_rw_48_bits(uint64_t lba, uint8_t count);
 
     PCIDriver* pci_driver;
     IDEController *primary_ide_controller, *secondary_ide_controller;

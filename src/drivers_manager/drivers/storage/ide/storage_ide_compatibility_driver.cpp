@@ -251,7 +251,7 @@ void StorageIDECompatibilityDriver::select_drive(int d)
     ide_select_drive(drive->get_channel(), drive->get_drive_in_channel(), false);
 }
 
-void StorageIDECompatibilityDriver::setup_rw_48_bits(uint64_t lba, char count) 
+void StorageIDECompatibilityDriver::setup_rw_48_bits(uint64_t lba, uint8_t count) 
 {
     // Get controller
     IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
@@ -281,7 +281,7 @@ void StorageIDECompatibilityDriver::setup_rw_48_bits(uint64_t lba, char count)
     controller->write_sector_count_register_48(count, 0);
 }
 
-void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char count, char* buffer) 
+void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, uint8_t count, char* buffer) 
 {
     // Setup
     setup_rw_48_bits(lba, count);
@@ -311,17 +311,17 @@ void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char count
     }
 }
 
-void StorageIDECompatibilityDriver::read_sector_28_bits([[gnu::unused]] uint64_t lba, [[gnu::unused]] char count, [[gnu::unused]] char* buffer) 
+void StorageIDECompatibilityDriver::read_sector_28_bits([[gnu::unused]] uint64_t lba, [[gnu::unused]] uint8_t count, [[gnu::unused]] char* buffer) 
 {
     panic("read_sector_28_bits(): Not implemented!");
 }
 
-void StorageIDECompatibilityDriver::read_sector_chs([[gnu::unused]] uint64_t lba, [[gnu::unused]] char count, [[gnu::unused]] char* buffer) 
+void StorageIDECompatibilityDriver::read_sector_chs([[gnu::unused]] uint64_t lba, [[gnu::unused]] uint8_t count, [[gnu::unused]] char* buffer) 
 {
     panic("read_sector_chs(): Not implemented!");
 }
 
-void StorageIDECompatibilityDriver::read_sectors(uint64_t lba, char count, char* buffer) 
+void StorageIDECompatibilityDriver::read_sectors(uint64_t lba, uint8_t count, char* buffer) 
 {
     IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
     if (drive->get_supports_lba())
@@ -333,7 +333,7 @@ void StorageIDECompatibilityDriver::read_sectors(uint64_t lba, char count, char*
     } else read_sector_chs(lba, count, buffer);
 }
 
-void StorageIDECompatibilityDriver::write_sector_48_bits(uint64_t lba, char count, char* buffer) 
+void StorageIDECompatibilityDriver::write_sector_48_bits(uint64_t lba, uint8_t count, char* buffer) 
 {
     // Setup
     setup_rw_48_bits(lba, count);
@@ -370,17 +370,17 @@ void StorageIDECompatibilityDriver::write_sector_48_bits(uint64_t lba, char coun
         ;
 }
 
-void StorageIDECompatibilityDriver::write_sector_28_bits([[gnu::unused]] uint64_t lba, [[gnu::unused]] char count, [[gnu::unused]] char* buffer) 
+void StorageIDECompatibilityDriver::write_sector_28_bits([[gnu::unused]] uint64_t lba, [[gnu::unused]] uint8_t count, [[gnu::unused]] char* buffer) 
 {
     panic("write_sector_28_bits(): Not implemented!");
 }
 
-void StorageIDECompatibilityDriver::write_sector_chs([[gnu::unused]] uint64_t lba, [[gnu::unused]] char count, [[gnu::unused]] char* buffer) 
+void StorageIDECompatibilityDriver::write_sector_chs([[gnu::unused]] uint64_t lba, [[gnu::unused]] uint8_t count, [[gnu::unused]] char* buffer) 
 {
     panic("write_sector_chs(): Not implemented!");
 }
 
-void StorageIDECompatibilityDriver::write_sectors(uint64_t lba, char count, char* buffer) 
+void StorageIDECompatibilityDriver::write_sectors(uint64_t lba, uint8_t count, char* buffer) 
 {
     IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
     if (drive->get_supports_lba())

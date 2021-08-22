@@ -15,8 +15,8 @@ public:
     virtual void setup_driver_and_device() = 0;
     virtual bool exist() = 0;
 
-    virtual void read_sectors(uint64_t lba, char count, char* buffer) = 0;
-    virtual void write_sectors(uint64_t lba, char count, char* sector) = 0;
+    virtual void read_sectors(uint64_t lba, uint8_t count, char* buffer) = 0;
+    virtual void write_sectors(uint64_t lba, uint8_t count, char* sector) = 0;
 
     virtual void select_drive(int d); // Starting from drive 0.
     int get_number_of_drives();
