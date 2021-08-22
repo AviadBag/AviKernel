@@ -3,10 +3,10 @@
 
 #include <stdint.h>
 
-class Drive
+class PhysicalDrive
 {
 public:
-    Drive(uint32_t sector_size, uint64_t number_of_sectors);
+    PhysicalDrive(uint32_t sector_size, uint64_t number_of_sectors);
 
     uint32_t get_sector_size();
     uint64_t get_number_of_sectors();

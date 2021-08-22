@@ -7,7 +7,7 @@ IDEDrive::IDEDrive(
     bool uses_48_bits_mode,
     uint32_t sector_size,
     uint64_t number_of_sectors)
-    : Drive(sector_size, number_of_sectors)
+    : PhysicalDrive(sector_size, number_of_sectors)
 {
     this->channel = channel;
     this->drive_in_channel = drive_in_channel;
