@@ -4,7 +4,7 @@
 #include "drivers_manager/drivers/storage/storage_driver.h"
 #include "drivers_manager/drivers/storage/ide/ide_controller.h"
 #include "drivers_manager/drivers/pci/pci_driver.h"
-#include "drivers_manager/drivers/storage/ide/ide_drive.h"
+#include "drivers_manager/drivers/storage/ide/physical_ide_drive.h"
 
 #include <stdint.h>
 
@@ -42,7 +42,7 @@ private:
     void fill_address_chs(IDEController* controller, uint64_t lba);
 
     // Does the neccessary setup before I/O: Selects drive, fills the address and writes sector count.
-    void setup_rw_48_bits(IDEDrive* drive, IDEController* controller, uint64_t lba, uint8_t count);
+    void setup_rw_48_bits(PhysicalIDEDrive* drive, IDEController* controller, uint64_t lba, uint8_t count);
 
     PCIDriver* pci_driver;
     IDEController *primary_ide_controller, *secondary_ide_controller;

@@ -1,6 +1,6 @@
-#include "drivers_manager/drivers/storage/ide/ide_drive.h"
+#include "drivers_manager/drivers/storage/ide/physical_ide_drive.h"
 
-IDEDrive::IDEDrive(
+PhysicalIDEDrive::PhysicalIDEDrive(
     uint8_t channel,
     uint8_t drive_in_channel,
     bool supports_lba,
@@ -15,22 +15,22 @@ IDEDrive::IDEDrive(
     this->uses_48_bits_mode = uses_48_bits_mode;
 }
 
-uint8_t IDEDrive::get_drive_in_channel()
+uint8_t PhysicalIDEDrive::get_drive_in_channel()
 {
     return drive_in_channel;
 }
 
-uint8_t IDEDrive::get_channel()
+uint8_t PhysicalIDEDrive::get_channel()
 {
     return channel;
 }
 
-bool IDEDrive::get_supports_lba() 
+bool PhysicalIDEDrive::get_supports_lba() 
 {
     return supports_lba;
 }
 
-bool IDEDrive::get_uses_48_bits_mode() 
+bool PhysicalIDEDrive::get_uses_48_bits_mode() 
 {
     return uses_48_bits_mode;
 }

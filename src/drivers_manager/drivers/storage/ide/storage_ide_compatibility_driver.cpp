@@ -2,7 +2,7 @@
 #include "drivers_manager/drivers/pci/pci_driver.h"
 #include "drivers_manager/drivers/pci/pci_device.h"
 #include "drivers_manager/drivers_manager.h"
-#include "drivers_manager/drivers/storage/ide/ide_drive.h"
+#include "drivers_manager/drivers/storage/ide/physical_ide_drive.h"
 
 #include "utils/vector.h"
 #include "utils/io.h"
@@ -110,7 +110,7 @@ void StorageIDECompatibilityDriver::add_drive(uint8_t channel, uint8_t drive, ui
         number_of_sectors = *((uint32_t*)(&(buf[ICD_IDENT_28_BITS_SECTORS])));
 
     // Add me to the drives list!
-    IDEDrive* drive_to_add = new IDEDrive(channel, drive, supports_lba, uses_48_bits_mode, SECTOR_SIZE, number_of_sectors);
+    PhysicalIDEDrive* drive_to_add = new PhysicalIDEDrive(channel, drive, supports_lba, uses_48_bits_mode, SECTOR_SIZE, number_of_sectors);
     drives.append(drive_to_add);
     number_of_drives++;
 }
@@ -250,11 +250,11 @@ void StorageIDECompatibilityDriver::select_drive(int d)
     StorageDriver::select_drive(d);
 
     // Select the desired drive physically.
-    IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
+    PhysicalIDEDrive* drive = (PhysicalIDEDrive*) drives.get(selected_drive);
     ide_select_drive(drive->get_channel(), drive->get_drive_in_channel(), false);
 }
 
-void StorageIDECompatibilityDriver::setup_rw_48_bits(IDEDrive* drive, IDEController* controller, uint64_t lba, uint8_t count) 
+void StorageIDECompatibilityDriver::setup_rw_48_bits(PhysicalIDEDrive* drive, IDEController* controller, uint64_t lba, uint8_t count) 
 {
    // Select current drive
     ide_select_drive(drive->get_channel(), drive->get_drive_in_channel(), drive->get_supports_lba());
@@ -320,7 +320,7 @@ void StorageIDECompatibilityDriver::fill_address_chs([[gnu::unused]] IDEControll
 void StorageIDECompatibilityDriver::read_sectors(uint64_t lba, uint8_t count, char* buffer) 
 {
     // Get controller
-    IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
+    PhysicalIDEDrive* drive = (PhysicalIDEDrive*) drives.get(selected_drive);
     IDEController* controller = get_ide_controller(drive->get_channel());
 
     // Setup
@@ -351,7 +351,7 @@ void StorageIDECompatibilityDriver::read_sectors(uint64_t lba, uint8_t count, ch
 void StorageIDECompatibilityDriver::write_sectors(uint64_t lba, uint8_t count, char* buffer) 
 {
     // Get controller
-    IDEDrive* drive = (IDEDrive*) drives.get(selected_drive);
+    PhysicalIDEDrive* drive = (PhysicalIDEDrive*) drives.get(selected_drive);
     IDEController* controller = get_ide_controller(drive->get_channel());
 
     // Setup

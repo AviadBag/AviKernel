@@ -2,7 +2,7 @@
 #define _STORAGE_DRIVER_H__
 
 #include "drivers_manager/drivers/driver.h"
-#include "drivers_manager/drivers/storage/drive.h"
+#include "drivers_manager/drivers/storage/physical_drive.h"
 #include "utils/vector.h"
 
 #include <stdint.h>

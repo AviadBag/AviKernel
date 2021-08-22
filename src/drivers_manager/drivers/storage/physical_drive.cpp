@@ -1,4 +1,4 @@
-#include "drivers_manager/drivers/storage/drive.h"
+#include "drivers_manager/drivers/storage/physical_drive.h"
 
 PhysicalDrive::PhysicalDrive(uint32_t sector_size, uint64_t number_of_sectors) 
 {
