@@ -90,8 +90,11 @@ format:
 	@echo " Done!"
 
 clean:
-	rm -f ${BIN}/*
-	rm -rf isodir
-	find . -type f -name '*.ob' -delete
-	rm -f ${ISO}
+	@echo "RM ${BIN}/"
+	@rm -f ${BIN}/*
+	@echo "RM isodir"
+	@echo "RM *.ob"
+	@find . -type f -name '*.ob' -delete
+	@echo "RM ${ISO}"
+	@rm -f ${ISO}
 
