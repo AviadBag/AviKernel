@@ -14,6 +14,6 @@ public:
 	virtual void read  (char* path, int count, char* buf);
 	virtual void write (char* path, int count, char* buf);
 	virtual void append(char* path, int count, char* buf);
-}
+};
 
 #endif
