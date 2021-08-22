@@ -36,9 +36,9 @@ private:
     IDEController* get_ide_controller(uint8_t channel); // Returns the appropriate IDE controller for the given channel.
     void add_drive(uint8_t channel, uint8_t drive, uint16_t* buf); // Adds a drive to the drives list; Gets the device's buffer as an input.
 
-    void read_sector_48_bits(uint64_t lba, uint8_t count, char* buffer);
-    void read_sector_28_bits(uint64_t lba, uint8_t count, char* buffer);
-    void read_sector_chs(uint64_t lba, uint8_t count, char* buffer);
+    void fill_address_48_bits(IDEController* controller, uint64_t lba);
+    void fill_address_28_bits(IDEController* controller, uint64_t lba);
+    void fill_address_chs(IDEController* controller, uint64_t lba);
 
     void write_sector_48_bits(uint64_t lba, uint8_t count, char* buffer);
     void write_sector_28_bits(uint64_t lba, uint8_t count, char* buffer);
