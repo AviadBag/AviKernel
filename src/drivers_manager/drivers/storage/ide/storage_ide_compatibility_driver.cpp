@@ -292,18 +292,17 @@ void StorageIDECompatibilityDriver::read_sector_48_bits(uint64_t lba, char count
 
     // Write command
     controller->write_command_register(ICD_READ_PIO_48);
-
-    // Wait for drive to be not BSY
-    while (controller->read_alternate_status_register() & ICD_STATUS_BSY)
-        ;
+    Time::sleep(1); // You should wait 400 ns.
 
     // For every sector
     for (int i = 0; i < count; i++)
     {
-        // Wait for DRQ to be set.
+        // Wait for DRQ to be set and for BSY to be clear.
         uint8_t status;
-        while (((status = controller->read_alternate_status_register()) & ICD_STATUS_DRQ) == 0)
-            ;
+        do
+        {
+            status = controller->read_alternate_status_register();
+        } while ((status & ICD_STATUS_DRQ) == 0 && (status & ICD_STATUS_BSY));
 
         // Read sector
         controller->read_data_register_buffer((uint16_t*) buffer, SECTOR_SIZE);
