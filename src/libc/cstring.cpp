@@ -57,3 +57,11 @@ strncpy(char *dest, const char *src, size_t n)
 
     return dest;
 }
+
+// Taken from https://en.wikibooks.org/wiki/C_Programming/string.h/strcat
+char *
+strcat(char *dest, const char *src)
+{
+    strcpy(dest + strlen(dest), src);
+    return dest;
+}
