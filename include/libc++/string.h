@@ -3,35 +3,32 @@
 
 #include <stddef.h>
 
-namespace std
+class String
 {
-    class string
-    {
-    public:
-        // ----------------------- Constructors -----------------------
-        string();
-        string (const string& str);
-        string (const char* s);
-        string (const char* s, size_t n);
-        string (size_t n, char c);
+public:
+    // ----------------------- Constructors -----------------------
+    String();
+    String (const String& str);
+    String (const char* s);
+    String (const char* s, size_t n);
+    String (size_t n, char c);
 
-        // ----------------------- Operators -----------------------
-        string& operator= (const string& str);
-        string& operator= (const char* s);
-        string& operator= (char c);
+    // ----------------------- Operators -----------------------
+    String& operator= (const String& str);
+    String& operator= (const char* s);
+    String& operator= (char c);
 
-        // ----------------------- Destructor -----------------------
-        virtual ~string();
+    // ----------------------- Destructor -----------------------
+    virtual ~String();
 
-        // ----------------------- Methods -----------------------
-        const char* c_str() const;
+    // ----------------------- Methods -----------------------
+    const char* c_str() const;
 
-    private:
-        void initialize_from_c_string(const char* str);
-        void initialize_from_char(char c);
+private:
+    void initialize_from_c_string(const char* str);
+    void initialize_from_char(char c);
 
-        char* actual_string = nullptr;
-    };
-}
+    char* actual_string = nullptr;
+};
 
 #endif // __STRING_H__
