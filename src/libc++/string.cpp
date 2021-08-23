@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <cstring.h>
+#include <cstdlib.h>
 
 #define CHECK_ALLOCATION(s) \
 { \
@@ -63,6 +64,24 @@ String& String::operator= (char c)
     return *this;
 }
 
+String& String::operator+= (const String& str) 
+{
+    append_c_string(str.c_str());
+    return *this;
+}
+
+String& String::operator+= (const char* s) 
+{
+    append_c_string(s);
+    return *this;
+}
+
+String& String::operator+= (char c) 
+{
+    append_char(c);
+    return *this;
+}
+
 // ----------------------- Destructor -----------------------
 String::~String() 
 {
@@ -107,4 +126,19 @@ void String::initialize_from_char(char c)
     *actual_string = c;
 
     if (c != '\0') _size = 1;
+}
+
+void String::append_c_string(const char* str) 
+{
+    _size = size() + strlen(str);
+    actual_string = (char*) realloc(actual_string, size() + 1);
+    CHECK_ALLOCATION(actual_string);
+    strcat(actual_string, str);
+}
+
+void String::append_char(char c) 
+{
+    _size++;
+    actual_string = (char*) realloc(actual_string, size() + 1);
+    actual_string[size()-1] = c;
 }

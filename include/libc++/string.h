@@ -18,6 +18,10 @@ public:
     String& operator= (const char* s);
     String& operator= (char c);
 
+    String& operator+= (const String& str);
+    String& operator+= (const char* s);
+    String& operator+= (char c);
+
     // ----------------------- Destructor -----------------------
     virtual ~String();
 
@@ -29,6 +33,8 @@ public:
 private:
     void initialize_from_c_string(const char* str);
     void initialize_from_char(char c);
+    void append_c_string(const char* str);
+    void append_char(char c);
 
     char* actual_string = nullptr;
 
