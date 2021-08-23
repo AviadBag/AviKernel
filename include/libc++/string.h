@@ -15,6 +15,11 @@ namespace std
         string (const char* s, size_t n);
         string (size_t n, char c);
 
+        // ----------------------- Operators -----------------------
+        string& operator= (const string& str);
+        string& operator= (const char* s);
+        string& operator= (char c);
+
         // ----------------------- Destructor -----------------------
         virtual ~string();
 
@@ -22,7 +27,10 @@ namespace std
         const char* c_str() const;
 
     private:
-        char* actual_string;
+        void initialize_from_c_string(const char* str);
+        void initialize_from_char(char c);
+
+        char* actual_string = nullptr;
     };
 }
 
