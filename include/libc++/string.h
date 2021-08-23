@@ -23,12 +23,16 @@ public:
 
     // ----------------------- Methods -----------------------
     const char* c_str() const;
+    size_t size() const;
+    size_t length() const;
 
 private:
     void initialize_from_c_string(const char* str);
     void initialize_from_char(char c);
 
     char* actual_string = nullptr;
+
+    size_t _size = 0;
 };
 
 #endif // __STRING_H__

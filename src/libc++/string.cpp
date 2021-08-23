@@ -27,6 +27,8 @@ String::String(const char* s, size_t n)
     actual_string = new char[n + 1];
     CHECK_ALLOCATION(actual_string);
     strncpy(actual_string, s, n);
+
+    _size = n;
 }
 
 String::String(size_t n, char c) 
@@ -38,26 +40,25 @@ String::String(size_t n, char c)
         actual_string[i] = c;
     }
     actual_string[n] = '\0';
+
+    _size = n;
 }
 
 // ----------------------- Operators -----------------------
 String& String::operator= (const String& str)
 {
-    if (actual_string) delete actual_string;
     initialize_from_c_string(str.c_str());
     return *this;
 }
 
 String& String::operator= (const char* s) 
 {
-    if (actual_string) delete actual_string;
     initialize_from_c_string(s);
     return *this;
 }
 
 String& String::operator= (char c) 
 {
-    if (actual_string) delete actual_string;
     initialize_from_char(c);
     return *this;
 }
@@ -74,18 +75,36 @@ const char* String::c_str() const
     return actual_string;
 }
 
+size_t String::size() const
+{
+    return _size;
+}
+
+size_t String::length() const
+{
+    return _size;
+}
+
+
 void String::initialize_from_c_string(const char* s) 
 {
+    if (actual_string) delete actual_string;
+
     size_t length = strlen(s);
     actual_string = new char[length + 1];
     CHECK_ALLOCATION(actual_string);
     strcpy(actual_string, s);
+
+    _size = length;
 }
 
 void String::initialize_from_char(char c) 
 {
-    // todo: do not increment <size> if c == '\0'
+    if (actual_string) delete actual_string;
+
     actual_string = new char[1];
     CHECK_ALLOCATION(actual_string);
     *actual_string = c;
+
+    if (c != '\0') _size = 1;
 }
