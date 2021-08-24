@@ -92,6 +92,40 @@ const char& String::operator[] (size_t pos) const
     return at(pos);
 }
 
+String operator+ (const String& lhs, const String& rhs) 
+{
+    return lhs + rhs.c_str();
+}
+
+String operator+ (const String& lhs, const char*   rhs) 
+{
+    String s = lhs;
+    s += rhs;
+    return s;
+}
+
+String operator+ (const char*   lhs, const String& rhs) 
+{
+    String s = lhs;
+    s += rhs;
+    return s;
+}
+
+String operator+ (const String& lhs, char          rhs) 
+{
+    String s = lhs;
+    s += rhs;
+    return s;
+}
+
+String operator+ (char          lhs, const String& rhs) 
+{
+    String s;
+    s = lhs;
+    s += rhs;
+    return s;
+}
+
 // ----------------------- Destructor -----------------------
 String::~String() 
 {

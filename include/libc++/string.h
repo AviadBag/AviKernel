@@ -52,4 +52,10 @@ private:
     size_t _size = 0;
 };
 
+String operator+ (const String& lhs, const String& rhs);
+String operator+ (const String& lhs, const char*   rhs);
+String operator+ (const char*   lhs, const String& rhs);
+String operator+ (const String& lhs, char          rhs);
+String operator+ (char          lhs, const String& rhs);
+
 #endif // __STRING_H__
