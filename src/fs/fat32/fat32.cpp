@@ -37,27 +37,28 @@ struct fat32_boot_sector
 	uint16_t bootable_signature;
 } __attribute__((__packed__));
 
-void mount(int what)
-{
-	// TODO: Make sure that the bootsector struct is really 512 bytes size!!
-}
 
-void umount()
+void FAT32::mount(int what) 
 {
 
 }
 
-void read(char* path, int count, char buf)
+void FAT32::umount() 
 {
 
 }
 
-void write(char* path, int count, char buf)
+void FAT32::read(char* path, int count, char* buf) 
 {
 
 }
 
-void append(char* path, int count, char buf)
+void FAT32::write(char* path, int count, char* buf) 
+{
+
+}
+
+void FAT32::append(char* path, int count, char* buf) 
 {
 
 }
