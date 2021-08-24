@@ -126,6 +126,36 @@ String operator+ (char          lhs, const String& rhs)
     return s;
 }
 
+bool operator== (const String& lhs, const String& rhs) 
+{
+    return strcmp(lhs.c_str(), rhs.c_str()) == 0;
+}
+
+bool operator== (const char*   lhs, const String& rhs) 
+{
+    return strcmp(lhs, rhs.c_str()) == 0;
+}
+
+bool operator== (const String& lhs, const char*   rhs) 
+{
+    return strcmp(lhs.c_str(), rhs) == 0;
+}
+
+bool operator!= (const String& lhs, const String& rhs) 
+{
+    return !(lhs == rhs);
+}
+
+bool operator!= (const char*   lhs, const String& rhs) 
+{
+    return !(lhs == rhs);
+}
+
+bool operator!= (const String& lhs, const char*   rhs) 
+{
+    return !(lhs == rhs);
+}
+
 // ----------------------- Destructor -----------------------
 String::~String() 
 {

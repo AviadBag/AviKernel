@@ -52,10 +52,19 @@ private:
     size_t _size = 0;
 };
 
+// ----------------------- Another Operators -----------------------
 String operator+ (const String& lhs, const String& rhs);
 String operator+ (const String& lhs, const char*   rhs);
 String operator+ (const char*   lhs, const String& rhs);
 String operator+ (const String& lhs, char          rhs);
 String operator+ (char          lhs, const String& rhs);
+
+bool operator== (const String& lhs, const String& rhs);
+bool operator== (const char*   lhs, const String& rhs);
+bool operator== (const String& lhs, const char*   rhs);
+
+bool operator!= (const String& lhs, const String& rhs);
+bool operator!= (const char*   lhs, const String& rhs);
+bool operator!= (const String& lhs, const char*   rhs);
 
 #endif // __STRING_H__
