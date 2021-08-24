@@ -25,12 +25,12 @@ uint8_t PhysicalIDEDrive::get_channel()
     return channel;
 }
 
-bool PhysicalIDEDrive::get_supports_lba() 
+bool PhysicalIDEDrive::get_supports_lba()
 {
     return supports_lba;
 }
 
-bool PhysicalIDEDrive::get_uses_48_bits_mode() 
+bool PhysicalIDEDrive::get_uses_48_bits_mode()
 {
     return uses_48_bits_mode;
 }

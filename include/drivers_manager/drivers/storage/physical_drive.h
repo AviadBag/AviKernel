@@ -3,8 +3,7 @@
 
 #include <stdint.h>
 
-class PhysicalDrive
-{
+class PhysicalDrive {
 public:
     PhysicalDrive(uint32_t sector_size, uint64_t number_of_sectors);
 

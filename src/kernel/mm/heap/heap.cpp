@@ -225,17 +225,22 @@ void Heap::free(void* addr)
     merge(header);
 }
 
-void* Heap::realloc(void *ptr, size_t new_size) 
+void* Heap::realloc(void* ptr, size_t new_size)
 {
-    if (!ptr) return malloc(new_size);
-    else if (new_size == 0) { free(ptr); return nullptr;}
-    
+    if (!ptr)
+        return malloc(new_size);
+    else if (new_size == 0) {
+        free(ptr);
+        return nullptr;
+    }
+
     void* tmp = ptr;
     HEAP_SUBTRACT_FROM_VOID_P(tmp, sizeof(size_t));
     size_t old_size = *(size_t*)(tmp) - sizeof(size_t); // The size indicator counts itself as well.
 
     void* new_place = malloc(new_size);
-    if (!new_place) return nullptr;
+    if (!new_place)
+        return nullptr;
 
     size_t bytes_to_copy = (new_size > old_size) ? old_size : new_size;
     memcpy(new_place, ptr, bytes_to_copy);

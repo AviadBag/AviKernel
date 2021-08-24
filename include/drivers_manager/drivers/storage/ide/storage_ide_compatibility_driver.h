@@ -1,15 +1,14 @@
 #ifndef __STORAGE_PATA_PIO_DRIVER_H__
 #define __STORAGE_PATA_PIO_DRIVER_H__
 
-#include "drivers_manager/drivers/storage/storage_driver.h"
-#include "drivers_manager/drivers/storage/ide/ide_controller.h"
 #include "drivers_manager/drivers/pci/pci_driver.h"
+#include "drivers_manager/drivers/storage/ide/ide_controller.h"
 #include "drivers_manager/drivers/storage/ide/physical_ide_drive.h"
+#include "drivers_manager/drivers/storage/storage_driver.h"
 
 #include <stdint.h>
 
-class StorageIDECompatibilityDriver : public StorageDriver
-{
+class StorageIDECompatibilityDriver : public StorageDriver {
 public:
     StorageIDECompatibilityDriver();
     ~StorageIDECompatibilityDriver();
@@ -26,9 +25,9 @@ private:
     // Iterates the PCI to find the IDE controller; Returns false if not found.
     bool get_pci_ide_controller(PCIDevice*);
 
-    bool channel_supports_compatibility_mode (uint8_t channel);
-    bool channel_in_compatibility_mode       (uint8_t channel);
-    bool channel_supports_switch             (uint8_t channel);
+    bool channel_supports_compatibility_mode(uint8_t channel);
+    bool channel_in_compatibility_mode(uint8_t channel);
+    bool channel_supports_switch(uint8_t channel);
     void switch_channel_to_compatibility_mode(uint8_t channel); // Will only work if this channel support it.
 
     void disable_interrupts(uint8_t channel);

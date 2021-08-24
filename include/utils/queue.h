@@ -18,41 +18,39 @@ public:
     ~Queue();
 
     void enqueue(T); // Panics if there is no enough memory
-    T dequeue();     // The queue must not be empty.
-    T top();         // The queue must not be empty.
+    T dequeue(); // The queue must not be empty.
+    T top(); // The queue must not be empty.
     int size();
 
     bool empty();
 
 private:
-    QueueNode<T> *head = nullptr, *tail = nullptr;
+    QueueNode<T>*head = nullptr, *tail = nullptr;
     int queue_size = 0;
 };
 
-template<class T>
-Queue<T>::Queue(Queue<T>& other) 
+template <class T>
+Queue<T>::Queue(Queue<T>& other)
 {
-    for (int i = 0; i < other.size(); i++)
-    {
+    for (int i = 0; i < other.size(); i++) {
         T head = other.dequeue();
         enqueue(head);
         other.enqueue(head);
     }
 }
 
-template<class T>
-Queue<T>::~Queue() 
+template <class T>
+Queue<T>::~Queue()
 {
-    while (head != nullptr)
-    {
+    while (head != nullptr) {
         QueueNode<T>* tmp = head->next;
         delete head;
         head = tmp;
     }
 }
 
-template<class T>
-void Queue<T>::enqueue(T data) 
+template <class T>
+void Queue<T>::enqueue(T data)
 {
     QueueNode<T>* new_node = new QueueNode<T>;
     if (!new_node)
@@ -62,8 +60,7 @@ void Queue<T>::enqueue(T data)
 
     if (!head)
         head = tail = new_node;
-    else
-    {
+    else {
         tail->next = new_node;
         tail = new_node;
     }
@@ -71,32 +68,32 @@ void Queue<T>::enqueue(T data)
     queue_size++;
 }
 
-template<class T>
-T Queue<T>::dequeue() 
+template <class T>
+T Queue<T>::dequeue()
 {
     T data = head->data;
     if (head == tail)
         tail = nullptr;
     head = head->next;
-    
+
     queue_size--;
 
     return data;
 }
 
-template<class T>
-T Queue<T>::top() 
+template <class T>
+T Queue<T>::top()
 {
     return head->data;
 }
 
-template<class T>
-bool Queue<T>::empty() 
+template <class T>
+bool Queue<T>::empty()
 {
     return head == nullptr;
 }
 
-template<class T>
+template <class T>
 int Queue<T>::size()
 {
     return queue_size;

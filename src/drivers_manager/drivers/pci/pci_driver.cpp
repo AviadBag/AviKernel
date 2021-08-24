@@ -42,27 +42,25 @@ enum PCI_FIELDS_SHIFT // How many do I have to shift after masking?
     PCI_PROG_IF_SHIFT = 8
 };
 
-void PCIDriver::setup_driver_and_device() 
+void PCIDriver::setup_driver_and_device()
 {
     enumerate_devices();
 }
 
-Vector<PCIDevice>* PCIDriver::get_devices() 
+Vector<PCIDevice>* PCIDriver::get_devices()
 {
     return &devices;
 }
 
-bool PCIDriver::exist() 
+bool PCIDriver::exist()
 {
     return true; // TODO: Implement it.
 }
 
 void PCIDriver::enumerate_devices()
 {
-    for (int bus = 0; bus < PCI_NUMBER_OF_BUSES; bus++)
-    {
-        for (int device_number = 0; device_number < PCI_NUMBER_OF_DEVICES_PER_BUS; device_number++)
-        {
+    for (int bus = 0; bus < PCI_NUMBER_OF_BUSES; bus++) {
+        for (int device_number = 0; device_number < PCI_NUMBER_OF_DEVICES_PER_BUS; device_number++) {
             PCIDevice device(bus, device_number, 0);
             if (!device_exists(device))
                 continue;
@@ -78,8 +76,7 @@ void PCIDriver::add_device(PCIDevice device)
     // TODO: Support only header type 0!
     if (header_type & PCI_HAS_MULTIPLE_FUNCTIONS_MASK) {
         // Check every function of this device
-        for (int function = 0; function < PCI_NUMBER_OF_FUNCTIONS_PER_DEVICE; function++)
-        {
+        for (int function = 0; function < PCI_NUMBER_OF_FUNCTIONS_PER_DEVICE; function++) {
             PCIDevice d(device.get_bus_number(), device.get_device_number(), function);
             if (!device_exists(d))
                 continue;
@@ -89,13 +86,13 @@ void PCIDriver::add_device(PCIDevice device)
         devices.append(device);
 }
 
-bool PCIDriver::device_exists(PCIDevice d) 
+bool PCIDriver::device_exists(PCIDevice d)
 {
     uint16_t vendor_id = get_vendor_id(d);
     return vendor_id != PCI_VENDOR_ID_DEVICE_DOES_NOT_EXIST;
-}  
+}
 
-uint32_t PCIDriver::generate_pci_config_address(PCIDevice d, uint8_t offset) 
+uint32_t PCIDriver::generate_pci_config_address(PCIDevice d, uint8_t offset)
 {
     uint32_t bus_32 = (uint32_t)d.get_bus_number();
     uint32_t device_32 = (uint32_t)d.get_device_number();
@@ -118,7 +115,7 @@ uint32_t PCIDriver::pci_config_read_32_bits(PCIDevice d, uint8_t offset)
     return IO::inl(PCI_CONFIG_DATA);
 }
 
-void PCIDriver::pci_config_write_32_bits(PCIDevice d, uint8_t offset, uint32_t what) 
+void PCIDriver::pci_config_write_32_bits(PCIDevice d, uint8_t offset, uint32_t what)
 {
     uint32_t address = generate_pci_config_address(d, offset);
     IO::outl(PCI_CONFIG_ADDRESS_PORT, address);
@@ -150,12 +147,12 @@ uint8_t PCIDriver::get_header_type(PCIDevice d)
     return (pci_config_read_32_bits(d, PCI_HEADER_TYPE_OFFSET) & PCI_HEADER_TYPE_MASK) >> PCI_HEADER_TYPE_SHIFT;
 }
 
-uint8_t PCIDriver::get_prog_if(PCIDevice d) 
+uint8_t PCIDriver::get_prog_if(PCIDevice d)
 {
     return (pci_config_read_32_bits(d, PCI_PROG_IF_OFFSET) & PCI_PROG_IF_MASK) >> PCI_PROG_IF_SHIFT;
 }
 
-void PCIDriver::set_prog_if(PCIDevice d, uint8_t prog_if) 
+void PCIDriver::set_prog_if(PCIDevice d, uint8_t prog_if)
 {
     pci_config_write_32_bits(d, PCI_PROG_IF_OFFSET, prog_if << PCI_PROG_IF_SHIFT);
 }

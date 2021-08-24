@@ -5,8 +5,7 @@
 
 #include <stdint.h>
 
-class PICDriver : public Driver
-{
+class PICDriver : public Driver {
 public:
     virtual void setup_driver_and_device();
     virtual bool exist(); // Returns false if there are no two PIC's.

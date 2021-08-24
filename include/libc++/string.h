@@ -3,27 +3,26 @@
 
 #include <stddef.h>
 
-class String
-{
+class String {
 public:
     // ----------------------- Constructors -----------------------
     String();
-    String (const String& str);
-    String (const char* s);
-    String (const char* s, size_t n);
-    String (size_t n, char c);
+    String(const String& str);
+    String(const char* s);
+    String(const char* s, size_t n);
+    String(size_t n, char c);
 
     // ----------------------- Operators -----------------------
-    String& operator= (const String& str);
-    String& operator= (const char* s);
-    String& operator= (char c);
+    String& operator=(const String& str);
+    String& operator=(const char* s);
+    String& operator=(char c);
 
-    String& operator+= (const String& str);
-    String& operator+= (const char* s);
-    String& operator+= (char c);
+    String& operator+=(const String& str);
+    String& operator+=(const char* s);
+    String& operator+=(char c);
 
-    char& operator[] (size_t pos);
-    const char& operator[] (size_t pos) const;
+    char& operator[](size_t pos);
+    const char& operator[](size_t pos) const;
 
     // ----------------------- Destructor -----------------------
     virtual ~String();
@@ -34,8 +33,8 @@ public:
     size_t length() const;
     bool empty() const;
     void clear();
-    char& at (size_t pos);
-    const char& at (size_t pos) const;
+    char& at(size_t pos);
+    const char& at(size_t pos) const;
     char& back();
     const char& back() const;
     char& front();
@@ -53,18 +52,18 @@ private:
 };
 
 // ----------------------- Another Operators -----------------------
-String operator+ (const String& lhs, const String& rhs);
-String operator+ (const String& lhs, const char*   rhs);
-String operator+ (const char*   lhs, const String& rhs);
-String operator+ (const String& lhs, char          rhs);
-String operator+ (char          lhs, const String& rhs);
+String operator+(const String& lhs, const String& rhs);
+String operator+(const String& lhs, const char* rhs);
+String operator+(const char* lhs, const String& rhs);
+String operator+(const String& lhs, char rhs);
+String operator+(char lhs, const String& rhs);
 
-bool operator== (const String& lhs, const String& rhs);
-bool operator== (const char*   lhs, const String& rhs);
-bool operator== (const String& lhs, const char*   rhs);
+bool operator==(const String& lhs, const String& rhs);
+bool operator==(const char* lhs, const String& rhs);
+bool operator==(const String& lhs, const char* rhs);
 
-bool operator!= (const String& lhs, const String& rhs);
-bool operator!= (const char*   lhs, const String& rhs);
-bool operator!= (const String& lhs, const char*   rhs);
+bool operator!=(const String& lhs, const String& rhs);
+bool operator!=(const char* lhs, const String& rhs);
+bool operator!=(const String& lhs, const char* rhs);
 
 #endif // __STRING_H__

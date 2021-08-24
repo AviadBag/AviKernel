@@ -24,7 +24,7 @@
 #define ICW3_SLAVE 0x02
 #define ICW4 0x01
 
-void PICDriver::setup_driver_and_device() 
+void PICDriver::setup_driver_and_device()
 {
     // ICW1
     send_command(MASTER, ICW1);
@@ -94,7 +94,7 @@ void PICDriver::send_end_of_interrupt(uint8_t irq)
     send_command(MASTER, END_OF_INTERRUPT);
 }
 
-bool PICDriver::exist() 
+bool PICDriver::exist()
 {
     return true; // TODO: Only return true if there are TWO PIC's.
 }

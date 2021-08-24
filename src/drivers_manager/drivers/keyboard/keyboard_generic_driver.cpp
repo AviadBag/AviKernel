@@ -23,8 +23,7 @@ KeyboardGenericDriver::~KeyboardGenericDriver()
 
 void KeyboardGenericDriver::setup_driver_and_device()
 {
-    for (int i = 0; i < drivers_holder.get_existing_drivers().size(); i++)
-    {
+    for (int i = 0; i < drivers_holder.get_existing_drivers().size(); i++) {
         Driver* d = drivers_holder.get_existing_drivers().get(i);
         d->setup_driver_and_device();
     }
@@ -33,9 +32,8 @@ void KeyboardGenericDriver::setup_driver_and_device()
 void KeyboardGenericDriver::set_on_press_listener(keyboard_on_press_listener l)
 {
     KeyboardDriver::set_on_press_listener(l);
-    for (int i = 0; i < drivers_holder.get_existing_drivers().size(); i++)
-    {
-        KeyboardDriver* keyboard_driver = (KeyboardDriver*) drivers_holder.get_existing_drivers().get(i);
+    for (int i = 0; i < drivers_holder.get_existing_drivers().size(); i++) {
+        KeyboardDriver* keyboard_driver = (KeyboardDriver*)drivers_holder.get_existing_drivers().get(i);
         keyboard_driver->set_on_press_listener(l);
     }
 }
@@ -44,9 +42,8 @@ void KeyboardGenericDriver::set_on_release_listener(keyboard_on_release_listener
 {
     KeyboardDriver::set_on_release_listener(l);
     KeyboardDriver::set_on_press_listener(l);
-    for (int i = 0; i < drivers_holder.get_existing_drivers().size(); i++)
-    {
-        KeyboardDriver* keyboard_driver = (KeyboardDriver*) drivers_holder.get_existing_drivers().get(i);
+    for (int i = 0; i < drivers_holder.get_existing_drivers().size(); i++) {
+        KeyboardDriver* keyboard_driver = (KeyboardDriver*)drivers_holder.get_existing_drivers().get(i);
         keyboard_driver->set_on_release_listener(l);
     }
 }

@@ -11,7 +11,7 @@ typedef void (*keyboard_on_release_listener)(ExtendedChar);
 class KeyboardPS2Driver : public KeyboardDriver {
 public:
     virtual void setup_driver_and_device() override;
-    virtual bool exist () override;
+    virtual bool exist() override;
 
 private:
     void on_ke_data(); // Called whenever the keyboard encoder sends an interrupt

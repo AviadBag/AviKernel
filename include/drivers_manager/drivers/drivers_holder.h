@@ -7,13 +7,12 @@
 #include <stdarg.h>
 
 // This module holds drivers. You add drivers to it, and it only saves the drivers that exist, and lets you
-// iterate over them. 
+// iterate over them.
 // I implement it with two vectors - one for all of the drivers, one for the existing drivers. I save the unexisting
-// drivers because I am planning in the feature to add Plug And Play support - so even the unexisting drivers should 
+// drivers because I am planning in the feature to add Plug And Play support - so even the unexisting drivers should
 // remain.
 
-class DriversHolder
-{
+class DriversHolder {
 public:
     void add_driver(Driver* d);
     void filter(); // Does the distinction between un existing driver and an unexisting driver.

@@ -36,8 +36,9 @@ Vector<T>::Vector()
     vector_size = 0;
 }
 
-template<class T>
-Vector<T>::Vector(Vector<T>& other) : Vector()
+template <class T>
+Vector<T>::Vector(Vector<T>& other)
+    : Vector()
 {
     for (int i = 0; i < other.size(); i++)
         append(other.get(i));

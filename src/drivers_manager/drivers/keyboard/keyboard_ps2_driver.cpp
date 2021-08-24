@@ -1,6 +1,6 @@
 #include "drivers_manager/drivers/keyboard/keyboard_ps2_driver.h"
-#include "utils/io.h"
 #include "kernel/interrupts/interrupts_manager.h"
+#include "utils/io.h"
 
 #define PS2_INTERRUPT_NUBMER 33
 

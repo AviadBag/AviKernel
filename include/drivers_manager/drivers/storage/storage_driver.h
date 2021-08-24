@@ -7,8 +7,7 @@
 
 #include <stdint.h>
 
-class StorageDriver : public Driver
-{
+class StorageDriver : public Driver {
 public:
     virtual ~StorageDriver();
 

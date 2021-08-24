@@ -16,7 +16,7 @@ public:
 
     static void* malloc(size_t);
     static void free(void*);
-    static void* realloc(void *ptr, size_t new_size);
+    static void* realloc(void* ptr, size_t new_size);
 
 private:
     static bool extend_heap(size_t); // Extends the heap until there is enough space.

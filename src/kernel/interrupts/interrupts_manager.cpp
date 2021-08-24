@@ -13,7 +13,7 @@ void InterruptsManager::set_isr(unsigned char interrupt_number, isr i, void* con
     isr_manager_set_isr(interrupt_number, i, context);
 }
 
-void InterruptsManager::remove_isr(unsigned char interrupt_number) 
+void InterruptsManager::remove_isr(unsigned char interrupt_number)
 {
     isr_manager_remove_isr(interrupt_number);
 }

@@ -15,10 +15,10 @@ void DriversManager::initialize()
 
     // Fill general_drivers[] with devices!
     general_drivers[DRIVERS_MANAGER_KEYBOARD_DRIVER] = new KeyboardGenericDriver();
-    general_drivers[DRIVERS_MANAGER_CLOCK_DRIVER]    = new ClockPITDriver();
-    general_drivers[DRIVERS_MANAGER_PCI_DRIVER]      = new PCIDriver();
-    general_drivers[DRIVERS_MANAGER_PIC_DRIVER]      = new PICDriver();
-    general_drivers[DRIVERS_MANAGER_STORAGE_DRIVER]  = new StorageIDECompatibilityDriver();
+    general_drivers[DRIVERS_MANAGER_CLOCK_DRIVER] = new ClockPITDriver();
+    general_drivers[DRIVERS_MANAGER_PCI_DRIVER] = new PCIDriver();
+    general_drivers[DRIVERS_MANAGER_PIC_DRIVER] = new PICDriver();
+    general_drivers[DRIVERS_MANAGER_STORAGE_DRIVER] = new StorageIDECompatibilityDriver();
 }
 
 Driver* DriversManager::get_driver(DRIVERS_MANAGER_GENERAL_DRIVER_TYPE driver_type)
