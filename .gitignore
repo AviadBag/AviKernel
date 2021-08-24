@@ -9,3 +9,4 @@ compile_commands.json
 scripts/
 .idea/
 html/
+*.fs
