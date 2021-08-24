@@ -82,6 +82,16 @@ String& String::operator+= (char c)
     return *this;
 }
 
+char& String::operator[] (size_t pos) 
+{
+    return at(pos);
+}
+
+const char& String::operator[] (size_t pos) const
+{
+    return at(pos);
+}
+
 // ----------------------- Destructor -----------------------
 String::~String() 
 {
@@ -102,6 +112,52 @@ size_t String::size() const
 size_t String::length() const
 {
     return _size;
+}
+
+bool String::empty() const
+{
+    return size() == 0;
+}
+
+void String::clear() 
+{
+    initialize_from_char('\0');
+}
+
+const char& String::at(size_t pos) const
+{
+    if (pos > size()-1)
+        panic("String.at(): Index %d out of range!\n", pos);
+
+    return actual_string[pos];
+}
+
+char& String::at(size_t pos) 
+{
+    if (pos > size()-1)
+        panic("String.at(): Index %d out of range!\n", pos);
+
+    return actual_string[pos];
+}
+
+const char& String::back() const
+{
+    return actual_string[size()-1];
+}
+
+const char& String::front() const
+{
+    return actual_string[0];
+}
+
+char& String::front() 
+{
+    return actual_string[0];
+}
+
+char& String::back() 
+{
+    return actual_string[size()-1];
 }
 
 
@@ -126,6 +182,7 @@ void String::initialize_from_char(char c)
     *actual_string = c;
 
     if (c != '\0') _size = 1;
+    else _size = 0;
 }
 
 void String::append_c_string(const char* str) 

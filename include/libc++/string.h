@@ -22,6 +22,9 @@ public:
     String& operator+= (const char* s);
     String& operator+= (char c);
 
+    char& operator[] (size_t pos);
+    const char& operator[] (size_t pos) const;
+
     // ----------------------- Destructor -----------------------
     virtual ~String();
 
@@ -29,6 +32,14 @@ public:
     const char* c_str() const;
     size_t size() const;
     size_t length() const;
+    bool empty() const;
+    void clear();
+    char& at (size_t pos);
+    const char& at (size_t pos) const;
+    char& back();
+    const char& back() const;
+    char& front();
+    const char& front() const;
 
 private:
     void initialize_from_c_string(const char* str);
