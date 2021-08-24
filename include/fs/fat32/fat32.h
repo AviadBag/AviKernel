@@ -8,12 +8,12 @@
 class FAT32 : public FS
 {
 public:
-	virtual void mount(int what); 
-	virtual void umount();
+	virtual void mount(int what) override; 
+	virtual void umount() override;
 
-	virtual void read  (char* path, int count, char* buf);
-	virtual void write (char* path, int count, char* buf);
-	virtual void append(char* path, int count, char* buf);
+	virtual void read  (char* path, int count, char* buf) override;
+	virtual void write (char* path, int count, char* buf) override;
+	virtual void append(char* path, int count, char* buf) override;
 };
 
 #endif
