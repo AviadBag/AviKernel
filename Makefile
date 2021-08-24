@@ -32,7 +32,7 @@ KERNEL := ${BIN}/kernel.bin
 ISO    := os.iso
 
 VM             := qemu-system-i386
-VM_FLAGS       := ${ISO}
+VM_FLAGS       := ${ISO} -drive file=fat.fs
 VM_DEBUG_FLAGS := -s -S
 
 all: ${ISO}
