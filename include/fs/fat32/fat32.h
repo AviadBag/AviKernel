@@ -54,6 +54,9 @@ public:
 	virtual void append(char* path, int count, char* buf) override;
 
 private:
+	// Converts the given cluster to the LBA of it's first sector.
+	uint32_t cluster_to_lba(uint32_t cluster);
+
 	fat32_boot_sector boot_sector;
 	StorageDriver* storage_driver;
 };

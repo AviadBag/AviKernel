@@ -14,6 +14,19 @@ void FAT32::mount(int drive)
     storage_driver->read_sectors(0, 1, (char*) &boot_sector);
 }
 
+uint32_t FAT32::cluster_to_lba(uint32_t cluster) 
+{
+    // First, where does the data region begin? (In LBA!)
+    // Spoiler: It starts right after the reserved sectors and the FATs.
+    uint32_t data_begin_lba = boot_sector.reserved_sectors_count + (boot_sector.sectors_per_fat * boot_sector.number_of_fats);
+    
+    // The first cluster is cluster 2.
+    cluster -= 2;
+
+    // Well, pretty simple.
+    return data_begin_lba + (cluster * boot_sector.sectors_per_cluster);
+}
+
 void FAT32::umount() 
 {
 
