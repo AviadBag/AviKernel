@@ -56,4 +56,24 @@ String FAT32DirectoryEntry::se_get_name()
     return String((char*) bytes, 11);
 }
 
+bool FAT32DirectoryEntry::se_is_readonly() 
+{
+    return get_attributes() & 0x01;
+}
+
+bool FAT32DirectoryEntry::se_is_hidden() 
+{
+    return get_attributes() & 0x02;
+}
+
+bool FAT32DirectoryEntry::se_is_system_file() 
+{
+    return get_attributes() & 0x04;
+}
+
+bool FAT32DirectoryEntry::se_is_volume_label() 
+{
+    return get_attributes() & 0x08;
+}
+
 // ---------------------- Long Name Methods ----------------------
