@@ -313,6 +313,9 @@ void StorageIDECompatibilityDriver::fill_address_chs([[gnu::unused]] IDEControll
 
 void StorageIDECompatibilityDriver::read_sectors(uint64_t lba, uint8_t count, char* buffer)
 {
+    if (count == 0)
+        return;
+
     // Get controller
     PhysicalIDEDrive* drive = (PhysicalIDEDrive*)drives.get(selected_drive);
     IDEController* controller = get_ide_controller(drive->get_channel());
@@ -342,6 +345,9 @@ void StorageIDECompatibilityDriver::read_sectors(uint64_t lba, uint8_t count, ch
 
 void StorageIDECompatibilityDriver::write_sectors(uint64_t lba, uint8_t count, char* buffer)
 {
+    if (count == 0)
+        return;
+
     // Get controller
     PhysicalIDEDrive* drive = (PhysicalIDEDrive*)drives.get(selected_drive);
     IDEController* controller = get_ide_controller(drive->get_channel());
