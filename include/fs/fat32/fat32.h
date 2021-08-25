@@ -43,6 +43,8 @@ struct fat32_boot_sector
 	uint16_t bootable_signature;
 } __attribute__((__packed__));
 
+using fat_entry_t = uint32_t;
+
 class FAT32 : public FS
 {
 public:
@@ -54,11 +56,21 @@ public:
 	virtual void append(char* path, int count, char* buf) override;
 
 private:
+	void read_fat();
+	void read_root_dir();
 	// Converts the given cluster to the LBA of it's first sector.
 	uint32_t cluster_to_lba(uint32_t cluster);
+	// An helper function - reads sectors with count of size 32 bits (instead of 8).
+	void read_sectors_uint32_t(uint64_t lba, uint32_t count, char* buffer);
+	fat_entry_t get_fat_entry(uint32_t cluster);
+	bool is_fat_entry_last(fat_entry_t entry);
+	bool is_fat_entry_bad(fat_entry_t entry);
 
 	fat32_boot_sector boot_sector;
 	StorageDriver* storage_driver;
+	int drive;
+	uint32_t* fat = nullptr; // An array, containing the FAT. Will be allocated and filled on mount().
+	uint8_t* root_dir = nullptr; // The same..
 };
 
 #endif
