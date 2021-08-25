@@ -44,6 +44,20 @@ void FAT32::read_fat()
     read_sectors_uint32_t(fat_lba, fat_size_sectors, (char*) fat);
 }
 
+Vector<uint32_t> FAT32::get_chain(uint32_t cluster) 
+{
+    Vector<uint32_t> v;
+    fat_entry_t fat_entry = cluster;
+    do {
+        v.append(fat_entry);
+        fat_entry = get_fat_entry(fat_entry);        
+        if (is_fat_entry_bad(fat_entry))
+            panic("FAT32: Encounterd a bad FAT entry");
+    } while (!is_fat_entry_last(fat_entry));
+
+    return v;
+}
+
 void FAT32::read_root_dir() 
 {
     storage_driver->select_drive(drive);

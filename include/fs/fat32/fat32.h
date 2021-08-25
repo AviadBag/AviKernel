@@ -65,6 +65,8 @@ private:
 	fat_entry_t get_fat_entry(uint32_t cluster);
 	bool is_fat_entry_last(fat_entry_t entry);
 	bool is_fat_entry_bad(fat_entry_t entry);
+	// Retruns the clusters chain of the given cluster. The first item in the vector is the given cluster.
+	Vector<uint32_t> get_chain(uint32_t cluster);
 
 	fat32_boot_sector boot_sector;
 	StorageDriver* storage_driver;
