@@ -76,4 +76,24 @@ bool FAT32DirectoryEntry::se_is_volume_label()
     return get_attributes() & 0x08;
 }
 
+uint8_t FAT32DirectoryEntry::se_get_creation_time_tenth() 
+{
+    return bytes[13];
+}
+
+uint16_t FAT32DirectoryEntry::se_get_creation_time() 
+{
+    return *((uint16_t*)(&bytes[14]));
+}
+
+uint16_t FAT32DirectoryEntry::se_get_creation_date() 
+{
+    return *((uint16_t*)(&bytes[16]));
+}
+
+uint16_t FAT32DirectoryEntry::se_get_last_access_date() 
+{
+    return *((uint16_t*)(&bytes[18]));
+}
+
 // ---------------------- Long Name Methods ----------------------
