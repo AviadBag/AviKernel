@@ -241,6 +241,9 @@ bool StorageIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_p)
 
 void StorageIDECompatibilityDriver::select_drive(int d)
 {
+    if (selected_drive == d)
+        return;
+
     StorageDriver::select_drive(d);
 
     // Select the desired drive physically.

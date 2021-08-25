@@ -8,6 +8,8 @@ StorageDriver::~StorageDriver()
 
 void StorageDriver::select_drive(int d)
 {
+    if (selected_drive == d)
+        return;
     selected_drive = d;
 }
 
