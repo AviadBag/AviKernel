@@ -9,18 +9,18 @@
 #define FAT32_STORAGE_MAX_SECTORS_READ 255 // How many sectors can you read in every function call?
 #define FAT32_DIR_ENTRY_SIZE 32
 
-void FAT32::mount(int drive) 
+void FAT32::mount(int drive)
 {
     this->drive = drive;
 
     // Get the storage driver
-    storage_driver = (StorageDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
-    
+    storage_driver = (StorageDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
+
     // Select our drive in the storage driver
     storage_driver->select_drive(drive);
 
     // Read the boot sector into my structure
-    storage_driver->read_sectors(0, 1, (char*) &boot_sector);
+    storage_driver->read_sectors(0, 1, (char *)&boot_sector);
 
     // Make sure that drive is supported
     if (boot_sector.bytes_per_sector != storage_driver->get_drive(drive)->get_sector_size())
@@ -30,10 +30,10 @@ void FAT32::mount(int drive)
     read_root_dir();
 }
 
-void FAT32::read_fat() 
+void FAT32::read_fat()
 {
     storage_driver->select_drive(drive);
-    
+
     uint32_t fat_lba = boot_sector.reserved_sectors_count;
     uint32_t fat_size_sectors = boot_sector.sectors_per_fat;
     size_t fat_size_bytes = fat_size_sectors * storage_driver->get_drive(drive)->get_sector_size();
@@ -41,16 +41,17 @@ void FAT32::read_fat()
     if (!fat)
         panic("FAT32 mount: Not enough memory!");
     // And - read!
-    read_sectors_uint32_t(fat_lba, fat_size_sectors, (char*) fat);
+    read_sectors_uint32_t(fat_lba, fat_size_sectors, (char *)fat);
 }
 
-Vector<uint32_t> FAT32::get_chain(uint32_t cluster) 
+Vector<uint32_t> FAT32::get_chain(uint32_t cluster)
 {
     Vector<uint32_t> v;
     fat_entry_t fat_entry = cluster;
-    do {
+    do
+    {
         v.append(fat_entry);
-        fat_entry = get_fat_entry(fat_entry);        
+        fat_entry = get_fat_entry(fat_entry);
         if (is_fat_entry_bad(fat_entry))
             panic("FAT32: Encounterd a bad FAT entry");
     } while (!is_fat_entry_last(fat_entry));
@@ -58,18 +59,18 @@ Vector<uint32_t> FAT32::get_chain(uint32_t cluster)
     return v;
 }
 
-void FAT32::read_root_dir() 
+void FAT32::read_root_dir()
 {
     storage_driver->select_drive(drive);
 
     // Some important variables..
     const uint32_t sector_size_bytes = storage_driver->get_drive(drive)->get_sector_size();
     const size_t cluster_size_bytes = boot_sector.sectors_per_cluster * sector_size_bytes;
-    uint8_t* ptr; // Holds the current buffer inside of the big root dir buffer that we are now writing into.
-    
+    uint8_t *ptr; // Holds the current buffer inside of the big root dir buffer that we are now writing into.
+
     // Get the clusters chain
     Vector<uint32_t> root_dir_clusters = get_chain(boot_sector.root_cluster);
-    
+
     // Allocate space for the root dir
     root_dir = new uint8_t[root_dir_clusters.size() * cluster_size_bytes];
     ptr = root_dir;
@@ -80,12 +81,12 @@ void FAT32::read_root_dir()
     {
         // Read!
         uint32_t lba = cluster_to_lba(root_dir_clusters.get(i));
-        storage_driver->read_sectors(lba, boot_sector.sectors_per_cluster, (char*) ptr);
+        storage_driver->read_sectors(lba, boot_sector.sectors_per_cluster, (char *)ptr);
         ptr += cluster_size_bytes;
     }
 }
 
-void FAT32::read_sectors_uint32_t(uint64_t lba, uint32_t count, char* buffer) 
+void FAT32::read_sectors_uint32_t(uint64_t lba, uint32_t count, char *buffer)
 {
     storage_driver->select_drive(drive);
     if (count <= FAT32_STORAGE_MAX_SECTORS_READ) // We can read right away
@@ -103,12 +104,12 @@ void FAT32::read_sectors_uint32_t(uint64_t lba, uint32_t count, char* buffer)
     }
 }
 
-uint32_t FAT32::cluster_to_lba(uint32_t cluster) 
+uint32_t FAT32::cluster_to_lba(uint32_t cluster)
 {
     // First, where does the data region begin? (In LBA!)
     // Spoiler: It starts right after the reserved sectors and the FATs.
     uint32_t data_begin_lba = boot_sector.reserved_sectors_count + (boot_sector.sectors_per_fat * boot_sector.number_of_fats);
-    
+
     // The first cluster is cluster 2.
     cluster -= 2;
 
@@ -116,34 +117,34 @@ uint32_t FAT32::cluster_to_lba(uint32_t cluster)
     return data_begin_lba + (cluster * boot_sector.sectors_per_cluster);
 }
 
-void FAT32::umount() 
+void FAT32::umount()
 {
-
 }
 
-fat_entry_t FAT32::get_fat_entry(uint32_t cluster) 
+fat_entry_t FAT32::get_fat_entry(uint32_t cluster)
 {
     return fat[cluster] & 0x0FFFFFFF; // The high 4 bits should be ignored!
 }
 
-bool FAT32::is_fat_entry_last(fat_entry_t entry) 
+bool FAT32::is_fat_entry_last(fat_entry_t entry)
 {
     return entry > 0x0FFFFFF8;
 }
 
-bool FAT32::is_fat_entry_bad(fat_entry_t entry) 
+bool FAT32::is_fat_entry_bad(fat_entry_t entry)
 {
     return entry == 0x0FFFFFF7;
 }
 
-void FAT32::read([[gnu::unused]] char* path, [[gnu::unused]] int count, [[gnu::unused]] char* buf) 
+void FAT32::read([[gnu::unused]] char *path, [[gnu::unused]] int count, [[gnu::unused]] char *buf)
 {
-    uint8_t* current_entry = root_dir;
+    uint8_t *current_entry = root_dir;
     while (true)
     {
         FAT32DirectoryEntry entry(current_entry);
 
-        if (entry.is_end()) break;
+        if (entry.is_end())
+            break;
 
         if (!entry.is_long_entry())
         {
@@ -162,12 +163,10 @@ void FAT32::read([[gnu::unused]] char* path, [[gnu::unused]] int count, [[gnu::u
     }
 }
 
-void FAT32::write([[gnu::unused]] char* path, [[gnu::unused]] int count, [[gnu::unused]] char* buf) 
+void FAT32::write([[gnu::unused]] char *path, [[gnu::unused]] int count, [[gnu::unused]] char *buf)
 {
-
 }
 
-void FAT32::append([[gnu::unused]] char* path, [[gnu::unused]] int count, [[gnu::unused]] char* buf) 
+void FAT32::append([[gnu::unused]] char *path, [[gnu::unused]] int count, [[gnu::unused]] char *buf)
 {
-
 }
