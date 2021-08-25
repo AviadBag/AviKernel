@@ -119,3 +119,28 @@ uint32_t FAT32DirectoryEntry::se_get_file_size_bytes()
 }
 
 // ---------------------- Long Name Methods ----------------------
+uint8_t FAT32DirectoryEntry::le_get_order() 
+{
+    if (le_is_last())
+        return bytes[0] & (~0x40);
+    return bytes[0];
+}
+
+bool FAT32DirectoryEntry::le_is_last() 
+{
+    return bytes[0] & 0x40;
+}
+
+String FAT32DirectoryEntry::le_get_name() 
+{
+    String s;
+    char indexes[] = {1, 3, 5, 7, 9, 14, 16, 18, 20, 22, 24, 28, 30};
+    for (size_t i = 0; i < sizeof(indexes) / sizeof(indexes[0]); i++)
+    {
+        char c = bytes[i];
+        if (!c) return s;
+        s += c;
+    }
+
+    return s;
+}
