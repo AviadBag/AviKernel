@@ -19,9 +19,10 @@ uint8_t FAT32DirectoryEntry::get_attributes()
 
 // ---------------------- Getters ----------------------
 
+// ---------------------- Shared Methods ----------------------
 bool FAT32DirectoryEntry::is_used() 
 {
-    return (!is_free()) && (!is_end())
+    return (!is_free()) && (!is_end());
 }
 
 bool FAT32DirectoryEntry::is_free() 
@@ -48,3 +49,11 @@ bool FAT32DirectoryEntry::is_long_entry()
 {
     return get_attributes() & 0x0F;
 }
+
+// ---------------------- Short Name Methods ----------------------
+String FAT32DirectoryEntry::se_get_name() 
+{
+    return String((char*) bytes, 11);
+}
+
+// ---------------------- Long Name Methods ----------------------
