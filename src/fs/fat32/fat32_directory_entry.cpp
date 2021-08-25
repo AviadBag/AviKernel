@@ -96,4 +96,26 @@ uint16_t FAT32DirectoryEntry::se_get_last_access_date()
     return *((uint16_t*)(&bytes[18]));
 }
 
+uint32_t FAT32DirectoryEntry::se_get_first_cluster() 
+{
+    uint16_t low  = *((uint16_t*)(&bytes[26]));
+    uint16_t high = *((uint16_t*)(&bytes[20]));
+    return (high << 16) + low;
+}
+
+uint16_t FAT32DirectoryEntry::se_get_last_write_time() 
+{
+    return *((uint16_t*)(&bytes[22]));
+}
+
+uint16_t FAT32DirectoryEntry::se_get_last_write_date() 
+{
+    return *((uint16_t*)(&bytes[24]));
+}
+
+uint32_t FAT32DirectoryEntry::se_get_file_size_bytes() 
+{
+    return *((uint32_t*)(&bytes[28]));
+}
+
 // ---------------------- Long Name Methods ----------------------
