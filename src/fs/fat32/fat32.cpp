@@ -62,44 +62,27 @@ void FAT32::read_root_dir()
 {
     storage_driver->select_drive(drive);
 
-    uint32_t lba = cluster_to_lba(boot_sector.root_cluster);
-    fat_entry_t fat_entry = boot_sector.root_cluster;
-    uint32_t root_dir_clusters = 0; // How many cluster does the root dir have?
+    // Some important variables..
     const uint32_t sector_size_bytes = storage_driver->get_drive(drive)->get_sector_size();
     const size_t cluster_size_bytes = boot_sector.sectors_per_cluster * sector_size_bytes;
-    char* ptr; // Holds the current buffer inside of the big root dir buffer that we are now writing into.
-
-    do
-    {
-        root_dir_clusters++;
-
-        // Allocate space for that cluster
-        size_t size_required = cluster_size_bytes * root_dir_clusters;
-        if (!root_dir)
-        {
-            root_dir = new uint8_t[size_required];
-            ptr = (char*) root_dir;
-        }
-        else
-        {
-            root_dir = (uint8_t*) realloc(root_dir, size_required);
-            ptr = (char*) root_dir;
-            // Go to the beginning of the space dedicated for that cluster in the root dir
-            ptr += cluster_size_bytes * (root_dir_clusters - 1);
-        }
-        if (!root_dir)
-            panic("FAT32 mount: Not enough memory!");
-
-        // Read!
-        storage_driver->read_sectors(lba, boot_sector.sectors_per_cluster, ptr);
-
-        fat_entry = get_fat_entry(fat_entry);
-        lba = cluster_to_lba(fat_entry);
-        
-        if (is_fat_entry_bad(fat_entry))
-            panic("FAT32: Encounterd a bad FAT entry");
-    } while (!is_fat_entry_last(fat_entry));
+    uint8_t* ptr; // Holds the current buffer inside of the big root dir buffer that we are now writing into.
     
+    // Get the clusters chain
+    Vector<uint32_t> root_dir_clusters = get_chain(boot_sector.root_cluster);
+    
+    // Allocate space for the root dir
+    root_dir = new uint8_t[root_dir_clusters.size() * cluster_size_bytes];
+    ptr = root_dir;
+    if (!root_dir)
+        panic("FAT32 mount: Not enough memory!");
+
+    for (int i = 0; i < root_dir_clusters.size(); i++)
+    {
+        // Read!
+        uint32_t lba = cluster_to_lba(root_dir_clusters.get(i));
+        storage_driver->read_sectors(lba, boot_sector.sectors_per_cluster, (char*) ptr);
+        ptr += cluster_size_bytes;
+    }
 }
 
 void FAT32::read_sectors_uint32_t(uint64_t lba, uint32_t count, char* buffer) 
