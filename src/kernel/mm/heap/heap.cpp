@@ -193,14 +193,14 @@ void Heap::insert_to_holes_list(heap_header* hole)
 
 void Heap::merge_next(heap_header* header)
 {
-    remove_from_holes_list(header->next);
     header->size += header->next->size;
+    remove_from_holes_list(header->next);
 }
 
 void Heap::merge_previous(heap_header* header)
 {
-    remove_from_holes_list(header);
     header->prev->size += header->size;
+    remove_from_holes_list(header);
 }
 
 void Heap::merge(heap_header* header)
