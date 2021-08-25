@@ -30,7 +30,9 @@ String::String(const char* s, size_t n)
 {
     actual_string = new char[n + 1];
     CHECK_ALLOCATION(actual_string);
-    strncpy(actual_string, s, n);
+    for (size_t i = 0; i < n; i++)
+        actual_string[i] = s[i];
+    actual_string[n] = '\0';
 
     _size = n;
 }
