@@ -12,17 +12,19 @@ class Path
 public:
     Path(String);
 
-    // The directory depth of this path. For example - for /a/b/c.txt - depth=2.
+    // The directory depth of this path. Root directory is depth 0. For example - for /a/b/c.txt - depth=2.
     // And for /a/ - depth=1.
     int get_depth();
 
+    bool is_folder();
     bool is_legal();
     void fill_vector(String s); // Fills the <parts> vector with the parts of the given string; <legal> must be true.
 
 private:
     static bool is_legal(String); // Checks if the GIVEN STRING is legal.
 
-    bool legal = true;;
+    bool legal = true;
+    bool folder; // If false - it is a file
     Vector<String> parts; // Each slesh seperated portion is a "part".
 };
 

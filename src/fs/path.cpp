@@ -11,6 +11,7 @@ Path::Path(String s)
     }
 
     fill_vector(s);
+    folder = s.back() == '/';
 }
 
 void Path::fill_vector(String _s) 
@@ -46,6 +47,17 @@ void Path::fill_vector(String _s)
     {
         printf("parts[%d] = %s\n", i, parts.get(i).c_str());
     }
+}
+
+int Path::get_depth() 
+{
+    // If it is a folder - then we do not count the file itself as part of the depth
+    return is_folder() ? parts.size() : parts.size()-1;
+}
+
+bool Path::is_folder() 
+{
+    return folder;
 }
 
 bool Path::is_legal() 
