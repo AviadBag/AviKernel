@@ -59,10 +59,6 @@ bool Path::is_legal(String s)
     if (s.size() == 0)
         return false;
 
-    // A path cannot be only one char - because then it is either '/' or somethings else, which is illegal
-    if (s.size() == 1)
-        return false;
-
     // Every path must start from the root directory.
     if (s[0] != '/')
         return false;
