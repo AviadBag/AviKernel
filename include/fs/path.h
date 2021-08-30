@@ -17,6 +17,7 @@ public:
     int get_depth();
 
     bool is_legal();
+    void fill_vector(String s); // Fills the <parts> vector with the parts of the given string; <legal> must be true.
 
 private:
     static bool is_legal(String); // Checks if the GIVEN STRING is legal.
