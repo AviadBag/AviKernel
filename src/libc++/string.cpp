@@ -246,14 +246,21 @@ void String::initialize_from_char(char c)
     if (actual_string)
         delete actual_string;
 
-    actual_string = new char[1];
-    CHECK_ALLOCATION(actual_string);
-    *actual_string = c;
-
-    if (c != '\0')
-        _size = 1;
-    else
+    if (c == '\0')
+    {
+        actual_string = new char[1];
+        CHECK_ALLOCATION(actual_string);
+        *actual_string = c;
         _size = 0;
+    }
+    else
+    {
+        actual_string = new char[2];
+        CHECK_ALLOCATION(actual_string);
+        actual_string[0] = c;
+        actual_string[1] = '\0';
+        _size = 2;
+    }
 }
 
 void String::append_c_string(const char* str)
@@ -267,6 +274,7 @@ void String::append_c_string(const char* str)
 void String::append_char(char c)
 {
     _size++;
-    actual_string = (char*)realloc(actual_string, size() + 1);
+    actual_string = (char*)realloc(actual_string, size() + 2);
     actual_string[size() - 1] = c;
+    actual_string[size()] = '\0';
 }
