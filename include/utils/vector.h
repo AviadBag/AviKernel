@@ -17,24 +17,30 @@ template <class T>
 class Vector
 {
 public:
+    // ------------------- Constructors and Destructor -------------------
     Vector();
     Vector(Vector<T> &other);
     ~Vector();
 
-    bool empty() const;
-    int size() const;
-    void append(T);   // Panics if there is no enough memory
-    T get(int index); // Panic if index is out of range
-    void pop_back();  // Deletes the last element; Panics if empty
-
-    // Sorts the vector, according to the given function.
-    // The given function gets two variables of type T as a parameter. Returns true if the first parameter
-    // is bigger than the second.
+    // ------------------- Regular Methods -------------------
+    T get(int index) const;    // Panic if index is out of range
+    bool empty()     const;
+    int  size()      const;
+    void append(T);            // Panics if there is no enough memory
+    void pop_back();           // Deletes the last element; Panics if empty
+    
+    // ------------------- Methods with long docs -------------------
+    /**
+     * Sorts the vector, according to the given function.
+     * The given function gets two variables of type T as a parameter.
+     * Returns true if the first parameter is bigger than the second.
+    */
     void sort(bool (*compare)(T first, T second));
 
 private:
-    VectorNode<T> *get_node(int index);
-    void append_node(VectorNode<T> *new_node);
+    // ------------------- Regular Methods -------------------
+    VectorNode<T>* get_node(int index) const;
+    void           append_node(VectorNode<T> *new_node);
 
     VectorNode<T> *head;
     int vector_size;
@@ -76,7 +82,7 @@ void Vector<T>::pop_back()
     // There is only one element - delete it
     else if (size() == 1)
     {
-        free(head);
+        delete head;
         head = nullptr;
         vector_size = 0;
     }
@@ -139,13 +145,13 @@ void Vector<T>::append_node(VectorNode<T> *new_node)
 }
 
 template <class T>
-T Vector<T>::get(int index)
+T Vector<T>::get(int index) const
 {
     return get_node(index)->data;
 }
 
 template <class T>
-VectorNode<T> *Vector<T>::get_node(int index)
+VectorNode<T> *Vector<T>::get_node(int index) const
 {
     if (index + 1 > size())
         panic("Vector: Index \"%d\" is out of range", index);
