@@ -41,12 +41,21 @@ void Path::fill_vector(String _s)
 
     if (s.size()) // If the last one was not a slash
         parts.append(s);
+}
 
-    printf("Parts: \n");
-    for (int i = 0; i < parts.size(); i++)
-    {
-        printf("parts[%d] = %s\n", i, parts.get(i).c_str());
-    }
+void Path::go_up() 
+{
+    if (get_depth() == 0)
+        panic("Path: Cannot go_up() when depth is 0!");
+    else if (!is_folder())
+        panic("Path: Cannot go_up() when not a folder!");
+
+    parts.pop_back();
+}
+
+String Path::get_part(int i) 
+{
+    return parts.get(i);
 }
 
 int Path::get_depth() 
