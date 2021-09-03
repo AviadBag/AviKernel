@@ -104,7 +104,7 @@ void FAT32::read_sectors_uint32_t(uint64_t lba, uint32_t count, char *buffer)
     }
 }
 
-uint32_t FAT32::cluster_to_lba(uint32_t cluster)
+uint32_t FAT32::cluster_to_lba(uint32_t cluster) const
 {
     // First, where does the data region begin? (In LBA!)
     // Spoiler: It starts right after the reserved sectors and the FATs.
@@ -121,17 +121,17 @@ void FAT32::umount()
 {
 }
 
-fat_entry_t FAT32::get_fat_entry(uint32_t cluster)
+fat_entry_t FAT32::get_fat_entry(uint32_t cluster) const
 {
     return fat[cluster] & 0x0FFFFFFF; // The high 4 bits should be ignored!
 }
 
-bool FAT32::is_fat_entry_last(fat_entry_t entry)
+bool FAT32::is_fat_entry_last(fat_entry_t entry) const
 {
     return entry > 0x0FFFFFF8;
 }
 
-bool FAT32::is_fat_entry_bad(fat_entry_t entry)
+bool FAT32::is_fat_entry_bad(fat_entry_t entry) const
 {
     return entry == 0x0FFFFFF7;
 }

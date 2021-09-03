@@ -48,6 +48,7 @@ using fat_entry_t = uint32_t;
 class FAT32 : public FS
 {
 public:
+	// ------------------- Methods Overriden -------------------
 	virtual void mount(int drive) override; 
 	virtual void umount() override;
 
@@ -56,23 +57,35 @@ public:
 	virtual void append(char* path, int count, char* buf) override;
 
 private:
-	void read_fat();
-	void read_root_dir();
-	// Converts the given cluster to the LBA of it's first sector.
-	uint32_t cluster_to_lba(uint32_t cluster);
-	// An helper function - reads sectors with count of size 32 bits (instead of 8).
+    // ------------------- Regular Methods -------------------
+	void        read_fat();                                 // Reads the FAT            into the array <root_dir>.
+	void        read_root_dir();                            // Reads the root directory into the array <root_dir>.
+	bool        is_fat_entry_last(fat_entry_t entry) const; // Is this fat entry the last one?
+	bool        is_fat_entry_bad(fat_entry_t entry)  const; // Is this fat entry a bad entry?
+	fat_entry_t get_fat_entry(uint32_t cluster)      const; // Returns the fat entry of the given cluster.
+
+	// ------------------- Methods with long docs -------------------
+	/**
+	 * An helper function - reads sectors with count of size 32 bits (instead of 8).
+	 */
 	void read_sectors_uint32_t(uint64_t lba, uint32_t count, char* buffer);
-	fat_entry_t get_fat_entry(uint32_t cluster);
-	bool is_fat_entry_last(fat_entry_t entry);
-	bool is_fat_entry_bad(fat_entry_t entry);
-	// Retruns the clusters chain of the given cluster. The first item in the vector is the given cluster.
+
+	/**
+	 * Retruns the clusters chain of the given cluster. The first item in the vector is the given cluster.
+	 */
 	Vector<uint32_t> get_chain(uint32_t cluster);
 
+	/**
+	 * Converts the given cluster to the LBA of it's first sector.
+	 */
+	uint32_t cluster_to_lba(uint32_t cluster) const;
+
+    // ------------------- Member Variables -------------------
+	int               drive;
+	uint8_t*          root_dir = nullptr; // An array, containing the root directory. Will be allocated and filled on mount().
+	uint32_t*         fat = nullptr;      // An array, containing the FAT.            Will be allocated and filled on mount().
 	fat32_boot_sector boot_sector;
-	StorageDriver* storage_driver;
-	int drive;
-	uint32_t* fat = nullptr; // An array, containing the FAT. Will be allocated and filled on mount().
-	uint8_t* root_dir = nullptr; // The same..
+	StorageDriver*    storage_driver;
 };
 
 #endif
