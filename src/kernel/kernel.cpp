@@ -29,7 +29,7 @@
 
 #define MULTIBOOT_FLAGS_HAS_MEMORY_MAP 1 << 0
 
-void setup_memory_managment(multiboot_info_t* multiboot_info)
+void setup_memory_managment(multiboot_info_t *multiboot_info)
 {
     if (!(multiboot_info->flags & MULTIBOOT_FLAGS_HAS_MEMORY_MAP))
         panic("Bootloader didn't provide a memory map!.");
@@ -44,19 +44,20 @@ void setup_drivers()
 {
     DriversManager::get_instance()->initialize();
 
-    PICDriver* pic_driver = (PICDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PIC_DRIVER);
+    PICDriver *pic_driver = (PICDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PIC_DRIVER);
     if (!pic_driver->exist())
         panic("This PC is unsupported, because it does not have 2 PIC's");
     pic_driver->setup_driver_and_device();
     pic_driver->unmask_all_interrupts();
     asm volatile("sti");
 
-    PCIDriver* pci_driver = (PCIDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
+    PCIDriver *pci_driver = (PCIDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_PCI_DRIVER);
     if (!pci_driver->exist())
         panic("This PC is unsupported, because it has no a PCI bus");
     pci_driver->setup_driver_and_device();
     printf("PCI devices:\n");
-    for (int i = 0; i < pci_driver->get_devices()->size(); i++) {
+    for (int i = 0; i < pci_driver->get_devices()->size(); i++)
+    {
         PCIDevice device = pci_driver->get_devices()->get(i);
         uint8_t bus_nubmer = device.get_bus_number();
         uint8_t device_number = device.get_device_number();
@@ -67,25 +68,29 @@ void setup_drivers()
         printf("Found a device of type 0x%X-0x%X, at PCI %d:%d:%d\n", class_code, sub_class_code, bus_nubmer, device_number, function_number);
     }
 
-    ClockDriver* clock_driver = (ClockDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_CLOCK_DRIVER);
+    ClockDriver *clock_driver = (ClockDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_CLOCK_DRIVER);
     if (!clock_driver->exist())
         panic("This PC is unsupported, because it has no clock");
     clock_driver->set_frequency(1000); // Once in MS.
     clock_driver->setup_driver_and_device();
     Time::initialize();
 
-    StorageDriver* storage_driver = (StorageDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
+    StorageDriver *storage_driver = (StorageDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
     printf("Storage Driver Exists? %s\n", (storage_driver->exist() ? "yes" : "no"));
     if (storage_driver->exist())
+    {
         storage_driver->setup_driver_and_device();
-    if (storage_driver->get_number_of_drives() > 0) {
-        printf("------ Drives: ------\n");
-        for (int i = 0; i < storage_driver->get_number_of_drives(); i++) {
-            printf("Drive {%d} -> Drive Size: %f MB\n", i, storage_driver->get_drive(i)->get_size_mb());
+        if (storage_driver->get_number_of_drives() > 0)
+        {
+            printf("------ Drives: ------\n");
+            for (int i = 0; i < storage_driver->get_number_of_drives(); i++)
+            {
+                printf("Drive {%d} -> Drive Size: %f MB\n", i, storage_driver->get_drive(i)->get_size_mb());
+            }
         }
     }
 
-    KeyboardDriver* keyboard_driver = (KeyboardDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_KEYBOARD_DRIVER);
+    KeyboardDriver *keyboard_driver = (KeyboardDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_KEYBOARD_DRIVER);
     if (!keyboard_driver->exist())
         panic("No keyboard connected. Press F10 to continue.");
     keyboard_driver->setup_driver_and_device();
@@ -100,103 +105,84 @@ void setup_interrupts()
 void setup_exceptions_handlers()
 {
     InterruptsManager::get_instance()->set_isr(
-        0, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Division by zero exception");
-        },
+        0, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Division by zero exception"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        1, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Debug exception");
-        },
+        1, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Debug exception"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        2, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Non maskable interrupt");
-        },
+        2, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Non maskable interrupt"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        3, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Breakpoint exception");
-        },
+        3, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Breakpoint exception"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        4, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Into detected overflow");
-        },
+        4, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Into detected overflow"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        5, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Out of bounds exception");
-        },
+        5, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Out of bounds exception"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        6, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Invalid opcode exception");
-        },
+        6, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Invalid opcode exception"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        7, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("No coprocessor exception");
-        },
+        7, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("No coprocessor exception"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        8, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Double fault");
-        },
+        8, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Double fault"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        9, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Coprocessor segment overrun");
-        },
+        9, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Coprocessor segment overrun"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        10, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Bad TSS");
-        },
+        10, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Bad TSS"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        11, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Segment not present");
-        },
+        11, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Segment not present"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        12, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Stack fault");
-        },
+        12, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Stack fault"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        13, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("General protection fault");
-        },
+        13, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("General protection fault"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        14, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Page fault");
-        },
+        14, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Page fault"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        15, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Unknown interrupt exception");
-        },
+        15, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Unknown interrupt exception"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        16, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Coprocessor fault");
-        },
+        16, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Coprocessor fault"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        17, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Alignment check exception");
-        },
+        17, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Alignment check exception"); },
         nullptr);
     InterruptsManager::get_instance()->set_isr(
-        18, []([[gnu::unused]] void* context, [[gnu::unused]] uint32_t err) {
-            panic("Machine check exception");
-        },
+        18, []([[gnu::unused]] void *context, [[gnu::unused]] uint32_t err)
+        { panic("Machine check exception"); },
         nullptr);
 }
 
-extern "C" void kernel_main(multiboot_info_t* multiboot_info)
+extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 {
     // System Initialization
     VgaText::initialize();
@@ -207,5 +193,7 @@ extern "C" void kernel_main(multiboot_info_t* multiboot_info)
     setup_drivers();
 
     // Endless loop!
-    while (1) { }
+    while (1)
+    {
+    }
 }
