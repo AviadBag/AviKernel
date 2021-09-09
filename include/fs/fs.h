@@ -2,6 +2,7 @@
 #define _FS_H
 
 #include "fs/path.h"
+#include "utils/vector.h"
 
 #include <stdint.h>
 
@@ -15,6 +16,10 @@ public:
 
     virtual void read(Path path, size_t count, size_t offset, char* buf) = 0;
     virtual void write(Path path, size_t count, size_t offset, char* buf) = 0;
+
+    virtual void create_file(Path path) = 0;
+    virtual void delete_file(Path path) = 0;
+    virtual Vector<Path> list_files(Path path) = 0;
 };
 
 #endif
