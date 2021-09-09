@@ -6,13 +6,6 @@ StorageDriver::~StorageDriver()
         delete drives.get(i);
 }
 
-void StorageDriver::select_drive(int d)
-{
-    if (selected_drive == d)
-        return;
-    selected_drive = d;
-}
-
 int StorageDriver::get_number_of_drives()
 {
     return number_of_drives;

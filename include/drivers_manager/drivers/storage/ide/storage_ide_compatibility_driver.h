@@ -16,10 +16,8 @@ public:
     virtual void setup_driver_and_device() override;
     virtual bool exist() override;
 
-    virtual void select_drive(int d) override;
-
-    virtual void read_sectors(uint64_t lba, uint8_t count, char* buffer) override;
-    virtual void write_sectors(uint64_t lba, uint8_t count, char* sector) override;
+    virtual void read_sectors(int drive, uint64_t lba, uint8_t count, char* buffer) override;
+    virtual void write_sectors(int drive, uint64_t lba, uint8_t count, char* sector) override;
 
 private:
     // Iterates the PCI to find the IDE controller; Returns false if not found.

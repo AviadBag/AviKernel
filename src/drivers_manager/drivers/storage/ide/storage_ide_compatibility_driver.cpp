@@ -239,18 +239,6 @@ bool StorageIDECompatibilityDriver::get_pci_ide_controller(PCIDevice* device_p)
     return false;
 }
 
-void StorageIDECompatibilityDriver::select_drive(int d)
-{
-    if (selected_drive == d)
-        return;
-
-    StorageDriver::select_drive(d);
-
-    // Select the desired drive physically.
-    PhysicalIDEDrive* drive = (PhysicalIDEDrive*)drives.get(selected_drive);
-    ide_select_drive(drive->get_channel(), drive->get_drive_in_channel(), false);
-}
-
 void StorageIDECompatibilityDriver::setup_rw_48_bits(PhysicalIDEDrive* drive, IDEController* controller, uint64_t lba, uint8_t count)
 {
     // Select current drive
@@ -314,13 +302,13 @@ void StorageIDECompatibilityDriver::fill_address_chs([[gnu::unused]] IDEControll
     panic("fill_address_chs(): Not implemented!");
 }
 
-void StorageIDECompatibilityDriver::read_sectors(uint64_t lba, uint8_t count, char* buffer)
+void StorageIDECompatibilityDriver::read_sectors(int drive_number, uint64_t lba, uint8_t count, char* buffer)
 {
     if (count == 0)
         return;
 
     // Get controller
-    PhysicalIDEDrive* drive = (PhysicalIDEDrive*)drives.get(selected_drive);
+    PhysicalIDEDrive* drive = (PhysicalIDEDrive*)drives.get(drive_number);
     IDEController* controller = get_ide_controller(drive->get_channel());
 
     // Setup
@@ -346,13 +334,13 @@ void StorageIDECompatibilityDriver::read_sectors(uint64_t lba, uint8_t count, ch
     }
 }
 
-void StorageIDECompatibilityDriver::write_sectors(uint64_t lba, uint8_t count, char* buffer)
+void StorageIDECompatibilityDriver::write_sectors(int drive_number, uint64_t lba, uint8_t count, char* buffer)
 {
     if (count == 0)
         return;
 
     // Get controller
-    PhysicalIDEDrive* drive = (PhysicalIDEDrive*)drives.get(selected_drive);
+    PhysicalIDEDrive* drive = (PhysicalIDEDrive*)drives.get(drive_number);
     IDEController* controller = get_ide_controller(drive->get_channel());
 
     // Setup
