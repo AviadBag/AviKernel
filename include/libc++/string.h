@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+static const size_t npos = -1;
+
 class String {
 public:
     // ----------------------- Constructors -----------------------
@@ -39,6 +41,7 @@ public:
     const char& back() const;
     char& front();
     const char& front() const;
+    String substr (size_t pos = 0, size_t len = npos) const;
 
 private:
     void initialize_from_c_string(const char* str);

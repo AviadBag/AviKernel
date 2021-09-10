@@ -228,6 +228,20 @@ char& String::back()
     return actual_string[size() - 1];
 }
 
+String String::substr(size_t pos, size_t len) const
+{
+    if (pos == size()) return "";
+    else if (pos > size()) panic("String.substr(): pos %u is out of range", pos);
+    
+    if (len == npos) // Go until the end of the string
+        len = size() - pos;
+
+    else if (len + pos > size()) // We are trying to copy beyond the range of the string.
+        len = size() - pos; // Just copy until the end of the string
+
+    return String(c_str() + pos, len);
+}
+
 void String::initialize_from_c_string(const char* s)
 {
     if (actual_string)
