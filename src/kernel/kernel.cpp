@@ -9,7 +9,6 @@
 
 #include "drivers/screen/text_output.h"
 #include "drivers/screen/vga_text.h"
-#include "utils/io.h"
 
 #include "kernel/gdt/gdt.h"
 #include "kernel/interrupts/interrupts_manager.h"
@@ -21,6 +20,9 @@
 #include "multiboot/multiboot.h"
 
 #include "utils/time.h"
+#include "utils/io.h"
+
+#include "fs/devfs/devfs.h"
 
 #include <cstdio.h>
 #include <cstdlib.h>
@@ -191,6 +193,12 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     setup_interrupts();
     setup_exceptions_handlers();
     setup_drivers();
+
+    DevFS devfs;
+    devfs.mount(0);
+    Path p("/sdc");
+    if (!p.is_legal()) panic("debug - illegal path");
+    devfs.read(p, 1, 1, nullptr);
 
     // Endless loop!
     while (1)

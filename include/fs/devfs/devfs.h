@@ -20,6 +20,10 @@ public:
     virtual void create_file(Path path) override;
     virtual void delete_file(Path path) override;
     virtual Vector<Path> list_files(Path path) override;
+
+private:
+    // ------------------- Methods Overriden -------------------
+    void read_storage_device(String file_name, size_t count, size_t offset, char* buf); // file_name - for example "sda"
 };
 
 #endif
