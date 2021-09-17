@@ -11,8 +11,10 @@ Path::Path(String s)
     }
 
     fill_vector(s);
-    folder = s.back() == '/';
+    folder = (s.back() == '/');
 }
+
+Path::Path() : Path("/") {}
 
 void Path::fill_vector(String _s) 
 {

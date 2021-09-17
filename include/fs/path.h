@@ -11,6 +11,7 @@ class Path
 {
 public:
     // ------------------- Constructors and Destructor -------------------
+    Path();
     Path(String);
 
     // ------------------- Regular Methods -------------------
