@@ -2,7 +2,7 @@ BIN     := bin
 SRC     := src
 INCLUDE := include
 CONFIG  := config
-CROSS   := ~/files/programming/softwares/i686-elf/bin
+CROSS   := ~/opt/i686-cross/bin
 
 CXX       := ${CROSS}/i686-elf-g++
 CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-sized-deallocation -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/libc -I ${INCLUDE}/libc++
