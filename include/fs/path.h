@@ -16,7 +16,8 @@ public:
 
     // ------------------- Regular Methods -------------------
     bool is_folder();
-    void go_up();               // Goes one level up; Must only be called if <folder> = true and <depth> != 0. Panics else.
+    bool is_root();  // Is path == "/"?
+    void go_up();    // Goes one level up; Must only be called if <folder> = true and <depth> != 0. Panics else.
 
     // ------------------- Methods with long docs -------------------
     /**

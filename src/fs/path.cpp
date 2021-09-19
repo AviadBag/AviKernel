@@ -45,6 +45,11 @@ void Path::fill_vector(String _s)
         parts.append(s);
 }
 
+bool Path::is_root() 
+{
+    return get_depth() == 0 && is_folder();
+}
+
 void Path::go_up() 
 {
     if (get_depth() == 0)
