@@ -12,7 +12,10 @@ Mapping:
     ...
 */
 
-void DevFS::mount([[gnu::unused]] int what) {} // Nothing here
+void DevFS::mount([[gnu::unused]] int what) 
+{
+    
+}
 
 void DevFS::umount() {} // Nothing here
 

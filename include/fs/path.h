@@ -16,7 +16,6 @@ public:
 
     // ------------------- Regular Methods -------------------
     bool is_folder();
-    bool is_legal();
     void go_up();               // Goes one level up; Must only be called if <folder> = true and <depth> != 0. Panics else.
 
     // ------------------- Methods with long docs -------------------
@@ -39,11 +38,9 @@ public:
 
 private:
     // ------------------- Regular Methods -------------------
-    static bool is_legal(String); // Checks if the GIVEN STRING is legal.
     void fill_vector(String s);   // Fills the <parts> vector with the parts of the given string; <legal> must be true.
 
     // ------------------- Member Variables -------------------
-    bool legal = true;    // Is this path legal?
     bool folder;          // If false - it is a file
     Vector<String> parts; // Each slesh seperated portion is a "part".
 };

@@ -1,7 +1,0 @@
-The Path class represents an absolute path.
-
-Each path must start with a slash. (Because each path is absolute).
-Each directory path also ends with a slash; But a file path does not.
-
-The constructor gets a string path as a parameter; But if the path is illegal, then nothing will happen.
-Therefore always check is_legal() before doing anything.

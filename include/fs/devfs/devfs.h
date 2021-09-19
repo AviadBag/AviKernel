@@ -24,6 +24,8 @@ public:
 private:
     // ------------------- Methods Overriden -------------------
     void read_storage_device(String file_name, size_t count, size_t offset, char* buf); // file_name - for example "sda"
+
+    // ------------------- Member Variables -------------------
 };
 
 #endif

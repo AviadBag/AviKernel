@@ -4,11 +4,11 @@
 
 Path::Path(String s) 
 {
-    if (!is_legal(s))
-    {
-        legal = false;
-        return;
-    }
+    if (s.size() == 0) // If the path is empty
+        s += '/'; // Then the path points to the root
+
+    if (s[0] != '/') // If the path is relative
+        s = '/' + s; // Then make it absolute. (Relative pathes are not supported yet)
 
     fill_vector(s);
     folder = (s.back() == '/');
@@ -69,22 +69,4 @@ int Path::get_depth()
 bool Path::is_folder() 
 {
     return folder;
-}
-
-bool Path::is_legal() 
-{
-    return legal;
-}
-
-bool Path::is_legal(String s) 
-{
-    // A path cannot be empty...
-    if (s.size() == 0)
-        return false;
-
-    // Every path must start from the root directory.
-    if (s[0] != '/')
-        return false;
-
-    return true;
 }

@@ -197,7 +197,6 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     DevFS devfs;
     devfs.mount(0);
     Path p("/sdc");
-    if (!p.is_legal()) panic("debug - illegal path");
     devfs.read(p, 1, 1, nullptr);
 
     // Endless loop!
