@@ -1,0 +1,3 @@
+The DevFS allows the use of hardware i/o devices like regular files. (For example - hard drives).
+
+On mount it generates a list of all of the "files" that will be, according to the avialable devices. (Meaning, plug-and-play is not supported)

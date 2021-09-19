@@ -26,6 +26,7 @@ private:
     void read_storage_device(String file_name, size_t count, size_t offset, char* buf); // file_name - for example "sda"
 
     // ------------------- Member Variables -------------------
+    Vector<Path> root_dir; // Will contain /sda, /sdb...
 };
 
 #endif
