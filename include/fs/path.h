@@ -18,6 +18,7 @@ public:
     bool is_folder();
     bool is_root();  // Is path == "/"?
     void go_up();    // Goes one level up; Must only be called if <folder> = true and <depth> != 0. Panics else.
+    String to_string();
 
     // ------------------- Methods with long docs -------------------
     /**
@@ -42,8 +43,9 @@ private:
     void fill_vector(String s);   // Fills the <parts> vector with the parts of the given string; <legal> must be true.
 
     // ------------------- Member Variables -------------------
-    bool folder;          // If false - it is a file
-    Vector<String> parts; // Each slesh seperated portion is a "part".
+    bool folder;           // If false - it is a file
+    Vector<String> parts;  // Each slesh seperated portion is a "part".
+    String original_string;
 };
 
 #endif // __PATH_H__

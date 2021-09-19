@@ -4,14 +4,16 @@
 
 Path::Path(String s) 
 {
+    original_string = s;
+
     if (s.size() == 0) // If the path is empty
-        s += '/'; // Then the path points to the root
+        original_string += '/'; // Then the path points to the root
 
     if (s[0] != '/') // If the path is relative
-        s = '/' + s; // Then make it absolute. (Relative pathes are not supported yet)
+        original_string = '/' + s; // Then make it absolute. (Relative pathes are not supported yet)
 
-    fill_vector(s);
-    folder = (s.back() == '/');
+    fill_vector(original_string);
+    folder = (original_string.back() == '/');
 }
 
 Path::Path() : Path("/") {}
@@ -43,6 +45,11 @@ void Path::fill_vector(String _s)
 
     if (s.size()) // If the last one was not a slash
         parts.append(s);
+}
+
+String Path::to_string() 
+{
+    return original_string;
 }
 
 bool Path::is_root() 
