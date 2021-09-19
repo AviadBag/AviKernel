@@ -15,10 +15,10 @@ public:
     Path(String);
 
     // ------------------- Regular Methods -------------------
-    bool is_folder();
-    bool is_root();  // Is path == "/"?
-    void go_up();    // Goes one level up; Must only be called if <folder> = true and <depth> != 0. Panics else.
-    String to_string();
+    bool is_folder()   const;
+    bool is_root()     const; // Is path == "/"?
+    void go_up();             // Goes one level up; Must only be called if <folder> = true and <depth> != 0. Panics else.
+    String to_string() const;
 
     // ------------------- Methods with long docs -------------------
     /**
@@ -30,13 +30,13 @@ public:
      *  get_part(3) = "d.txt"
      * I must be in range; panics if it is not.
      */
-    String get_part(int i);
+    String get_part(int i) const;
 
     /**
      * The directory depth of this path. Root directory is depth 0. For example - for /a/b/c.txt - depth=2.
      * And for /a/ - depth=1.
     */
-    int get_depth();
+    int get_depth() const;
 
 private:
     // ------------------- Regular Methods -------------------

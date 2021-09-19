@@ -47,12 +47,12 @@ void Path::fill_vector(String _s)
         parts.append(s);
 }
 
-String Path::to_string() 
+String Path::to_string() const
 {
     return original_string;
 }
 
-bool Path::is_root() 
+bool Path::is_root() const
 {
     return get_depth() == 0 && is_folder();
 }
@@ -67,18 +67,18 @@ void Path::go_up()
     parts.pop_back();
 }
 
-String Path::get_part(int i) 
+String Path::get_part(int i) const
 {
     return parts.get(i);
 }
 
-int Path::get_depth() 
+int Path::get_depth() const
 {
     // If it is a folder - then we do not count the file itself as part of the depth
     return is_folder() ? parts.size() : parts.size()-1;
 }
 
-bool Path::is_folder() 
+bool Path::is_folder() const
 {
     return folder;
 }
