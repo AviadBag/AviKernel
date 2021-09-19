@@ -27,7 +27,11 @@ void DevFS::umount() {} // Nothing here
 
 fs_status_code DevFS::read(Path path, size_t count, size_t offset, char* buf) 
 {
+    // Does this file exist?
+    if (!root_dir.exist(path))
+        return FS_NO_SUCH_FILE;
 
+    return FS_OK;
 }
 
 fs_status_code DevFS::write(Path path, size_t count, size_t offset, char* buf) 
