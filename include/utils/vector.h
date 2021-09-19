@@ -22,12 +22,16 @@ public:
     Vector(Vector<T> &other);
     ~Vector();
 
+    // ----------------------- Operators -----------------------
+    Vector<T>& operator=(const Vector& other);
+
     // ------------------- Regular Methods -------------------
-    T get(int index) const;    // Panic if index is out of range
+    T get(int index) const;         // Panic if index is out of range
     bool empty()     const;
     int  size()      const;
-    void append(T);            // Panics if there is no enough memory
-    void pop_back();           // Deletes the last element; Panics if empty
+    void append(T);                 // Panics if there is no enough memory
+    void pop_back();                // Deletes the last element; Panics if empty
+    void empty_vector();            // Empties the vector. DOES NOT FREE DATA! Call free_data() for that before.
     
     // ------------------- Methods with long docs -------------------
     /**
@@ -41,6 +45,8 @@ private:
     // ------------------- Regular Methods -------------------
     VectorNode<T>* get_node(int index) const;
     void           append_node(VectorNode<T> *new_node);
+    void           append_vector(const Vector& other);
+    void           free_data(); // Frees all of the dynamic allocated data
 
     VectorNode<T> *head;
     int vector_size;
@@ -49,20 +55,45 @@ private:
 template <class T>
 Vector<T>::Vector()
 {
-    head = nullptr;
-    vector_size = 0;
+    empty_vector();
 }
 
 template <class T>
 Vector<T>::Vector(Vector<T> &other)
     : Vector()
 {
-    for (int i = 0; i < other.size(); i++)
-        append(other.get(i));
+    empty_vector();
+    append_vector(other);
 }
 
 template <class T>
 Vector<T>::~Vector()
+{
+    free_data();
+}
+
+template<class T>
+Vector<T>& Vector<T>::operator=(const Vector& other) 
+{
+    // Destroy the previous state
+    free_data();
+    empty_vector();
+
+    // Copy the new data
+    append_vector(other);
+
+    return *this; 
+}
+
+template<class T>
+void Vector<T>::append_vector(const Vector& other) 
+{
+    for (int i = 0; i < other.size(); i++)
+        append(other.get(i));
+}
+
+template<class T>
+void Vector<T>::free_data() 
 {
     while (head)
     {
@@ -70,6 +101,13 @@ Vector<T>::~Vector()
         delete head;
         head = tmp;
     }
+}
+
+template<class T>
+void Vector<T>::empty_vector() 
+{
+    head = nullptr;
+    vector_size = 0;
 }
 
 template <class T>
