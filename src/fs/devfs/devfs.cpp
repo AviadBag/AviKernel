@@ -16,7 +16,7 @@ void DevFS::mount([[gnu::unused]] int what) {} // Nothing here
 
 void DevFS::umount() {} // Nothing here
 
-void DevFS::read(Path path, size_t count, size_t offset, char* buf) 
+fs_status_code DevFS::read(Path path, size_t count, size_t offset, char* buf) 
 {
     if (path.is_folder())
         panic("DevFS.read() - required file is a folder! (TODO: VFS should check that!)");
@@ -46,22 +46,22 @@ void DevFS::read_storage_device(String file_name, size_t count, size_t offset, c
     // TODO: Better to keap a list of the drives (Fill it on mount), or change the storage driver to RETURN the list.
 }
 
-void DevFS::write(Path path, size_t count, size_t offset, char* buf) 
+fs_status_code DevFS::write(Path path, size_t count, size_t offset, char* buf) 
 {
 
 }
 
-void DevFS::create_file(Path path) 
+fs_status_code DevFS::create_file(Path path) 
 {
 
 }
 
-void DevFS::delete_file(Path path) 
+fs_status_code DevFS::delete_file(Path path) 
 {
 
 }
 
-Vector<Path> DevFS::list_files(Path path) 
+fs_status_code DevFS::list_files(Path path, Vector<Path>*) 
 {
 
 }

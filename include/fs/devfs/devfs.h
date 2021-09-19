@@ -14,12 +14,12 @@ public:
 	virtual void mount(int what) override;
     virtual void umount() override;
 
-    virtual void read(Path path, size_t count, size_t offset, char* buf) override;
-    virtual void write(Path path, size_t count, size_t offset, char* buf) override;
+    virtual fs_status_code read(Path path, size_t count, size_t offset, char* buf) override;
+    virtual fs_status_code write(Path path, size_t count, size_t offset, char* buf) override;
 
-    virtual void create_file(Path path) override;
-    virtual void delete_file(Path path) override;
-    virtual Vector<Path> list_files(Path path) override;
+    virtual fs_status_code create_file(Path path) override;
+    virtual fs_status_code delete_file(Path path) override;
+    virtual fs_status_code list_files(Path path, Vector<Path>*) override;
 
 private:
     // ------------------- Methods Overriden -------------------
