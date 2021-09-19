@@ -7,6 +7,6 @@ write(Path path, size_t count, size_t offset, char* buf) - writes <count> bytes 
 Also, it has a few helper functions:
 create_file(Path path) - Creates the given file/folder.
 delete_file(Path path) - Deletes the given file/folder.
-list_files(Path path)  - Returns all the files/dirs in the given folder. 
+list_files(Path path, Vector<Path>*)  - Fills the given vector with all the files/dirs in the given path. 
 
 It is important to emphasize that write() DOES NOT discard the previous file contents!
