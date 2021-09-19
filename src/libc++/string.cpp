@@ -255,7 +255,8 @@ String String::substr(size_t pos, size_t len) const
     else if (len + pos > size()) // We are trying to copy beyond the range of the string.
         len = size() - pos; // Just copy until the end of the string
 
-    return String(c_str() + pos, len);
+    String s(c_str() + pos, len);
+    return s;
 }
 
 void String::initialize_from_c_string(const char* s)
