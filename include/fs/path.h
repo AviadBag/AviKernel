@@ -13,6 +13,9 @@ public:
     // ------------------- Constructors and Destructor -------------------
     Path();
     Path(String);
+    
+    // ------------------- Operators -------------------
+    bool operator==(const Path& other);
 
     // ------------------- Regular Methods -------------------
     bool is_folder()   const;

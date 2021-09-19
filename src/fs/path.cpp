@@ -18,6 +18,11 @@ Path::Path(String s)
 
 Path::Path() : Path("/") {}
 
+bool Path::operator==(const Path& other) 
+{
+    return other.to_string() == to_string();
+}
+
 void Path::fill_vector(String _s) 
 {
     const char* str = _s.c_str();
