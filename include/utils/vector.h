@@ -28,6 +28,7 @@ public:
     // ------------------- Regular Methods -------------------
     T get(int index) const;         // Panic if index is out of range
     bool empty()     const;
+    bool exist(T)    const;         // Does the given object exist in the list?
     int  size()      const;
     void append(T);                 // Panics if there is no enough memory
     void pop_back();                // Deletes the last element; Panics if empty
@@ -145,6 +146,16 @@ template <class T>
 bool Vector<T>::empty() const
 {
     return vector_size == 0;
+}
+
+template<class T>
+bool Vector<T>::exist(T obj) const
+{
+    for (int i = 0; i < size(); i++)
+        if (get(i) == obj)
+            return true;
+
+    return false;
 }
 
 template <class T>
