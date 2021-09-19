@@ -11,10 +11,11 @@
  */
 enum fs_status_code
 {
-    FS_OK,                   /* Nothing exceptional happend, everything worked */
+    FS_OK,                    /* Nothing exceptional happend, everything worked */
     FS_NO_SUCH_FILE,
     FS_NO_SUCH_DIR,
-    FS_UNSUPPORTED_OPERATION /* For example - you cannot create a directory in devfs */
+    FS_UNSUPPORTED_OPERATION, /* For example - you cannot create a directory in devfs */
+    FS_NOT_ENOUGH_MEMORY
 };
 
 class FS {
