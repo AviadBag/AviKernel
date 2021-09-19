@@ -22,9 +22,6 @@ public:
     virtual fs_status_code list_files(Path path, Vector<Path>*) override;
 
 private:
-    // ------------------- Methods Overriden -------------------
-    void read_storage_device(String file_name, size_t count, size_t offset, char* buf); // file_name - for example "sda"
-
     // ------------------- Member Variables -------------------
     Vector<Path> root_dir; // Will contain /sda, /sdb...
 };

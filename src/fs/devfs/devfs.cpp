@@ -30,24 +30,19 @@ fs_status_code DevFS::read(Path path, size_t count, size_t offset, char* buf)
 
 }
 
-void DevFS::read_storage_device(String file_name, size_t count, size_t offset, char* buf) 
-{
-    
-}
-
 fs_status_code DevFS::write(Path path, size_t count, size_t offset, char* buf) 
 {
 
 }
 
-fs_status_code DevFS::create_file(Path path) 
+fs_status_code DevFS::create_file([[gnu::unused]] Path path) 
 {
-
+    return FS_UNSUPPORTED_OPERATION;
 }
 
-fs_status_code DevFS::delete_file(Path path) 
+fs_status_code DevFS::delete_file([[gnu::unused]] Path path) 
 {
-
+    return FS_UNSUPPORTED_OPERATION;
 }
 
 fs_status_code DevFS::list_files(Path path, Vector<Path>* vect) 
