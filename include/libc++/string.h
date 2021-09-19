@@ -34,6 +34,7 @@ public:
     size_t size() const;
     size_t length() const;
     bool empty() const;
+    bool empty_or_whitespaces() const;
     void clear();
     char& at(size_t pos);
     const char& at(size_t pos) const;

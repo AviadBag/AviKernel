@@ -2,6 +2,7 @@
 
 #include <cstdlib.h>
 #include <cstring.h>
+#include <cctype.h>
 #include <string.h>
 
 #define CHECK_ALLOCATION(s)                      \
@@ -185,6 +186,21 @@ size_t String::length() const
 bool String::empty() const
 {
     return size() == 0;
+}
+
+bool String::empty_or_whitespaces() const
+{
+    if (empty())
+        return true;
+
+    // Check if there is a non-whitespace char
+    for (size_t i = 0; i < size(); i++)
+    {
+        if (!isspace(at(i)))
+            return false;
+    }
+
+    return true;
 }
 
 void String::clear()
