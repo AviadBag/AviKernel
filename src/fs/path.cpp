@@ -6,7 +6,7 @@ Path::Path(String s)
 {
     original_string = s;
 
-    if (s.size() == 0) // If the path is empty
+    if (s.empty_or_whitespaces()) // If the path is empty
         original_string += '/'; // Then the path points to the root
 
     if (s[0] != '/') // If the path is relative
