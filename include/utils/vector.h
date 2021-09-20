@@ -61,7 +61,6 @@ Vector<T>::Vector()
 
 template <class T>
 Vector<T>::Vector(Vector<T> &other)
-    : Vector()
 {
     empty_vector();
     append_vector(other);
