@@ -26,17 +26,17 @@ void DevFS::mount([[gnu::unused]] int what)
 
 void DevFS::umount() {} // Nothing here
 
-fs_status_code DevFS::read(Path path, size_t count, size_t offset, char* buf) 
+fs_status_code DevFS::read(Path path, uint64_t count, uint64_t offset, char* buf) 
 {
     return io(DEVFS_OPR_READ, path, count, offset, buf);
 }
 
-fs_status_code DevFS::write(Path path, size_t count, size_t offset, char* buf) 
+fs_status_code DevFS::write(Path path, uint64_t count, uint64_t offset, char* buf) 
 {
     return io(DEVFS_OPR_WRITE, path, count, offset, buf);
 }
 
-fs_status_code DevFS::io(devfs_operation operation, Path path, size_t count, size_t offset, char* buf) 
+fs_status_code DevFS::io(devfs_operation operation, Path path, uint64_t count, uint64_t offset, char* buf) 
 {
     // Does this file exist?
     if (!root_dir.exist(path))
@@ -52,7 +52,7 @@ fs_status_code DevFS::io(devfs_operation operation, Path path, size_t count, siz
     return FS_OK;
 }
 
-fs_status_code DevFS::storage_drive_read(Path path, size_t count, size_t offset, char* buf) 
+fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t offset, char* buf) 
 {
     char drive_char = path.to_string()[3]; // "/sda" => 'a', "/sdz" => 'z'...
     char drive_number = drive_char - 'a';  // 'a' => 0, 'z' => 25...

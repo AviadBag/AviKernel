@@ -26,8 +26,8 @@ public:
     virtual void mount(int what) = 0;
     virtual void umount() = 0;
 
-    virtual fs_status_code read(Path path, size_t count, size_t offset, char* buf) = 0;
-    virtual fs_status_code write(Path path, size_t count, size_t offset, char* buf) = 0;
+    virtual fs_status_code read(Path path, uint64_t count, uint64_t offset, char* buf) = 0;
+    virtual fs_status_code write(Path path, uint64_t count, uint64_t offset, char* buf) = 0;
 
     virtual fs_status_code create_file(Path path) = 0;
     virtual fs_status_code delete_file(Path path) = 0;

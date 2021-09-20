@@ -1,8 +1,8 @@
 The FS class represents an abstract file system.
 
 It has two basic operations:
-read(Path path, size_t count, size_t offset, char* buf) - reads <count> bytes from file <path>, starting from <offset> into <buf>.
-write(Path path, size_t count, size_t offset, char* buf) - writes <count> bytes into file <path>, starting from <offset>, from <buf>.
+read(Path path, uint64_t count, uint64_t offset, char* buf) - reads <count> bytes from file <path>, starting from <offset> into <buf>.
+write(Path path, uint64_t count, uint64_t offset, char* buf) - writes <count> bytes into file <path>, starting from <offset>, from <buf>.
 
 Also, it has a few helper functions:
 create_file(Path path) - Creates the given file/folder.

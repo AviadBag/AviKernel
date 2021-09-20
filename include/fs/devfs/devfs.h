@@ -17,8 +17,8 @@ public:
 	virtual void mount(int what) override;
     virtual void umount() override;
 
-    virtual fs_status_code read(Path path, size_t count, size_t offset, char* buf) override;
-    virtual fs_status_code write(Path path, size_t count, size_t offset, char* buf) override;
+    virtual fs_status_code read(Path path, uint64_t count, uint64_t offset, char* buf) override;
+    virtual fs_status_code write(Path path, uint64_t count, uint64_t offset, char* buf) override;
 
     virtual fs_status_code create_file(Path path) override;
     virtual fs_status_code delete_file(Path path) override;
@@ -26,7 +26,7 @@ public:
 
 private:
     // ------------------- Regular Methods -------------------
-    fs_status_code storage_drive_read(Path path, size_t count, size_t offset, char* buf); // <path> must be a legal storage drive path. Unexpected results if else!
+    fs_status_code storage_drive_read(Path path, uint64_t count, uint64_t offset, char* buf); // <path> must be a legal storage drive path. Unexpected results if else!
 
     // ------------------- Methods with Long Docs -------------------
     /**
@@ -40,7 +40,7 @@ private:
      * @param buf       The buffer to write from / read into
      * @return fs_status_code 
      */
-    fs_status_code io(devfs_operation operation, Path path, size_t count, size_t offset, char* buf);
+    fs_status_code io(devfs_operation operation, Path path, uint64_t count, uint64_t offset, char* buf);
 
     // ------------------- Member Variables -------------------
     Vector<Path> root_dir; // Will contain /sda, /sdb...
