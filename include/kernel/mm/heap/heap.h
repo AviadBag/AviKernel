@@ -20,7 +20,8 @@ public:
 
 private:
     static bool extend_heap(size_t); // Extends the heap until there is enough space.
-    // Splits the hole. Returns the size of the newly allocated memory. (Usually <size>, but can be more). Returns 0 if could not be splitted.
+    // Splits the given hole into one allocated space and one hole. 
+    // Returns the size of the first hole. (Usually <size>, but can be more). Returns 0 if could not be splitted.
     static size_t split(heap_header*, size_t size);
     static void merge(heap_header*); // Merges the previous hole and next hole, IF POSSIBLE.
     static void merge_previous(heap_header*);

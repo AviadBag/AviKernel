@@ -100,11 +100,11 @@ void* Heap::malloc(size_t size)
     size_t allocated_size = split(hole, required_size);
     if (allocated_size == 0) // Was not splitted
     {
-        allocated_size = hole->size; // It can take the whole size
-        remove_from_holes_list(hole);
+        allocated_size = hole->size;  // It can take the whole size
+        remove_from_holes_list(hole); // Well, it is allocated now..
     }
 
-    *((size_t*)hole) = allocated_size;
+    *((size_t*)hole) = allocated_size; // We can override the header. It is not used anymore, not until freed.
     void* addr = (void*)((size_t)hole + sizeof(size_t)); // Skip to after the bytes that represent the allocated size
 
     return addr;
@@ -114,11 +114,16 @@ size_t Heap::split(heap_header* hole, size_t size)
 {
     if (hole->size - size > sizeof(heap_header)) // Can it be splitted?
     {
+        // Where to split? (We must preserve space for the heap header, so we will be able to fill it when free)
         size_t offset = size > sizeof(heap_header) ? size : sizeof(heap_header);
-        heap_header* new_hole = (heap_header*)((size_t)hole + offset);
+        heap_header* new_hole = (heap_header*)((char*)hole + offset); // Here will be the header of the new hole
+        
+        // Fill data about the new hole
         new_hole->size = hole->size - offset;
-        remove_from_holes_list(hole);
         insert_to_holes_list(new_hole);
+
+        // Mark the old hole as allocated
+        remove_from_holes_list(hole);
 
         return offset;
     }
@@ -142,7 +147,11 @@ void Heap::remove_from_holes_list(heap_header* hole)
     }
     // Case 4 - This is a regular hole (has next and prev)
     else
-        hole->prev->next = hole->next; // Skip me!
+    {
+        // Skip me!
+        hole->prev->next = hole->next;
+        hole->next->prev = hole->prev;
+    }
 }
 
 void Heap::insert_to_holes_list(heap_header* hole)
