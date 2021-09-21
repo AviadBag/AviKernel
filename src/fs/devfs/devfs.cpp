@@ -89,8 +89,22 @@ fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t off
     }
     else
     {
-        delete temp_buf;
-        return FS_UNSUPPORTED_OPERATION;
+        printf("Using the new method!\n");
+
+        // Well, we will be reading in groups of 255 sectors
+
+        char* tmp = temp_buf;
+        
+        // Full jumps, of 255
+        for (uint64_t i = 0; i < sectors_count / 255; i++)
+        {
+            storage_driver->read_sectors(drive_number, lba, 255, tmp);
+            tmp += (255 * sector_size); // Advance the buffer pointer to the next 255 sectors area.
+            lba += 255;
+        }
+
+        // The last read (If needed) is not 255 sectors.
+        storage_driver->read_sectors(drive_number, lba, sectors_count % 255, tmp);
     }
     
     // Copy to the real buffer
