@@ -138,45 +138,26 @@ fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t of
 
     // WRITE!
 
-    // The simplest case - We only have to write one sector
-    if (sectors_count == 1)
+    // The simplest case - We only have to write one or two sector
+    if (sectors_count == 1 || sectors_count == 2)
     {
-        char* sector = new char[sector_size];
-        if (!sector)
-            return FS_NOT_ENOUGH_MEMORY;
-
-        // First, read the sector
-        storage_driver->read_sectors(drive_number, lba, 1, sector);
-
-        // Then, replace the new data
-        uint64_t offset_in_sector = offset % sector_size;
-        memcpy(sector + offset_in_sector, buf, count);
-
-        // And - write the updated sector
-        storage_driver->write_sectors(drive_number, lba, 1, sector);
-
-        delete[] sector;
-    }
-    // A little more complicated case - Now we have to write two sectors
-    else if (sectors_count == 2)
-    {
-        char* sectors = new char[sector_size * 2];
+        char* sectors = new char[sector_size * sectors_count];
         if (!sectors)
             return FS_NOT_ENOUGH_MEMORY;
 
-        // First, read the two sectors
-        storage_driver->read_sectors(drive_number, lba, 2, sectors);
+        // First, read the sector
+        storage_driver->read_sectors(drive_number, lba, sectors_count, sectors);
 
         // Then, replace the new data
-        uint64_t offset_in_sectors = offset % sector_size;
-        memcpy(sectors + offset_in_sectors, buf, count);
+        uint64_t offset_in_sector = offset % sector_size;
+        memcpy(sectors + offset_in_sector, buf, count);
 
-        // And - write the updated sectors
-        storage_driver->write_sectors(drive_number, lba, 2, sectors);
+        // And - write the updated sector
+        storage_driver->write_sectors(drive_number, lba, sectors_count, sectors);
 
         delete[] sectors;
     }
-    // This is the most complicated case. We have to read and update the first and last sector, and only
+    // The more complicated case. We have to read and update the first and last sector, and only
     // to write the sectors between.
     else
     {
