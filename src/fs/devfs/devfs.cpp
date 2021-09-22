@@ -46,7 +46,9 @@ fs_status_code DevFS::io(devfs_operation operation, Path path, uint64_t count, u
     if (path.to_string().substr(1, 2) == "sd" && path.to_string().size() == 4)
     {
         if (operation == DEVFS_OPR_READ) return storage_drive_read(path, count, offset, buf);
-        else return FS_UNSUPPORTED_OPERATION;
+        else if (operation == DEVFS_OPR_WRITE) return storage_drive_write(path, count, offset, buf);
+        else
+            panic("DevFS:io() - got an invalid operation!");
     }
 
     return FS_OK;
@@ -109,7 +111,105 @@ fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t off
     
     // Copy to the real buffer
     memcpy(buf, temp_buf + (offset % sector_size), count);
-    delete temp_buf;
+    delete[] temp_buf;
+
+    return FS_OK;
+}
+
+
+fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t offset, char* buf) 
+{
+    char drive_char = path.to_string()[3]; // "/sda" => 'a', "/sdz" => 'z'...
+    char drive_number = drive_char - 'a';  // 'a' => 0, 'z' => 25...
+
+    // Gain the storage driver
+    StorageDriver* storage_driver = (StorageDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
+
+    // Determine sector size
+    uint32_t sector_size = storage_driver->get_drive(drive_number)->get_sector_size();
+
+    // What's the LBA?
+    uint64_t lba = offset / sector_size;
+
+    // How many sectors do we have to write? (Round up)
+    uint64_t starting_sector = lba;
+    uint64_t ending_sector = (offset + count) / sector_size;
+    uint64_t sectors_count = ending_sector - starting_sector + 1;
+
+    // WRITE!
+
+    // The simplest case - We only have to write one sector
+    if (sectors_count == 1)
+    {
+        char* sector = new char[sector_size];
+        if (!sector)
+            return FS_NOT_ENOUGH_MEMORY;
+
+        // First, read the sector
+        storage_driver->read_sectors(drive_number, lba, 1, sector);
+
+        // Then, replace the new data
+        uint64_t offset_in_sector = offset % sector_size;
+        memcpy(sector + offset_in_sector, buf, count);
+
+        // And - write the updated sector
+        storage_driver->write_sectors(drive_number, lba, 1, sector);
+
+        delete[] sector;
+    }
+    // A little more complicated case - Now we have to write two sectors
+    else if (sectors_count == 2)
+    {
+        char* sectors = new char[sector_size * 2];
+        if (!sectors)
+            return FS_NOT_ENOUGH_MEMORY;
+
+        // First, read the two sectors
+        storage_driver->read_sectors(drive_number, lba, 2, sectors);
+
+        // Then, replace the new data
+        uint64_t offset_in_sectors = offset % sector_size;
+        memcpy(sectors + offset_in_sectors, buf, count);
+
+        // And - write the updated sectors
+        storage_driver->write_sectors(drive_number, lba, 2, sectors);
+
+        delete[] sectors;
+    }
+    // This is the most complicated case. We have to read and update the first and last sector, and only
+    // to write the sectors between.
+    else
+    {
+        char* first_sector = new char[sector_size];
+        char* last_sector = new char[sector_size];
+
+        if (!first_sector || !last_sector)
+            return FS_NOT_ENOUGH_MEMORY;
+
+        // We will first treat the first and last sectors
+        // Read them
+        storage_driver->read_sectors(drive_number, starting_sector, 1, first_sector);
+        storage_driver->read_sectors(drive_number, ending_sector, 1, last_sector);
+
+        // Update them
+        // First Sector
+        uint64_t offset_in_first_sector = offset % sector_size;
+        uint64_t offset_in_first_buffer = sector_size - offset_in_first_sector;
+        memcpy(first_sector + offset_in_first_sector, buf, offset_in_first_buffer);
+        // Last Sector
+        uint64_t offset_in_buf = (sectors_count - 2) * sector_size + offset_in_first_buffer;
+        memcpy(last_sector, buf + offset_in_buf, count % sector_size);
+
+        // Write them back
+        storage_driver->write_sectors(drive_number, starting_sector, 1, first_sector);
+        storage_driver->write_sectors(drive_number, ending_sector, 1, last_sector);
+
+        // And now - update the sectors between
+        storage_driver->write_sectors(drive_number, starting_sector+1, sectors_count - 2, buf + offset_in_first_buffer);
+
+        delete[] first_sector;
+        delete[] last_sector;
+    }
 
     return FS_OK;
 }

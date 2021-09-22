@@ -26,7 +26,8 @@ public:
 
 private:
     // ------------------- Regular Methods -------------------
-    fs_status_code storage_drive_read(Path path, uint64_t count, uint64_t offset, char* buf); // <path> must be a legal storage drive path. Unexpected results if else!
+    fs_status_code storage_drive_read(Path path, uint64_t count, uint64_t offset, char* buf);  // <path> must be a legal storage drive path. Unexpected results if else!
+    fs_status_code storage_drive_write(Path path, uint64_t count, uint64_t offset, char* buf); // <path> must be a legal storage drive path. Unexpected results if else!
 
     // ------------------- Methods with Long Docs -------------------
     /**
