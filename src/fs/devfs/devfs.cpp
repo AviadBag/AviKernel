@@ -91,8 +91,6 @@ fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t off
     }
     else
     {
-        printf("Using the new method!\n");
-
         // Well, we will be reading in groups of 255 sectors
 
         char* tmp = temp_buf;
@@ -175,18 +173,43 @@ fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t of
         // Update them
         // First Sector
         uint64_t offset_in_first_sector = offset % sector_size;
-        uint64_t offset_in_first_buffer = sector_size - offset_in_first_sector;
-        memcpy(first_sector + offset_in_first_sector, buf, offset_in_first_buffer);
+        uint64_t count_write_in_first_sector = sector_size - offset_in_first_sector;
+        memcpy(first_sector + offset_in_first_sector, buf, count_write_in_first_sector);
         // Last Sector
-        uint64_t offset_in_buf = (sectors_count - 2) * sector_size + offset_in_first_buffer;
-        memcpy(last_sector, buf + offset_in_buf, count % sector_size);
+        uint64_t offset_in_buf = (sectors_count - 2) * sector_size + count_write_in_first_sector;
+        memcpy(last_sector, buf + offset_in_buf, count - offset_in_buf);
 
         // Write them back
         storage_driver->write_sectors(drive_number, starting_sector, 1, first_sector);
         storage_driver->write_sectors(drive_number, ending_sector, 1, last_sector);
 
         // And now - update the sectors between
-        storage_driver->write_sectors(drive_number, starting_sector+1, sectors_count - 2, buf + offset_in_first_buffer);
+        uint64_t sectors_between_count = sectors_count - 2;
+        lba++; // Go to the second sector
+
+        // We can only write up to 255 sectors at a time
+        if (sectors_between_count <= 255)
+        {
+            // Well, just write...
+            storage_driver->write_sectors(drive_number, lba, sectors_between_count, buf + count_write_in_first_sector);
+        }
+        else
+        {
+            // Well, we will be writing in groups of 255 sectors
+
+            char* buf_ptr = buf + count_write_in_first_sector;
+            
+            // Full jumps, of 255
+            for (uint64_t i = 0; i < sectors_between_count / 255; i++)
+            {
+                storage_driver->write_sectors(drive_number, lba, 255, buf + count_write_in_first_sector);
+                buf_ptr += (255 * sector_size); // Advance the buffer pointer to the next 255 sectors area.
+                lba += 255;
+            }
+
+            // The last write (If needed) is not 255 sectors.
+            storage_driver->read_sectors(drive_number, lba, sectors_between_count % 255, buf_ptr);
+        }
 
         delete[] first_sector;
         delete[] last_sector;
