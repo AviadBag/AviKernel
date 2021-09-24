@@ -214,56 +214,7 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     FS *devfs = new DevFS();
     devfs->mount(0);
 
-    /* ------------ TEST list_files() ------------ */
-    putchar('\n');
-    printf("ls /dev\n");
-    Vector<Path> devfs_root_dir;
-    Path p1("/");
-    fs_status_code status1 = devfs->list_files(p1, &devfs_root_dir);
-    printf("Status: %s\n", fs_status_to_string(status1));
-    if (status1 == FS_OK)
-    {
-        for (int i = 0; i < devfs_root_dir.size(); i++)
-        {
-            printf("%s", devfs_root_dir.get(i).to_string().c_str());
-            if (i + 1 != devfs_root_dir.size())
-                printf(", ");
-        }
-        putchar('\n');
-    }
-
-    /* ------------ TEST delete_file() ------------ */
-    putchar('\n');
-    printf("rm /dev/sda\n");
-    Path p2("/sda");
-    fs_status_code status2 = devfs->delete_file(p2);
-    printf("Status: %s\n", fs_status_to_string(status2));
-
-    /* ------------ TEST create_file() ------------ */
-    putchar('\n');
-    printf("touch /dev/aa\n");
-    Path p3("/aa");
-    fs_status_code status3 = devfs->create_file(p3);
-    printf("Status: %s\n", fs_status_to_string(status3));
-
-    /* ------------ TEST read() ------------ */
-    putchar('\n');
-    printf("cat /dev/sda\n");
-    Path p4("/sda");
-    const size_t bytes = 1524;
-    const size_t offset = 0x20DBE4;
-    char buf[bytes];
-    fs_status_code status4 = devfs->read(p4, bytes, offset, buf);
-    printf("Status: %s\n", fs_status_to_string(status4));
-    if (status4 == FS_OK)
-    {
-        printf("Read %u bytes successfully!\n", bytes);
-        for (size_t i = 0; i < bytes; i++)
-        {
-            printf("%02X ", buf[i] & 0xFF);
-        }
-    }
-
+    /* Clean up */
     devfs->umount();
     delete devfs;
 
