@@ -1,0 +1,2 @@
+The VFS is the file-systems layer. It allows you to mount whatever filesystem you want wherever you want.
+Even though the VFS is called "FS", it does not inherait the FS class, but implements the POSIX I/O interface (Or something close to that..)
