@@ -22,6 +22,16 @@ struct MountedFS
     FS* fs;
 };
 
+struct FileDesc
+{
+    Path file_path;    /* The path of the file itself */
+    uint64_t position; /* The pointer position inside of the file */
+    bool read;         /* Is it open for reading? */
+    bool write;        /* Is it open for writing? */
+    bool append;       /* Is it open for appending? (Only valid if write=true) */
+    uint64_t size;     /* The size of the file, in bytes */
+};
+
 class VFS
 {
 public:
