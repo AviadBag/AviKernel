@@ -31,10 +31,11 @@ public:
     /**
      * @brief Mounts the given fs in the given path.
      * 
-     * @param where Where to mount. For example - "/dev/", "/"...
-     * @param what  The filesystem to mount.
+     * @param where  Where to mount. For example - "/dev/", "/"...
+     * @param device What device does this FS use? (For example - "/dev/sda").
+     * @param what   The filesystem to mount.
      */
-    void mount_fs(Path where, FS* what);
+    void mount_fs(Path where, Path device, FS* what);
 
     // ------------------- Regular Methods -------------------
     int open(const char* path, int oflag, ...);
