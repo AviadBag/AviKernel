@@ -16,6 +16,8 @@ Path::Path(String s)
     folder = (original_string.back() == '/');
 }
 
+Path::Path(const char* str) : Path(String(str)) {}
+
 Path::Path() : Path("/") {}
 
 bool Path::operator==(const Path& other) 

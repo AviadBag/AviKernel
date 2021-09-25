@@ -13,6 +13,7 @@ public:
     // ------------------- Constructors and Destructor -------------------
     Path();
     Path(String);
+    Path(const char*);
     
     // ------------------- Operators -------------------
     bool operator==(const Path& other);
