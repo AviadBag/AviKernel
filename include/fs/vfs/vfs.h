@@ -8,15 +8,13 @@
 #include <stdint.h>
 
 // First 3 bits of flags
-#define O_EXEC      1
-#define O_RDONLY    2
-#define O_RDWR      3
-#define O_SEARCH    4
-#define O_WRONLY    5
+#define O_RDONLY    1
+#define O_RDWR      2
+#define O_WRONLY    3
 
-// Starting from bit 4
-#define O_APPEND    0b1000
-#define O_DIRECTORY 0b10000
+// Starting from bit 3
+#define O_APPEND    0b100
+#define O_DIRECTORY 0b1000
 
 struct MountedFS
 {
