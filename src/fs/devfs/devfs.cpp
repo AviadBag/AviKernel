@@ -6,7 +6,7 @@
 #include <cstdio.h>
 #include <cstring.h>
 
-void DevFS::mount([[gnu::unused]] int what) 
+void DevFS::mount([[gnu::unused]] Path what) 
 {
     /* --------------- Add all of the storage drives --------------- */
     StorageDriver* storage_driver = (StorageDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);

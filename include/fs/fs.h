@@ -23,7 +23,7 @@ public:
     virtual ~FS() {};
 
     // On some File systems, <what> is ignored. (For example, on temp-fs... You only keep the data in the memory...)
-    virtual void mount(int what) = 0;
+    virtual void mount(Path what) = 0;
     virtual void umount() = 0;
 
     virtual fs_status_code read(Path path, uint64_t count, uint64_t offset, char* buf) = 0;

@@ -14,7 +14,7 @@ class DevFS : public FS
 {
 public:
 	// ------------------- Methods Overriden -------------------
-	virtual void mount(int what) override;
+	virtual void mount(Path what) override;
     virtual void umount() override;
 
     virtual fs_status_code read(Path path, uint64_t count, uint64_t offset, char* buf) override;
