@@ -10,10 +10,10 @@ public:
     uint32_t get_sector_size();
     uint64_t get_number_of_sectors();
 
-    double get_size_by(); // Bytes
-    double get_size_kb();
-    double get_size_mb();
-    double get_size_gb();
+    uint64_t get_size_by(); // Bytes
+    uint64_t get_size_kb();
+    uint64_t get_size_mb();
+    uint64_t get_size_gb();
 
 private:
     uint32_t sector_size;
