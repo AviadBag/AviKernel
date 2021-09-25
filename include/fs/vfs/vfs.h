@@ -31,8 +31,9 @@ public:
     /**
      * @brief Mounts the given fs in the given path.
      * 
-     * @param where  Where to mount. For example - "/dev/", "/"...
-     * @param device What device does this FS use? (For example - "/dev/sda").
+     * @param where  Where to mount. For example - "/dev/", "/"... - MUST BE A DIRECTORY. PANICS IF NOT.
+     * @param device What device does this FS use? (For example - "/dev/sda"). - MUST NOT BE A DIRECTORY. PANICS IF NOT.
+     *               Give "/" if a device is not needed!
      * @param what   The filesystem to mount.
      */
     void mount_fs(Path where, Path device, FS* what);
