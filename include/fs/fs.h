@@ -28,7 +28,8 @@ public:
 
     virtual fs_status_code read(Path path, uint64_t count, uint64_t offset, char* buf) = 0;
     virtual fs_status_code write(Path path, uint64_t count, uint64_t offset, char* buf) = 0;
-
+    
+    virtual fs_status_code get_file_size(Path path, uint64_t* size) = 0;
     virtual fs_status_code create_file(Path path) = 0;
     virtual fs_status_code delete_file(Path path) = 0;
     virtual fs_status_code list_files(Path path, Vector<Path>*) = 0;
