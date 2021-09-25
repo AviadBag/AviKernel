@@ -54,6 +54,30 @@ fs_status_code DevFS::io(devfs_operation operation, Path path, uint64_t count, u
     return FS_OK;
 }
 
+fs_status_code DevFS::get_file_size(Path path, uint64_t* size) 
+{
+    // Does this file exist?
+    if (!root_dir.exist(path))
+        return FS_NO_SUCH_FILE;
+
+    // Is it a storage drive?
+    if (path.to_string().substr(1, 2) == "sd" && path.to_string().size() == 4)
+    {
+        char drive_char = path.to_string()[3]; // "/sda" => 'a', "/sdz" => 'z'...
+        char drive_number = drive_char - 'a';  // 'a' => 0, 'z' => 25...
+
+        // Gain the storage driver
+        StorageDriver* storage_driver = (StorageDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
+
+        // Get the required drive
+        PhysicalDrive* drive = storage_driver->get_drive(drive_number);
+        
+        *size = drive->get_size_by();
+    }
+
+    return FS_OK;
+}
+
 fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t offset, char* buf) 
 {
     char drive_char = path.to_string()[3]; // "/sda" => 'a', "/sdz" => 'z'...
