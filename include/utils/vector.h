@@ -5,6 +5,19 @@
 
 #include "kernel/panic.h"
 
+#define VECTOR_FOR_EACH(VECTOR, ITERATOR, ITEM_TYPE, CODE)\
+{\
+    if (VECTOR.size())\
+    {\
+        /* I am using a weird name pupresly */ \
+        for (int aaaaaaaaaaaaaaaaaaa = 0; aaaaaaaaaaaaaaaaaaa < VECTOR.size(); aaaaaaaaaaaaaaaaaaa++)\
+        {\
+            ITEM_TYPE ITERATOR = VECTOR.get(aaaaaaaaaaaaaaaaaaa);\
+            CODE;\
+        }\
+    }\
+}
+
 template <class T>
 class VectorNode
 {
