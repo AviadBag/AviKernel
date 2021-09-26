@@ -57,6 +57,9 @@ public:
     uint64_t write(int fildes, const void *buf, uint64_t nbyte);
 
 private:
+    // ------------------- Regular Methods -------------------
+    FS* get_fs(Path); // Returns the FS that holds this path; Returns null if there is not such FS.
+
     // ------------------- Member Variables -------------------
     Vector<MountedFS> mounted_fss; // All of the currently mounted file systems
 };
