@@ -8,18 +8,20 @@
 #include <stdint.h>
 
 // First 3 bits of flags
-#define O_RDONLY    1
-#define O_RDWR      2
-#define O_WRONLY    3
+#define O_RDONLY 1
+#define O_RDWR 2
+#define O_WRONLY 3
 
 // Starting from bit 3
-#define O_APPEND    0b100
+#define O_APPEND 0b100
 #define O_DIRECTORY 0b1000
+#define O_CREAT 0b10000
+#define O_EXCL 0b100000
 
 struct MountedFS
 {
     Path mount_path;
-    FS* fs;
+    FS *fs;
 };
 
 struct FileDesc
@@ -44,10 +46,10 @@ public:
      *               Give "/" if a device is not needed!
      * @param what   The filesystem to mount.
      */
-    void mount_fs(Path where, Path device, FS* what);
+    void mount_fs(Path where, Path device, FS *what);
 
     // ------------------- Regular Methods -------------------
-    int open(const char* path, int oflag, ...);
+    int open(const char *path, int oflag, ...);
     int openat(int fd, const char *path, int oflag, ...);
 
     uint64_t pread(int fildes, void *buf, uint64_t nbyte, uint64_t offset);
@@ -58,7 +60,7 @@ public:
 
 private:
     // ------------------- Regular Methods -------------------
-    FS* get_fs(Path); // Returns the FS that holds this path; Returns null if there is not such FS.
+    FS *get_fs(Path); // Returns the FS that holds this path; Returns null if there is not such FS.
 
     // ------------------- Member Variables -------------------
     Vector<MountedFS> mounted_fss; // All of the currently mounted file systems
