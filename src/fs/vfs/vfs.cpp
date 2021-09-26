@@ -54,11 +54,6 @@ FS *VFS::get_fs(Path path)
         }
     }
 
-    if (max == 0)
-        printf("Not found a file system for path %s\n", path.to_string().c_str());
-    else
-        printf("Found a file system mounted on path %s for path %s\n", debug_path.to_string().c_str(), path.to_string().c_str());
-
     return max == 0 ? nullptr : fs;
 }
 

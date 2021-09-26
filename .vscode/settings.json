@@ -58,5 +58,6 @@
         "typeinfo": "cpp",
         "cctype.h": "c",
         "ciso646": "cpp"
-    }
+    },
+    "editor.formatOnSave": true
 }
