@@ -6,11 +6,11 @@
 #include <cstdio.h>
 #include <cstring.h>
 
-void DevFS::mount([[gnu::unused]] Path what) 
+void DevFS::mount([[gnu::unused]] Path what)
 {
     /* --------------- Add all of the storage drives --------------- */
-    StorageDriver* storage_driver = (StorageDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
-    
+    StorageDriver *storage_driver = (StorageDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
+
     // Only up to 26 drives are supported (sda - sdz)
     int i;
     char c;
@@ -26,27 +26,33 @@ void DevFS::mount([[gnu::unused]] Path what)
 
 void DevFS::umount() {} // Nothing here
 
-fs_status_code DevFS::read(Path path, uint64_t count, uint64_t offset, char* buf) 
+fs_status_code DevFS::read(Path path, uint64_t count, uint64_t offset, char *buf)
 {
     return io(DEVFS_OPR_READ, path, count, offset, buf);
 }
 
-fs_status_code DevFS::write(Path path, uint64_t count, uint64_t offset, char* buf) 
+fs_status_code DevFS::write(Path path, uint64_t count, uint64_t offset, char *buf)
 {
     return io(DEVFS_OPR_WRITE, path, count, offset, buf);
 }
 
-fs_status_code DevFS::io(devfs_operation operation, Path path, uint64_t count, uint64_t offset, char* buf) 
+fs_status_code DevFS::io(devfs_operation operation, Path path, uint64_t count, uint64_t offset, char *buf)
 {
+    // Is it a folder?
+    if (path.is_folder())
+        return FS_FILE_IS_REQUIRED;
+
     // Does this file exist?
-    if (!root_dir.exist(path))
+    if (!file_exist(path))
         return FS_NO_SUCH_FILE;
 
     // Is it a storage drive?
     if (path.to_string().substr(1, 2) == "sd" && path.to_string().size() == 4)
     {
-        if (operation == DEVFS_OPR_READ) return storage_drive_read(path, count, offset, buf);
-        else if (operation == DEVFS_OPR_WRITE) return storage_drive_write(path, count, offset, buf);
+        if (operation == DEVFS_OPR_READ)
+            return storage_drive_read(path, count, offset, buf);
+        else if (operation == DEVFS_OPR_WRITE)
+            return storage_drive_write(path, count, offset, buf);
         else
             panic("DevFS:io() - got an invalid operation!");
     }
@@ -54,10 +60,14 @@ fs_status_code DevFS::io(devfs_operation operation, Path path, uint64_t count, u
     return FS_OK;
 }
 
-fs_status_code DevFS::get_file_size(Path path, uint64_t* size) 
+fs_status_code DevFS::get_file_size(Path path, uint64_t *size)
 {
+    // Is it a folder?
+    if (path.is_folder())
+        return FS_FILE_IS_REQUIRED;
+
     // Does this file exist?
-    if (!root_dir.exist(path))
+    if (!file_exist(path))
         return FS_NO_SUCH_FILE;
 
     // Is it a storage drive?
@@ -67,18 +77,18 @@ fs_status_code DevFS::get_file_size(Path path, uint64_t* size)
         char drive_number = drive_char - 'a';  // 'a' => 0, 'z' => 25...
 
         // Gain the storage driver
-        StorageDriver* storage_driver = (StorageDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
+        StorageDriver *storage_driver = (StorageDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
 
         // Get the required drive
-        PhysicalDrive* drive = storage_driver->get_drive(drive_number);
-        
+        PhysicalDrive *drive = storage_driver->get_drive(drive_number);
+
         *size = drive->get_size_by();
     }
 
     return FS_OK;
 }
 
-fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t offset, char* buf) 
+fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t offset, char *buf)
 {
     char drive_char = path.to_string()[3]; // "/sda" => 'a', "/sdz" => 'z'...
     char drive_number = drive_char - 'a';  // 'a' => 0, 'z' => 25...
@@ -87,7 +97,7 @@ fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t off
        to a temporarily buffer with sector aligned size, and then copy just how much we need to the real buffer */
 
     // Gain the storage driver
-    StorageDriver* storage_driver = (StorageDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
+    StorageDriver *storage_driver = (StorageDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
 
     // Determine sector size
     uint32_t sector_size = storage_driver->get_drive(drive_number)->get_sector_size();
@@ -101,7 +111,7 @@ fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t off
     uint64_t sectors_count = ending_sector - starting_sector + 1;
 
     // Allocate the temporarily buffer
-    char* temp_buf = new char[sectors_count * sector_size];
+    char *temp_buf = new char[sectors_count * sector_size];
     if (!temp_buf)
         return FS_NOT_ENOUGH_MEMORY;
 
@@ -117,8 +127,8 @@ fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t off
     {
         // Well, we will be reading in groups of 255 sectors
 
-        char* tmp = temp_buf;
-        
+        char *tmp = temp_buf;
+
         // Full jumps, of 255
         for (uint64_t i = 0; i < sectors_count / 255; i++)
         {
@@ -130,7 +140,7 @@ fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t off
         // The last read (If needed) is not 255 sectors.
         storage_driver->read_sectors(drive_number, lba, sectors_count % 255, tmp);
     }
-    
+
     // Copy to the real buffer
     memcpy(buf, temp_buf + (offset % sector_size), count);
     delete[] temp_buf;
@@ -138,14 +148,13 @@ fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t off
     return FS_OK;
 }
 
-
-fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t offset, char* buf) 
+fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t offset, char *buf)
 {
     char drive_char = path.to_string()[3]; // "/sda" => 'a', "/sdz" => 'z'...
     char drive_number = drive_char - 'a';  // 'a' => 0, 'z' => 25...
 
     // Gain the storage driver
-    StorageDriver* storage_driver = (StorageDriver*) DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
+    StorageDriver *storage_driver = (StorageDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
 
     // Determine sector size
     uint32_t sector_size = storage_driver->get_drive(drive_number)->get_sector_size();
@@ -163,7 +172,7 @@ fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t of
     // The simplest case - We only have to write one or two sector
     if (sectors_count == 1 || sectors_count == 2)
     {
-        char* sectors = new char[sector_size * sectors_count];
+        char *sectors = new char[sector_size * sectors_count];
         if (!sectors)
             return FS_NOT_ENOUGH_MEMORY;
 
@@ -183,8 +192,8 @@ fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t of
     // to write the sectors between.
     else
     {
-        char* first_sector = new char[sector_size];
-        char* last_sector = new char[sector_size];
+        char *first_sector = new char[sector_size];
+        char *last_sector = new char[sector_size];
 
         if (!first_sector || !last_sector)
             return FS_NOT_ENOUGH_MEMORY;
@@ -221,8 +230,8 @@ fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t of
         {
             // Well, we will be writing in groups of 255 sectors
 
-            char* buf_ptr = buf + count_write_in_first_sector;
-            
+            char *buf_ptr = buf + count_write_in_first_sector;
+
             // Full jumps, of 255
             for (uint64_t i = 0; i < sectors_between_count / 255; i++)
             {
@@ -242,17 +251,25 @@ fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t of
     return FS_OK;
 }
 
-fs_status_code DevFS::create_file([[gnu::unused]] Path path) 
+bool DevFS::file_exist(Path path)
+{
+    if (path.is_folder())
+        return path.is_root(); // We have only one folder - the root folder.
+
+    return root_dir.exist(path);
+}
+
+fs_status_code DevFS::create_file([[gnu::unused]] Path path)
 {
     return FS_UNSUPPORTED_OPERATION;
 }
 
-fs_status_code DevFS::delete_file([[gnu::unused]] Path path) 
+fs_status_code DevFS::delete_file([[gnu::unused]] Path path)
 {
     return FS_UNSUPPORTED_OPERATION;
 }
 
-fs_status_code DevFS::list_files(Path path, Vector<Path>* vect) 
+fs_status_code DevFS::list_files(Path path, Vector<Path> *vect)
 {
     if (!path.is_root())
         return FS_NO_SUCH_DIR; // There is only one folder in devfs - the root folder.
