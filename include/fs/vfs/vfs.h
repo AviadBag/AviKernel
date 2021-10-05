@@ -7,6 +7,8 @@
 
 #include <stdint.h>
 
+#define OPEN_FILES_MAX 200
+
 // First 3 bits of flags
 #define O_RDONLY 1
 #define O_RDWR 2
@@ -26,12 +28,13 @@ struct MountedFS
 
 struct FileDesc
 {
-    Path file_path;    /* The path of the file itself */
-    uint64_t position; /* The pointer position inside of the file */
-    bool read;         /* Is it open for reading? */
-    bool write;        /* Is it open for writing? */
-    bool append;       /* Is it open for appending? (Only valid if write=true) */
-    uint64_t size;     /* The size of the file, in bytes */
+    Path file_path;      /* The path of the file itself */
+    uint64_t position;   /* The pointer position inside of the file */
+    bool read;           /* Is it open for reading? */
+    bool write;          /* Is it open for writing? */
+    bool append;         /* Is it open for appending? (Only valid if write=true) */
+    uint64_t size;       /* The size of the file, in bytes */
+    bool in_use = false; /* Is this descriptor realy in use? */
 };
 
 class VFS
@@ -63,7 +66,8 @@ private:
     FS *get_fs(Path); // Returns the FS that holds this path; Returns null if there is not such FS.
 
     // ------------------- Member Variables -------------------
-    Vector<MountedFS> mounted_fss; // All of the currently mounted file systems
+    Vector<MountedFS> mounted_fss;  // All of the currently mounted file systems
+    FileDesc file_descriptors[200]; // All of the file descriptors
 };
 
 #endif // __VFS_H__
