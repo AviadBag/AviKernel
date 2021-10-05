@@ -104,6 +104,7 @@ int VFS::open(const char *path, int oflag, ...)
         set_errno(EMFILE);
         goto exit_err;
     }
+    file_descriptors[desct].in_use = true;
 
     // Retrieve the corresponding filesystem
     fs = get_fs(path);
