@@ -6,5 +6,8 @@
 #define EACCES 3
 #define EMFILE 4
 
-int errno = 0;
+int get_errno();
+void set_errno(int);
+#define errno (get_errno())
+
 #endif // __ERRNO_H__

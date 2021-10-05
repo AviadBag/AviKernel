@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-#define OPEN_FILES_MAX 200
+#define VFS_OPEN_FILES_MAX 200
 
 // First 3 bits of flags
 #define O_RDONLY 1
@@ -64,13 +64,16 @@ public:
     uint64_t pwrite(int fildes, const void *buf, uint64_t nbyte, uint64_t offset);
     uint64_t write(int fildes, const void *buf, uint64_t nbyte);
 
+    int allocate_descriptor();      // Return -1 if there is no a free descriptor
+    void free_descriptor(int desc); // <desc> must be in use; panics else.
+
 private:
     // ------------------- Regular Methods -------------------
     FS *get_fs(Path); // Returns the FS that holds this path; Returns null if there is not such FS.
 
     // ------------------- Member Variables -------------------
-    Vector<MountedFS> mounted_fss;  // All of the currently mounted file systems
-    FileDesc file_descriptors[200]; // All of the file descriptors
+    Vector<MountedFS> mounted_fss;                 // All of the currently mounted file systems
+    FileDesc file_descriptors[VFS_OPEN_FILES_MAX]; // All of the file descriptors
 };
 
 #endif // __VFS_H__

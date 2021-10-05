@@ -11,6 +11,31 @@ VFS::VFS()
         file_descriptors[i].in_use = true;
 }
 
+int VFS::allocate_descriptor()
+{
+    int desct = -1;
+
+    // Find the first unused descriptor
+    for (int i = 0; i < VFS_OPEN_FILES_MAX; i++)
+    {
+        if (!file_descriptors[i].in_use)
+        {
+            desct = i;
+            break;
+        }
+    }
+
+    return desct;
+}
+
+void VFS::free_descriptor(int desct)
+{
+    if (!file_descriptors[desct].in_use)
+        panic("VFS::free_descriptor() -> trying to free a descriptor in use! (descriptor %d)", desct);
+
+    file_descriptors[desct].in_use = false;
+}
+
 void VFS::mount_fs(Path where, Path device, FS *what)
 {
     if (device.is_folder() && !device.is_root())
@@ -67,10 +92,17 @@ FS *VFS::get_fs(Path path)
 
 int VFS::open(const char *path, int oflag, ...)
 {
+    int desct = allocate_descriptor();
+    if (desct == -1) // There is no a free descriptor
+    {
+        set_errno(EMFILE);
+        return -1;
+    }
+
     FS *fs = get_fs(path);
     if (!fs)
     {
-        errno = ENOENT;
+        set_errno(ENOENT);
         return -1;
     }
 
@@ -80,13 +112,13 @@ int VFS::open(const char *path, int oflag, ...)
     // Case 1 - O_CREAT and O_EXCL = fail if file exist.
     if ((oflag & O_CREAT) && (oflag & O_EXCL) && exist)
     {
-        errno = EEXIST;
+        set_errno(EEXIST);
         return -1;
     }
     // Case 2 - O_CREAT is clear and the file does not exist; or path is empty.
     if ((!(oflag & O_CREAT) && !exist) || !(*path))
     {
-        errno = ENOENT;
+        set_errno(ENOENT);
         return -1;
     }
 
@@ -100,7 +132,7 @@ int VFS::open(const char *path, int oflag, ...)
             panic("FS::open() -> Not enough memory!");
             break;
         case FS_UNSUPPORTED_OPERATION:
-            errno = EACCES;
+            set_errno(EACCES);
             return -1;
         case FS_OK:
             break;
@@ -109,5 +141,5 @@ int VFS::open(const char *path, int oflag, ...)
         }
     }
 
-    return -1;
+    return desct;
 }
