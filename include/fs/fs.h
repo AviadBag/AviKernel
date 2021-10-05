@@ -36,7 +36,7 @@ public:
     virtual fs_status_code delete_file(Path path) = 0;
     virtual fs_status_code list_files(Path path, Vector<Path> *) = 0;
 
-    virtual bool file_exist(Path path);
+    virtual bool file_exist(Path path) = 0;
 };
 
 #endif
