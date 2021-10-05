@@ -31,7 +31,7 @@ int VFS::allocate_descriptor()
 void VFS::free_descriptor(int desct)
 {
     if (!file_descriptors[desct].in_use)
-        panic("VFS::free_descriptor() -> trying to free a descriptor in use! (descriptor %d)", desct);
+        panic("VFS::free_descriptor() -> trying to free a descriptor which is not in use! (descriptor %d)", desct);
 
     file_descriptors[desct].in_use = false;
 }
@@ -92,34 +92,41 @@ FS *VFS::get_fs(Path path)
 
 int VFS::open(const char *path, int oflag, ...)
 {
-    int desct = allocate_descriptor();
+    // I must declare the variables at the beginning, because else - it does not allow me to use 'goto'.
+    int desct;
+    bool exist;
+    FS *fs;
+
+    // Allocate the descriptor!
+    desct = allocate_descriptor();
     if (desct == -1) // There is no a free descriptor
     {
         set_errno(EMFILE);
-        return -1;
+        goto exit_err;
     }
 
-    FS *fs = get_fs(path);
+    // Retrieve the corresponding filesystem
+    fs = get_fs(path);
     if (!fs)
     {
         set_errno(ENOENT);
-        return -1;
+        goto exit_err_cleanup;
     }
 
-    bool exist = fs->file_exist(path);
+    exist = fs->file_exist(path);
 
     /* -------- Treat the various cases regarding the file existance. -------- */
     // Case 1 - O_CREAT and O_EXCL = fail if file exist.
     if ((oflag & O_CREAT) && (oflag & O_EXCL) && exist)
     {
         set_errno(EEXIST);
-        return -1;
+        goto exit_err_cleanup;
     }
     // Case 2 - O_CREAT is clear and the file does not exist; or path is empty.
     if ((!(oflag & O_CREAT) && !exist) || !(*path))
     {
         set_errno(ENOENT);
-        return -1;
+        goto exit_err_cleanup;
     }
 
     // Create the file if needed
@@ -133,7 +140,7 @@ int VFS::open(const char *path, int oflag, ...)
             break;
         case FS_UNSUPPORTED_OPERATION:
             set_errno(EACCES);
-            return -1;
+            goto exit_err_cleanup;
         case FS_OK:
             break;
         default:
@@ -142,4 +149,10 @@ int VFS::open(const char *path, int oflag, ...)
     }
 
     return desct;
+
+// Special exists
+exit_err_cleanup:
+    free_descriptor(desct);
+exit_err:
+    return -1;
 }
