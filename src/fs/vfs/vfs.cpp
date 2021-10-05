@@ -1,6 +1,7 @@
 #include "fs/vfs/vfs.h"
 #include "kernel/panic.h"
 
+#include <posix/errno.h>
 #include <cstdio.h>
 
 void VFS::mount_fs(Path where, Path device, FS *what)
@@ -60,4 +61,46 @@ FS *VFS::get_fs(Path path)
 int VFS::open(const char *path, int oflag, ...)
 {
     FS *fs = get_fs(path);
+    if (!fs)
+    {
+        errno = ENOENT;
+        return -1;
+    }
+
+    bool exist = fs->file_exist(path);
+
+    /* -------- Treat the various cases regarding the file existance. -------- */
+    // Case 1 - O_CREAT and O_EXCL = fail if file exist.
+    if ((oflag & O_CREAT) && (oflag & O_EXCL) && exist)
+    {
+        errno = EEXIST;
+        return -1;
+    }
+    // Case 2 - O_CREAT is clear and the file does not exist; or path is empty.
+    if ((!(oflag & O_CREAT) && !exist) || !(*path))
+    {
+        errno = ENOENT;
+        return -1;
+    }
+
+    // Create the file if needed
+    if (O_CREAT && !exist)
+    {
+        fs_status_code code = fs->create_file(path);
+        switch (code)
+        {
+        case FS_NOT_ENOUGH_MEMORY:
+            panic("FS::open() -> Not enough memory!");
+            break;
+        case FS_UNSUPPORTED_OPERATION:
+            errno = EACCES;
+            return -1;
+        case FS_OK:
+            break;
+        default:
+            panic("FS::open() -> unimplemented return code while trying to create a file");
+        }
+    }
+
+    return -1;
 }
