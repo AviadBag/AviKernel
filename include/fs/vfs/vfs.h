@@ -40,6 +40,9 @@ struct FileDesc
 class VFS
 {
 public:
+    // ------------------- Constructor -------------------
+    VFS();
+
     // ------------------- Methods with long docs -------------------
     /**
      * @brief Mounts the given fs in the given path.

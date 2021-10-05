@@ -4,6 +4,13 @@
 #include <posix/errno.h>
 #include <cstdio.h>
 
+VFS::VFS()
+{
+    // Descriptors 0, 1, 2 are reserved
+    for (int i = 0; i <= 2; i++)
+        file_descriptors[i].in_use = true;
+}
+
 void VFS::mount_fs(Path where, Path device, FS *what)
 {
     if (device.is_folder() && !device.is_root())
