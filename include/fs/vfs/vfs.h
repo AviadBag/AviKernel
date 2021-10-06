@@ -64,12 +64,11 @@ public:
     uint64_t pwrite(int fildes, const void *buf, uint64_t nbyte, uint64_t offset);
     uint64_t write(int fildes, const void *buf, uint64_t nbyte);
 
-    int allocate_descriptor();      // Return -1 if there is no a free descriptor
-    void free_descriptor(int desc); // <desc> must be in use; panics else.
-
 private:
     // ------------------- Regular Methods -------------------
-    FS *get_fs(Path); // Returns the FS that holds this path; Returns null if there is not such FS.
+    FS *get_fs(Path);               // Returns the FS that holds this path; Returns null if there is not such FS.
+    int allocate_descriptor();      // Return -1 if there is no a free descriptor
+    void free_descriptor(int desc); // <desc> must be in use; panics else.
 
     // ------------------- Member Variables -------------------
     Vector<MountedFS> mounted_fss;                 // All of the currently mounted file systems
