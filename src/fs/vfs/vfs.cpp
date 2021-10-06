@@ -94,7 +94,7 @@ int VFS::open(const char *path, int oflag, ...)
 {
     // I must declare the variables at the beginning, because else - it does not allow me to use 'goto'.
     int desct;
-    bool exist;
+    bool exists;
     FS *fs;
 
     // Allocate the descriptor!
@@ -114,24 +114,24 @@ int VFS::open(const char *path, int oflag, ...)
         goto exit_err_cleanup;
     }
 
-    exist = fs->file_exist(path);
+    exists = fs->file_exist(path);
 
     /* -------- Treat the various cases regarding the file existance. -------- */
     // Case 1 - O_CREAT and O_EXCL = fail if file exist.
-    if ((oflag & O_CREAT) && (oflag & O_EXCL) && exist)
+    if ((oflag & O_CREAT) && (oflag & O_EXCL) && exists)
     {
         set_errno(EEXIST);
         goto exit_err_cleanup;
     }
     // Case 2 - O_CREAT is clear and the file does not exist; or path is empty.
-    if ((!(oflag & O_CREAT) && !exist) || !(*path))
+    if ((!(oflag & O_CREAT) && !exists) || !(*path))
     {
         set_errno(ENOENT);
         goto exit_err_cleanup;
     }
 
     // Create the file if needed
-    if (O_CREAT && !exist)
+    if (O_CREAT && !exists)
     {
         fs_status_code code = fs->create_file(path);
         switch (code)
