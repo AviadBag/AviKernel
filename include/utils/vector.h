@@ -33,7 +33,6 @@ public:
     void remove(int index);
     void append(T);      // Panics if there is no enough memory
     void pop_back();     // Deletes the last element; Panics if empty
-    void empty_vector(); // Empties the vector. DOES NOT FREE DATA! Call free_data() for that before.
 
     // ------------------- Methods with long docs -------------------
     /**
@@ -48,7 +47,9 @@ private:
     VectorNode<T> *get_node(int index) const;
     void append_node(VectorNode<T> *new_node);
     void append_vector(const Vector &other);
-    void free_data(); // Frees all of the dynamic allocated data
+    void free_data();    // Frees all of the dynamic allocated data
+    void empty_vector(); // Empties the vector. DOES NOT FREE DATA! Call free_data() for that before.
+	void panic_if_illegal_index(int index) const; // Panics if either the index is minus or out of range
 
     VectorNode<T> *head;
     int vector_size;
@@ -87,6 +88,15 @@ Vector<T> &Vector<T>::operator=(const Vector &other)
 }
 
 template <class T>
+void Vector<T>::panic_if_illegal_index(int index) const
+{
+	if (index + 1 > size())
+        panic("Vector: Index \"%d\" is out of range", index);
+	else if (index < 0)
+		panic("Vector: Index \"%d\" is negative!", index);
+}
+
+template <class T>
 void Vector<T>::append_vector(const Vector &other)
 {
     for (int i = 0; i < other.size(); i++)
@@ -121,10 +131,9 @@ void Vector<T>::pop_back()
     // There is only one element - delete it
     else if (size() == 1)
     {
-        delete head;
-        head = nullptr;
-        vector_size = 0;
-    }
+		free_data();
+		empty_vector();
+	}
 
     // There is more than one element
     else
@@ -202,8 +211,7 @@ T Vector<T>::get(int index) const
 template <class T>
 VectorNode<T> *Vector<T>::get_node(int index) const
 {
-    if (index + 1 > size())
-        panic("Vector: Index \"%d\" is out of range", index);
+	panic_if_illegal_index(index);
 
     VectorNode<T> *node = head;
     while (index--)
