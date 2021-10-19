@@ -5,18 +5,18 @@
 
 #include "kernel/panic.h"
 
-#define VECTOR_FOR_EACH(VECTOR, ITERATOR, ITEM_TYPE, CODE)\
-{\
-    if (VECTOR.size())\
-    {\
-        /* I am using a weird name pupresly */ \
-        for (int aaaaaaaaaaaaaaaaaaa = 0; aaaaaaaaaaaaaaaaaaa < VECTOR.size(); aaaaaaaaaaaaaaaaaaa++)\
-        {\
-            ITEM_TYPE ITERATOR = VECTOR.get(aaaaaaaaaaaaaaaaaaa);\
-            CODE;\
-        }\
-    }\
-}
+#define VECTOR_FOR_EACH(VECTOR, ITERATOR, ITEM_TYPE, CODE)                                                \
+    {                                                                                                     \
+        if (VECTOR.size())                                                                                \
+        {                                                                                                 \
+            /* I am using a weird name pupresly */                                                        \
+            for (int aaaaaaaaaaaaaaaaaaa = 0; aaaaaaaaaaaaaaaaaaa < VECTOR.size(); aaaaaaaaaaaaaaaaaaa++) \
+            {                                                                                             \
+                ITEM_TYPE ITERATOR = VECTOR.get(aaaaaaaaaaaaaaaaaaa);                                     \
+                CODE;                                                                                     \
+            }                                                                                             \
+        }                                                                                                 \
+    }
 
 template <class T>
 class VectorNode
@@ -36,17 +36,18 @@ public:
     ~Vector();
 
     // ----------------------- Operators -----------------------
-    Vector<T>& operator=(const Vector& other);
+    Vector<T> &operator=(const Vector &other);
 
     // ------------------- Regular Methods -------------------
-    T get(int index) const;         // Panic if index is out of range
-    bool empty()     const;
-    bool exist(T)    const;         // Does the given object exist in the list?
-    int  size()      const;
-    void append(T);                 // Panics if there is no enough memory
-    void pop_back();                // Deletes the last element; Panics if empty
-    void empty_vector();            // Empties the vector. DOES NOT FREE DATA! Call free_data() for that before.
-    
+    T get(int index) const; // Panic if index is out of range
+    bool empty() const;
+    bool exist(T) const; // Does the given object exist in the list?
+    int size() const;
+    void remove(int index);
+    void append(T);      // Panics if there is no enough memory
+    void pop_back();     // Deletes the last element; Panics if empty
+    void empty_vector(); // Empties the vector. DOES NOT FREE DATA! Call free_data() for that before.
+
     // ------------------- Methods with long docs -------------------
     /**
      * Sorts the vector, according to the given function.
@@ -57,10 +58,10 @@ public:
 
 private:
     // ------------------- Regular Methods -------------------
-    VectorNode<T>* get_node(int index) const;
-    void           append_node(VectorNode<T> *new_node);
-    void           append_vector(const Vector& other);
-    void           free_data(); // Frees all of the dynamic allocated data
+    VectorNode<T> *get_node(int index) const;
+    void append_node(VectorNode<T> *new_node);
+    void append_vector(const Vector &other);
+    void free_data(); // Frees all of the dynamic allocated data
 
     VectorNode<T> *head;
     int vector_size;
@@ -85,8 +86,8 @@ Vector<T>::~Vector()
     free_data();
 }
 
-template<class T>
-Vector<T>& Vector<T>::operator=(const Vector& other) 
+template <class T>
+Vector<T> &Vector<T>::operator=(const Vector &other)
 {
     // Destroy the previous state
     free_data();
@@ -95,18 +96,18 @@ Vector<T>& Vector<T>::operator=(const Vector& other)
     // Copy the new data
     append_vector(other);
 
-    return *this; 
+    return *this;
 }
 
-template<class T>
-void Vector<T>::append_vector(const Vector& other) 
+template <class T>
+void Vector<T>::append_vector(const Vector &other)
 {
     for (int i = 0; i < other.size(); i++)
         append(other.get(i));
 }
 
-template<class T>
-void Vector<T>::free_data() 
+template <class T>
+void Vector<T>::free_data()
 {
     while (head)
     {
@@ -116,8 +117,8 @@ void Vector<T>::free_data()
     }
 }
 
-template<class T>
-void Vector<T>::empty_vector() 
+template <class T>
+void Vector<T>::empty_vector()
 {
     head = nullptr;
     vector_size = 0;
@@ -141,7 +142,7 @@ void Vector<T>::pop_back()
     // There is more than one element
     else
     {
-        VectorNode<T>* ptr = head;
+        VectorNode<T> *ptr = head;
         // advance until one before last
         while (ptr->next->next != nullptr)
             ptr = ptr->next;
@@ -149,7 +150,7 @@ void Vector<T>::pop_back()
         // Delete!
         delete ptr->next;
         ptr->next = nullptr;
-        
+
         vector_size--;
     }
 }
@@ -160,7 +161,7 @@ bool Vector<T>::empty() const
     return vector_size == 0;
 }
 
-template<class T>
+template <class T>
 bool Vector<T>::exist(T obj) const
 {
     for (int i = 0; i < size(); i++)
