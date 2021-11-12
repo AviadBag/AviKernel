@@ -13,15 +13,16 @@ public:
     // ------------------- Constructors and Destructor -------------------
     Path();
     Path(String);
-    Path(const char*);
-    
+    Path(const char *);
+
     // ------------------- Operators -------------------
-    bool operator==(const Path& other);
+    bool operator==(const Path &other);
 
     // ------------------- Regular Methods -------------------
-    bool is_folder()   const;
-    bool is_root()     const; // Is path == "/"?
-    void go_up();             // Goes one level up; Must only be called if <folder> = true and <depth> != 0. Panics else.
+    bool is_folder() const;
+    bool is_root() const;        // Is path == "/"?
+    void go_up();                // Goes one level up; Must only be called if <folder> = true and <depth> != 0. Panics else.
+    void remove_part(int index); // Removes the given part. (See explenation on docs for get_part()). Panics if index is out of range.
     String to_string() const;
 
     // ------------------- Methods with long docs -------------------
@@ -44,11 +45,11 @@ public:
 
 private:
     // ------------------- Regular Methods -------------------
-    void fill_vector(String s);   // Fills the <parts> vector with the parts of the given string; <legal> must be true.
+    void fill_vector(String s); // Fills the <parts> vector with the parts of the given string; <legal> must be true.
 
     // ------------------- Member Variables -------------------
-    bool folder;           // If false - it is a file
-    Vector<String> parts;  // Each slesh seperated portion is a "part".
+    bool folder;          // If false - it is a file
+    Vector<String> parts; // Each slesh seperated portion is a "part".
     String original_string;
 };
 
