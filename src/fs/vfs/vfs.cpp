@@ -184,3 +184,40 @@ exit_err_cleanup:
 exit_err:
     return -1;
 }
+
+uint64_t VFS::read(int desct, void *buf, uint64_t nbyte)
+{
+    if (desct >= VFS_OPEN_FILES_MAX || !file_descriptors[desct].in_use)
+    {
+        set_errno(EBADF);
+        return -1;
+    }
+
+    if (file_descriptors[desct].position + nbyte > file_descriptors[desct].size)
+    {
+        set_errno(EOVERFLOW);
+        return -1;
+    }
+
+    MountedFS mounted_fs;
+    get_mounted_fs(file_descriptors[desct].file_path, &mounted_fs);
+
+    Path trimmed_path = file_descriptors[desct].file_path;
+    for (int i = 0; i < mounted_fs.mount_path.get_depth(); i++)
+        trimmed_path.remove_part(0);
+
+    fs_status_code code = mounted_fs.fs->read(trimmed_path, nbyte, file_descriptors[desct].position, (char *)buf);
+    switch (code)
+    {
+    case FS_NOT_ENOUGH_MEMORY:
+        panic("FS::open() -> Not enough memory!");
+        break;
+    case FS_OK:
+        break;
+    default:
+        panic("FS::open() -> unimplemented return code while trying to create a file");
+    }
+    file_descriptors[desct].position += nbyte;
+
+    return nbyte;
+}

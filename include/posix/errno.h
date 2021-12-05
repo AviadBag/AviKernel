@@ -5,6 +5,8 @@
 #define EEXIST 2
 #define EACCES 3
 #define EMFILE 4
+#define EBADF 5
+#define EOVERFLOW 6
 
 int get_errno();
 void set_errno(int);
