@@ -24,6 +24,7 @@ int VFS::allocate_descriptor()
             break;
         }
     }
+    file_descriptors[desct].in_use = true;
 
     return desct;
 }
@@ -93,7 +94,7 @@ int VFS::open(const char *path_str, int oflag, ...)
     bool exists;
     fs_status_code code;
     MountedFS mounted_fs;
-    Path path = path_str;
+    Path path = path_str, trimmed_path;
 
     if (path.is_folder())
         panic("FS::open() -> FS DOES NOT SUPPORT FOLDER OPENING!");
@@ -105,7 +106,6 @@ int VFS::open(const char *path_str, int oflag, ...)
         set_errno(EMFILE);
         goto exit_err;
     }
-    file_descriptors[desct].in_use = true;
 
     // Retrieve the corresponding filesystem
     if (!get_mounted_fs(path, &mounted_fs))
@@ -115,11 +115,12 @@ int VFS::open(const char *path_str, int oflag, ...)
     }
 
     // Make the path start from root. (For example: "/dev/sda" => "/sda")
+    trimmed_path = path;
     for (int i = 0; i < mounted_fs.mount_path.get_depth(); i++)
-        path.remove_part(0);
+        trimmed_path.remove_part(0);
 
     // Does this file exist?
-    exists = mounted_fs.fs->file_exist(path);
+    exists = mounted_fs.fs->file_exist(trimmed_path);
 
     /* -------- Treat the various cases regarding the file existance. -------- */
     // Case 1 - O_CREAT and O_EXCL = fail if file exist.
@@ -138,7 +139,7 @@ int VFS::open(const char *path_str, int oflag, ...)
     // Create the file if needed
     if (O_CREAT && !exists)
     {
-        code = mounted_fs.fs->create_file(path);
+        code = mounted_fs.fs->create_file(trimmed_path);
         switch (code)
         {
         case FS_NOT_ENOUGH_MEMORY:
@@ -155,12 +156,12 @@ int VFS::open(const char *path_str, int oflag, ...)
     }
 
     // Fill the data in the descriptor
-    file_descriptors[desct].file_path = path_str;
+    file_descriptors[desct].file_path = path;
     file_descriptors[desct].position = 0; // The beginning of the file
     file_descriptors[desct].read = (oflag & O_RDONLY) || (oflag & O_RDWR);
     file_descriptors[desct].write = (oflag & O_WRONLY) || (oflag & O_RDWR);
     file_descriptors[desct].append = (oflag & O_APPEND);
-    code = mounted_fs.fs->get_file_size(path_str, &file_descriptors[desct].size);
+    code = mounted_fs.fs->get_file_size(trimmed_path, &file_descriptors[desct].size);
     switch (code)
     {
     case FS_NOT_ENOUGH_MEMORY:
