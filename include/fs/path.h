@@ -20,22 +20,14 @@ public:
 
     // ------------------- Regular Methods -------------------
     bool is_folder() const;
-    bool is_root() const;        // Is path == "/"?
-    void go_up();                // Goes one level up; Must only be called if <folder> = true and <depth> != 0. Panics else.
-    void remove_part(int index); // Removes the given part. (See explenation on docs for get_part()). Panics if index is out of range.
+    bool is_root() const;            // Is path == "/"?
+    void go_up();                    // Goes one level up; Must only be called if <folder> = true and <depth> != 0. Panics else.
+    void remove_part(int index);     // Removes the given part. (See explenation on docs for get_part()). Panics if index is out of range.
+    int get_number_of_parts() const; // How many parts do we have?
+    String get_part(int i) const;    // Returns the required part. Panics if i is out of range.
     String to_string() const;
 
     // ------------------- Methods with long docs -------------------
-    /**
-     * Returns the required part, starting from part <0>. Every string inside of the path is a part.
-     * For example - /a/b/c/d.txt:
-     *  get_part(0) = "a"
-     *  get_part(1) = "b"
-     *  get_part(2) = "c"
-     *  get_part(3) = "d.txt"
-     * I must be in range; panics if it is not.
-     */
-    String get_part(int i) const;
 
     /**
      * The directory depth of this path. Root directory is depth 0. For example - for /a/b/c.txt - depth=2.
@@ -50,7 +42,6 @@ private:
     // ------------------- Member Variables -------------------
     bool folder;          // If false - it is a file
     Vector<String> parts; // Each slesh seperated portion is a "part".
-    String original_string;
 };
 
 #endif // __PATH_H__

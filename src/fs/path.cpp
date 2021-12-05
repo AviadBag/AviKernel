@@ -4,16 +4,14 @@
 
 Path::Path(String s)
 {
-    original_string = s;
-
     if (s.empty_or_whitespaces()) // If the path is empty
-        original_string += '/';   // Then the path points to the root
+        s += '/';                 // Then the path points to the root
 
-    if (s[0] != '/')               // If the path is relative
-        original_string = '/' + s; // Then make it absolute. (Relative pathes are not supported yet)
+    if (s[0] != '/') // If the path is relative
+        s = '/' + s; // Then make it absolute. (Relative pathes are not supported yet)
 
-    fill_vector(original_string);
-    folder = (original_string.back() == '/');
+    fill_vector(s);
+    folder = (s.back() == '/');
 }
 
 Path::Path(const char *str) : Path(String(str)) {}
@@ -54,9 +52,22 @@ void Path::fill_vector(String _s)
         parts.append(s);
 }
 
+int Path::get_number_of_parts() const
+{
+    return parts.size();
+}
+
 String Path::to_string() const
 {
-    return original_string;
+    String s = "/";
+    for (int i = 0; i < get_number_of_parts(); i++)
+    {
+        s += get_part(i);
+        if (is_folder() || i < get_number_of_parts() - 1) // If it is a folder or this is not the last part.
+            s += '/';
+    }
+
+    return s;
 }
 
 bool Path::is_root() const
