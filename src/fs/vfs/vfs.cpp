@@ -6,7 +6,7 @@
 
 VFS::VFS()
 {
-    // Descriptors 0, 1, 2 are reserved
+    // Descriptors 0, 1, 2 are reserved (POSIX)
     for (int i = 0; i <= 2; i++)
         file_descriptors[i].in_use = true;
 }
@@ -97,7 +97,10 @@ int VFS::open(const char *path_str, int oflag, ...)
     Path path = path_str, trimmed_path;
 
     if (path.is_folder())
-        panic("FS::open() -> FS DOES NOT SUPPORT FOLDER OPENING!");
+    {
+        set_errno(EISDIR);
+        goto exit_err;
+    }
 
     // Allocate the descriptor!
     desct = allocate_descriptor();

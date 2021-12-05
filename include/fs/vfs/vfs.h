@@ -66,7 +66,7 @@ public:
 
 private:
     // ------------------- Regular Methods -------------------
-    bool get_mounted_fs(Path, MountedFS *); // Gives the mounted FS object that holds this path; Returns false if there is not such mounted FS.
+    bool get_mounted_fs(Path, MountedFS *); // Gives the MountedFS object that holds this path; Returns false if there is not such mounted FS.
     int allocate_descriptor();              // Return -1 if there is no a free descriptor
     void free_descriptor(int desc);         // <desc> must be in use; panics else.
 
