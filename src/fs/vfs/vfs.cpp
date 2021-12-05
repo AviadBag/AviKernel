@@ -51,12 +51,9 @@ void VFS::mount_fs(Path where, Path device, FS *what)
     mounted_fss.append(mfs);
 }
 
-FS *VFS::get_fs(Path path)
+bool VFS::get_mounted_fs(Path path, MountedFS *m)
 {
     size_t max = 0;
-    FS *fs;
-
-    Path debug_path;
 
     for (int i = 0; i < mounted_fss.size(); i++)
     {
@@ -80,22 +77,22 @@ FS *VFS::get_fs(Path path)
                 if (n > max)
                 {
                     max = n;
-                    fs = mounted_fs.fs;
-                    debug_path = mounted_fs.mount_path;
+                    *m = mounted_fs;
                 }
             }
         }
     }
 
-    return max == 0 ? nullptr : fs;
+    return max != 0;
 }
 
-int VFS::open(const char *path, int oflag, ...)
+int VFS::open(const char *path_str, int oflag, ...)
 {
     // I must declare the variables at the beginning, because else - it does not allow me to use 'goto'.
     int desct;
     bool exists;
-    FS *fs;
+    MountedFS mounted_fs;
+    Path path = path_str;
 
     // Allocate the descriptor!
     desct = allocate_descriptor();
@@ -107,14 +104,18 @@ int VFS::open(const char *path, int oflag, ...)
     file_descriptors[desct].in_use = true;
 
     // Retrieve the corresponding filesystem
-    fs = get_fs(path);
-    if (!fs)
+    if (!get_mounted_fs(path, &mounted_fs))
     {
         set_errno(ENOENT);
         goto exit_err_cleanup;
     }
 
-    exists = fs->file_exist(path);
+    // Make the path start from root. (For example: "/dev/sda" => "/sda")
+    for (int i = 0; i < mounted_fs.mount_path.get_depth(); i++)
+        path.remove_part(0);
+
+    // Does this file exist?
+    exists = mounted_fs.fs->file_exist(path);
 
     /* -------- Treat the various cases regarding the file existance. -------- */
     // Case 1 - O_CREAT and O_EXCL = fail if file exist.
@@ -124,7 +125,7 @@ int VFS::open(const char *path, int oflag, ...)
         goto exit_err_cleanup;
     }
     // Case 2 - O_CREAT is clear and the file does not exist; or path is empty.
-    if ((!(oflag & O_CREAT) && !exists) || !(*path))
+    if ((!(oflag & O_CREAT) && !exists) || !(*path_str))
     {
         set_errno(ENOENT);
         goto exit_err_cleanup;
@@ -133,7 +134,7 @@ int VFS::open(const char *path, int oflag, ...)
     // Create the file if needed
     if (O_CREAT && !exists)
     {
-        fs_status_code code = fs->create_file(path);
+        fs_status_code code = mounted_fs.fs->create_file(path);
         switch (code)
         {
         case FS_NOT_ENOUGH_MEMORY:

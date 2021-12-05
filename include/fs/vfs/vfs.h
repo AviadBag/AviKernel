@@ -66,9 +66,9 @@ public:
 
 private:
     // ------------------- Regular Methods -------------------
-    FS *get_fs(Path);               // Returns the FS that holds this path; Returns null if there is not such FS.
-    int allocate_descriptor();      // Return -1 if there is no a free descriptor
-    void free_descriptor(int desc); // <desc> must be in use; panics else.
+    bool get_mounted_fs(Path, MountedFS *); // Gives the mounted FS object that holds this path; Returns false if there is not such mounted FS.
+    int allocate_descriptor();              // Return -1 if there is no a free descriptor
+    void free_descriptor(int desc);         // <desc> must be in use; panics else.
 
     // ------------------- Member Variables -------------------
     Vector<MountedFS> mounted_fss;                 // All of the currently mounted file systems
