@@ -91,8 +91,12 @@ int VFS::open(const char *path_str, int oflag, ...)
     // I must declare the variables at the beginning, because else - it does not allow me to use 'goto'.
     int desct;
     bool exists;
+    fs_status_code code;
     MountedFS mounted_fs;
     Path path = path_str;
+
+    if (path.is_folder())
+        panic("FS::open() -> FS DOES NOT SUPPORT FOLDER OPENING!");
 
     // Allocate the descriptor!
     desct = allocate_descriptor();
@@ -134,7 +138,7 @@ int VFS::open(const char *path_str, int oflag, ...)
     // Create the file if needed
     if (O_CREAT && !exists)
     {
-        fs_status_code code = mounted_fs.fs->create_file(path);
+        code = mounted_fs.fs->create_file(path);
         switch (code)
         {
         case FS_NOT_ENOUGH_MEMORY:
@@ -148,6 +152,27 @@ int VFS::open(const char *path_str, int oflag, ...)
         default:
             panic("FS::open() -> unimplemented return code while trying to create a file");
         }
+    }
+
+    // Fill the data in the descriptor
+    file_descriptors[desct].file_path = path_str;
+    file_descriptors[desct].position = 0; // The beginning of the file
+    file_descriptors[desct].read = (oflag & O_RDONLY) || (oflag & O_RDWR);
+    file_descriptors[desct].write = (oflag & O_WRONLY) || (oflag & O_RDWR);
+    file_descriptors[desct].append = (oflag & O_APPEND);
+    code = mounted_fs.fs->get_file_size(path_str, &file_descriptors[desct].size);
+    switch (code)
+    {
+    case FS_NOT_ENOUGH_MEMORY:
+        panic("FS::open() -> Not enough memory!");
+        break;
+    case FS_UNSUPPORTED_OPERATION:
+        set_errno(EACCES);
+        goto exit_err_cleanup;
+    case FS_OK:
+        break;
+    default:
+        panic("FS::open() -> unimplemented return code while trying to create a file");
     }
 
     return desct;
