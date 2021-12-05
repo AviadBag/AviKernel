@@ -187,13 +187,18 @@ exit_err:
 
 uint64_t VFS::read(int desct, void *buf, uint64_t nbyte)
 {
+    return pread(desct, buf, nbyte, 0);
+}
+
+uint64_t VFS::pread(int desct, void *buf, uint64_t nbyte, uint64_t offset)
+{
     if (desct >= VFS_OPEN_FILES_MAX || !file_descriptors[desct].in_use)
     {
         set_errno(EBADF);
         return -1;
     }
 
-    if (file_descriptors[desct].position + nbyte > file_descriptors[desct].size)
+    if (file_descriptors[desct].position + offset + nbyte > file_descriptors[desct].size)
     {
         set_errno(EOVERFLOW);
         return -1;
@@ -206,7 +211,7 @@ uint64_t VFS::read(int desct, void *buf, uint64_t nbyte)
     for (int i = 0; i < mounted_fs.mount_path.get_depth(); i++)
         trimmed_path.remove_part(0);
 
-    fs_status_code code = mounted_fs.fs->read(trimmed_path, nbyte, file_descriptors[desct].position, (char *)buf);
+    fs_status_code code = mounted_fs.fs->read(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
     switch (code)
     {
     case FS_NOT_ENOUGH_MEMORY:
@@ -217,7 +222,7 @@ uint64_t VFS::read(int desct, void *buf, uint64_t nbyte)
     default:
         panic("FS::open() -> unimplemented return code while trying to create a file");
     }
-    file_descriptors[desct].position += nbyte;
+    file_descriptors[desct].position += nbyte + offset;
 
     return nbyte;
 }
