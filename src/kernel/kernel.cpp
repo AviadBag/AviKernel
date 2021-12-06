@@ -23,6 +23,7 @@
 #include "utils/io.h"
 
 #include "fs/devfs/devfs.h"
+#include "fs/vfs/vfs.h"
 
 #include <cstdio.h>
 #include <cstdlib.h>
@@ -201,6 +202,46 @@ const char *fs_status_to_string(fs_status_code s)
     }
 }
 
+void DumpHex(const void *data, size_t size)
+{
+    char ascii[17];
+    size_t i, j;
+    ascii[16] = '\0';
+    for (i = 0; i < size; ++i)
+    {
+        printf("%02X ", ((unsigned char *)data)[i]);
+        if (((unsigned char *)data)[i] >= ' ' && ((unsigned char *)data)[i] <= '~')
+        {
+            ascii[i % 16] = ((unsigned char *)data)[i];
+        }
+        else
+        {
+            ascii[i % 16] = '.';
+        }
+        if ((i + 1) % 8 == 0 || i + 1 == size)
+        {
+            printf(" ");
+            if ((i + 1) % 16 == 0)
+            {
+                printf("|  %s \n", ascii);
+            }
+            else if (i + 1 == size)
+            {
+                ascii[(i + 1) % 16] = '\0';
+                if ((i + 1) % 16 <= 8)
+                {
+                    printf(" ");
+                }
+                for (j = (i + 1) % 16; j < 16; ++j)
+                {
+                    printf("   ");
+                }
+                printf("|  %s \n", ascii);
+            }
+        }
+    }
+}
+
 extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 {
     // System Initialization
@@ -213,6 +254,19 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 
     FS *devfs = new DevFS();
     devfs->mount(0);
+
+    VFS vfs;
+    vfs.mount_fs("/dev/", "/", devfs);
+
+    int file_w = vfs.open("/dev/sda", O_WRONLY);
+    char buf[512];
+    memset(buf, 'k', 512);
+    vfs.write(file_w, buf, 512);
+
+    int file_r = vfs.open("/dev/sda", O_RDONLY);
+    char buf1[512];
+    vfs.read(file_r, buf1, 512);
+    DumpHex(buf1, 512);
 
     /* Clean up */
     devfs->umount();
