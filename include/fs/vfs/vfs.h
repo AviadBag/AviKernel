@@ -37,6 +37,13 @@ struct FileDesc
     bool in_use = false; /* Is this descriptor realy in use? */
 };
 
+/* Used for io() function. (See it's docs) */
+enum vfs_operation
+{
+    VFS_OPR_READ,
+    VFS_OPR_WRITE
+};
+
 class VFS
 {
 public:
@@ -69,6 +76,18 @@ private:
     bool get_mounted_fs(Path, MountedFS *); // Gives the MountedFS object that holds this path; Returns false if there is not such mounted FS.
     int allocate_descriptor();              // Return -1 if there is no a free descriptor
     void free_descriptor(int desc);         // <desc> must be in use; panics else.
+
+    /**
+     * @brief This is the main io() function. It handles reading and writing.
+     * 
+     * @param desct     The file descriptor
+     * @param buf       The buffer to read from / write into
+     * @param nbyte     How many bytes read / write?
+     * @param offset    From what offset?
+     * @param operation Do you want to read or write?
+     * @return uint64_t How many bytes read/written or -1 if error.
+     */
+    uint64_t io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vfs_operation operation);
 
     // ------------------- Member Variables -------------------
     Vector<MountedFS> mounted_fss;                 // All of the currently mounted file systems

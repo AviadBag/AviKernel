@@ -146,7 +146,7 @@ int VFS::open(const char *path_str, int oflag, ...)
         switch (code)
         {
         case FS_NOT_ENOUGH_MEMORY:
-            panic("FS::open() -> Not enough memory!");
+            panic("VFS::open() -> Not enough memory!");
             break;
         case FS_UNSUPPORTED_OPERATION:
             set_errno(EACCES);
@@ -154,7 +154,7 @@ int VFS::open(const char *path_str, int oflag, ...)
         case FS_OK:
             break;
         default:
-            panic("FS::open() -> unimplemented return code while trying to create a file");
+            panic("VFS::open() -> unimplemented return code while trying to create a file");
         }
     }
 
@@ -168,7 +168,7 @@ int VFS::open(const char *path_str, int oflag, ...)
     switch (code)
     {
     case FS_NOT_ENOUGH_MEMORY:
-        panic("FS::open() -> Not enough memory!");
+        panic("VFS::open() -> Not enough memory!");
         break;
     case FS_UNSUPPORTED_OPERATION:
         set_errno(EACCES);
@@ -176,7 +176,7 @@ int VFS::open(const char *path_str, int oflag, ...)
     case FS_OK:
         break;
     default:
-        panic("FS::open() -> unimplemented return code while trying to create a file");
+        panic("VFS::open() -> unimplemented return code while trying to create a file");
     }
 
     return desct;
@@ -190,10 +190,25 @@ exit_err:
 
 uint64_t VFS::read(int desct, void *buf, uint64_t nbyte)
 {
-    return pread(desct, buf, nbyte, 0);
+    return io(desct, buf, nbyte, 0, VFS_OPR_READ);
 }
 
 uint64_t VFS::pread(int desct, void *buf, uint64_t nbyte, uint64_t offset)
+{
+    return io(desct, buf, nbyte, offset, VFS_OPR_READ);
+}
+
+uint64_t VFS::write(int desct, const void *buf, uint64_t nbyte)
+{
+    return io(desct, buf, nbyte, 0, VFS_OPR_WRITE);
+}
+
+uint64_t VFS::pwrite(int desct, const void *buf, uint64_t nbyte, uint64_t offset)
+{
+    return io(desct, buf, nbyte, offset, VFS_OPR_WRITE);
+}
+
+uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vfs_operation operation)
 {
     // Is it a legal descriptor?
     if (desct >= VFS_OPEN_FILES_MAX || !file_descriptors[desct].in_use)
@@ -202,15 +217,15 @@ uint64_t VFS::pread(int desct, void *buf, uint64_t nbyte, uint64_t offset)
         return -1;
     }
 
-    // Is the given file open for reading?
-    if (!file_descriptors[desct].read)
+    // Is the given file open for reading/writing?
+    if ((operation == VFS_OPR_READ && !file_descriptors[desct].read) || (operation == VFS_OPR_WRITE && !file_descriptors[desct].write))
     {
         set_errno(EBADF);
         return -1;
     }
 
-    // Do we have an overflow?
-    if (file_descriptors[desct].position + offset + nbyte > file_descriptors[desct].size)
+    // Check for overflow (Only when reading)
+    if (operation == VFS_OPR_READ && file_descriptors[desct].position + offset + nbyte > file_descriptors[desct].size)
     {
         set_errno(EOVERFLOW);
         return -1;
@@ -225,65 +240,24 @@ uint64_t VFS::pread(int desct, void *buf, uint64_t nbyte, uint64_t offset)
     for (int i = 0; i < mounted_fs.mount_path.get_depth(); i++)
         trimmed_path.remove_part(0);
 
-    // Read!
-    fs_status_code code = mounted_fs.fs->read(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
+    // Action!
+    fs_status_code code;
+    if (operation == VFS_OPR_WRITE)
+        code = mounted_fs.fs->write(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
+    else
+        code = mounted_fs.fs->read(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
     switch (code)
     {
     case FS_NOT_ENOUGH_MEMORY:
-        panic("FS::read() -> Not enough memory!");
+        panic("VFS::read()/write() -> Not enough memory!");
         break;
     case FS_OK:
         break;
     default:
-        panic("FS::read() -> unimplemented return code while trying to create a file");
-    }
-    file_descriptors[desct].position += nbyte + offset;
-
-    return nbyte;
-}
-
-uint64_t VFS::write(int desct, const void *buf, uint64_t nbyte)
-{
-    return pwrite(desct, buf, nbyte, 0);
-}
-
-uint64_t VFS::pwrite(int desct, const void *buf, uint64_t nbyte, uint64_t offset)
-{
-    // Is it a legal descriptor?
-    if (desct >= VFS_OPEN_FILES_MAX || !file_descriptors[desct].in_use)
-    {
-        set_errno(EBADF);
-        return -1;
+        panic("VFS::read()/write() -> unimplemented return code while trying to create a file");
     }
 
-    // Is the given file open for writing?
-    if (!file_descriptors[desct].write)
-    {
-        set_errno(EBADF);
-        return -1;
-    }
-
-    // Get the FS
-    MountedFS mounted_fs;
-    get_mounted_fs(file_descriptors[desct].file_path, &mounted_fs);
-
-    // Get a trimmed path
-    Path trimmed_path = file_descriptors[desct].file_path;
-    for (int i = 0; i < mounted_fs.mount_path.get_depth(); i++)
-        trimmed_path.remove_part(0);
-
-    // Write!
-    fs_status_code code = mounted_fs.fs->write(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
-    switch (code)
-    {
-    case FS_NOT_ENOUGH_MEMORY:
-        panic("FS::write() -> Not enough memory!");
-        break;
-    case FS_OK:
-        break;
-    default:
-        panic("FS::write() -> unimplemented return code while trying to create a file");
-    }
+    // Increment the position in the file descriptor.
     file_descriptors[desct].position += nbyte + offset;
 
     return nbyte;
