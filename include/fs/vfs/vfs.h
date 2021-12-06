@@ -9,16 +9,16 @@
 
 #define VFS_OPEN_FILES_MAX 200
 
-// First 3 bits of flags
-#define O_RDONLY 1
-#define O_RDWR 2
-#define O_WRONLY 3
+// First 4 bits of flags
+#define O_RDONLY 0b1
+#define O_WRONLY 0b10
+#define O_RDWR 0b100
 
-// Starting from bit 3
-#define O_APPEND 0b100
-#define O_DIRECTORY 0b1000
-#define O_CREAT 0b10000
-#define O_EXCL 0b100000
+// Starting from bit 4
+#define O_APPEND 0b1000
+#define O_DIRECTORY 0b10000
+#define O_CREAT 0b100000
+#define O_EXCL 0b1000000
 
 struct MountedFS
 {
