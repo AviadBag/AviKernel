@@ -195,25 +195,37 @@ uint64_t VFS::read(int desct, void *buf, uint64_t nbyte)
 
 uint64_t VFS::pread(int desct, void *buf, uint64_t nbyte, uint64_t offset)
 {
+    // Is it a legal descriptor?
     if (desct >= VFS_OPEN_FILES_MAX || !file_descriptors[desct].in_use)
     {
         set_errno(EBADF);
         return -1;
     }
 
+    // Is the given file open for reading?
+    if (!file_descriptors[desct].read)
+    {
+        set_errno(EBADF);
+        return -1;
+    }
+
+    // Do we have an overflow?
     if (file_descriptors[desct].position + offset + nbyte > file_descriptors[desct].size)
     {
         set_errno(EOVERFLOW);
         return -1;
     }
 
+    // Get the FS
     MountedFS mounted_fs;
     get_mounted_fs(file_descriptors[desct].file_path, &mounted_fs);
 
+    // Get a trimmed path
     Path trimmed_path = file_descriptors[desct].file_path;
     for (int i = 0; i < mounted_fs.mount_path.get_depth(); i++)
         trimmed_path.remove_part(0);
 
+    // Read!
     fs_status_code code = mounted_fs.fs->read(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
     switch (code)
     {
