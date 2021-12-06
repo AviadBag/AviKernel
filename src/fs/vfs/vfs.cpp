@@ -230,12 +230,59 @@ uint64_t VFS::pread(int desct, void *buf, uint64_t nbyte, uint64_t offset)
     switch (code)
     {
     case FS_NOT_ENOUGH_MEMORY:
-        panic("FS::open() -> Not enough memory!");
+        panic("FS::read() -> Not enough memory!");
         break;
     case FS_OK:
         break;
     default:
-        panic("FS::open() -> unimplemented return code while trying to create a file");
+        panic("FS::read() -> unimplemented return code while trying to create a file");
+    }
+    file_descriptors[desct].position += nbyte + offset;
+
+    return nbyte;
+}
+
+uint64_t VFS::write(int desct, const void *buf, uint64_t nbyte)
+{
+    return pwrite(desct, buf, nbyte, 0);
+}
+
+uint64_t VFS::pwrite(int desct, const void *buf, uint64_t nbyte, uint64_t offset)
+{
+    // Is it a legal descriptor?
+    if (desct >= VFS_OPEN_FILES_MAX || !file_descriptors[desct].in_use)
+    {
+        set_errno(EBADF);
+        return -1;
+    }
+
+    // Is the given file open for writing?
+    if (!file_descriptors[desct].write)
+    {
+        set_errno(EBADF);
+        return -1;
+    }
+
+    // Get the FS
+    MountedFS mounted_fs;
+    get_mounted_fs(file_descriptors[desct].file_path, &mounted_fs);
+
+    // Get a trimmed path
+    Path trimmed_path = file_descriptors[desct].file_path;
+    for (int i = 0; i < mounted_fs.mount_path.get_depth(); i++)
+        trimmed_path.remove_part(0);
+
+    // Write!
+    fs_status_code code = mounted_fs.fs->write(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
+    switch (code)
+    {
+    case FS_NOT_ENOUGH_MEMORY:
+        panic("FS::write() -> Not enough memory!");
+        break;
+    case FS_OK:
+        break;
+    default:
+        panic("FS::write() -> unimplemented return code while trying to create a file");
     }
     file_descriptors[desct].position += nbyte + offset;
 
