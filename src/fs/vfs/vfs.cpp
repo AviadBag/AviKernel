@@ -260,5 +260,21 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     // Increment the position in the file descriptor.
     file_descriptors[desct].position += nbyte + offset;
 
+    // If it was a write - recalculate the file size, for it might have changed.
+    if (operation == VFS_OPR_WRITE)
+    {
+        code = mounted_fs.fs->get_file_size(trimmed_path, &file_descriptors[desct].size);
+        switch (code)
+        {
+        case FS_NOT_ENOUGH_MEMORY:
+            panic("VFS::open() -> Not enough memory!");
+            break;
+        case FS_OK:
+            break;
+        default:
+            panic("VFS::open() -> unimplemented return code while trying to create a file");
+        }
+    }
+
     return nbyte;
 }
