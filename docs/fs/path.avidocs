@@ -1,0 +1,7 @@
+Parts:
+    Every string inside of the path is a part.
+    For example - /a/b/c/d.txt:
+    get_part(0) = "a"
+    get_part(1) = "b"
+    get_part(2) = "c"
+    get_part(3) = "d.txt"

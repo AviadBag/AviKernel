@@ -12,5 +12,7 @@ System Initialization Order:
         4.2 PCI driver.
         4.3 Clock driver.
         4.4 Keyboard driver.
+    5. Setup other things:
+        5.1 Input Manager
 
 Important: If any of the devices does not exist - the system will panic!

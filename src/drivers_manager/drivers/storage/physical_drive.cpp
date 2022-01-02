@@ -16,22 +16,22 @@ uint64_t PhysicalDrive::get_number_of_sectors()
     return number_of_sectors;
 }
 
-double PhysicalDrive::get_size_by()
+uint64_t PhysicalDrive::get_size_by()
 {
     return number_of_sectors * 512;
 }
 
-double PhysicalDrive::get_size_kb()
+uint64_t PhysicalDrive::get_size_kb()
 {
     return get_size_by() / 1024;
 }
 
-double PhysicalDrive::get_size_mb()
+uint64_t PhysicalDrive::get_size_mb()
 {
     return get_size_kb() / 1024;
 }
 
-double PhysicalDrive::get_size_gb()
+uint64_t PhysicalDrive::get_size_gb()
 {
     return get_size_mb() / 1024;
 }

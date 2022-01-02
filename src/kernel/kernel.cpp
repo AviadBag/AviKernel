@@ -23,6 +23,7 @@
 #include "utils/io.h"
 
 #include "fs/devfs/devfs.h"
+#include "fs/vfs/vfs.h"
 
 #include <cstdio.h>
 #include <cstdlib.h>
@@ -201,6 +202,46 @@ const char *fs_status_to_string(fs_status_code s)
     }
 }
 
+void DumpHex(const void *data, size_t size)
+{
+    char ascii[17];
+    size_t i, j;
+    ascii[16] = '\0';
+    for (i = 0; i < size; ++i)
+    {
+        printf("%02X ", ((unsigned char *)data)[i]);
+        if (((unsigned char *)data)[i] >= ' ' && ((unsigned char *)data)[i] <= '~')
+        {
+            ascii[i % 16] = ((unsigned char *)data)[i];
+        }
+        else
+        {
+            ascii[i % 16] = '.';
+        }
+        if ((i + 1) % 8 == 0 || i + 1 == size)
+        {
+            printf(" ");
+            if ((i + 1) % 16 == 0)
+            {
+                printf("|  %s \n", ascii);
+            }
+            else if (i + 1 == size)
+            {
+                ascii[(i + 1) % 16] = '\0';
+                if ((i + 1) % 16 <= 8)
+                {
+                    printf(" ");
+                }
+                for (j = (i + 1) % 16; j < 16; ++j)
+                {
+                    printf("   ");
+                }
+                printf("|  %s \n", ascii);
+            }
+        }
+    }
+}
+
 extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 {
     // System Initialization
@@ -214,56 +255,10 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     FS *devfs = new DevFS();
     devfs->mount(0);
 
-    /* ------------ TEST list_files() ------------ */
-    putchar('\n');
-    printf("ls /dev\n");
-    Vector<Path> devfs_root_dir;
-    Path p1("/");
-    fs_status_code status1 = devfs->list_files(p1, &devfs_root_dir);
-    printf("Status: %s\n", fs_status_to_string(status1));
-    if (status1 == FS_OK)
-    {
-        for (int i = 0; i < devfs_root_dir.size(); i++)
-        {
-            printf("%s", devfs_root_dir.get(i).to_string().c_str());
-            if (i + 1 != devfs_root_dir.size())
-                printf(", ");
-        }
-        putchar('\n');
-    }
+    VFS vfs;
+    vfs.mount_fs("/dev/", "/", devfs);
 
-    /* ------------ TEST delete_file() ------------ */
-    putchar('\n');
-    printf("rm /dev/sda\n");
-    Path p2("/sda");
-    fs_status_code status2 = devfs->delete_file(p2);
-    printf("Status: %s\n", fs_status_to_string(status2));
-
-    /* ------------ TEST create_file() ------------ */
-    putchar('\n');
-    printf("touch /dev/aa\n");
-    Path p3("/aa");
-    fs_status_code status3 = devfs->create_file(p3);
-    printf("Status: %s\n", fs_status_to_string(status3));
-
-    /* ------------ TEST read() ------------ */
-    putchar('\n');
-    printf("cat /dev/sda\n");
-    Path p4("/sda");
-    const size_t bytes = 1524;
-    const size_t offset = 0x20DBE4;
-    char buf[bytes];
-    fs_status_code status4 = devfs->read(p4, bytes, offset, buf);
-    printf("Status: %s\n", fs_status_to_string(status4));
-    if (status4 == FS_OK)
-    {
-        printf("Read %u bytes successfully!\n", bytes);
-        for (size_t i = 0; i < bytes; i++)
-        {
-            printf("%02X ", buf[i] & 0xFF);
-        }
-    }
-
+    /* Clean up */
     devfs->umount();
     delete devfs;
 

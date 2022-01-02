@@ -2,30 +2,30 @@
 
 #include <cstdio.h>
 
-Path::Path(String s) 
+Path::Path(String s)
 {
-    original_string = s;
-
     if (s.empty_or_whitespaces()) // If the path is empty
-        original_string += '/'; // Then the path points to the root
+        s += '/';                 // Then the path points to the root
 
     if (s[0] != '/') // If the path is relative
-        original_string = '/' + s; // Then make it absolute. (Relative pathes are not supported yet)
+        s = '/' + s; // Then make it absolute. (Relative pathes are not supported yet)
 
-    fill_vector(original_string);
-    folder = (original_string.back() == '/');
+    fill_vector(s);
+    folder = (s.back() == '/');
 }
+
+Path::Path(const char *str) : Path(String(str)) {}
 
 Path::Path() : Path("/") {}
 
-bool Path::operator==(const Path& other) 
+bool Path::operator==(const Path &other)
 {
     return other.to_string() == to_string();
 }
 
-void Path::fill_vector(String _s) 
+void Path::fill_vector(String _s)
 {
-    const char* str = _s.c_str();
+    const char *str = _s.c_str();
 
     // Skip the first slash
     str++;
@@ -44,7 +44,7 @@ void Path::fill_vector(String _s)
         {
             s += *str;
         }
-        
+
         str++;
     }
 
@@ -52,9 +52,22 @@ void Path::fill_vector(String _s)
         parts.append(s);
 }
 
+int Path::get_number_of_parts() const
+{
+    return parts.size();
+}
+
 String Path::to_string() const
 {
-    return original_string;
+    String s = "/";
+    for (int i = 0; i < get_number_of_parts(); i++)
+    {
+        s += get_part(i);
+        if (is_folder() || i < get_number_of_parts() - 1) // If it is a folder or this is not the last part.
+            s += '/';
+    }
+
+    return s;
 }
 
 bool Path::is_root() const
@@ -62,7 +75,7 @@ bool Path::is_root() const
     return get_depth() == 0 && is_folder();
 }
 
-void Path::go_up() 
+void Path::go_up()
 {
     if (get_depth() == 0)
         panic("Path: Cannot go_up() when depth is 0!");
@@ -70,6 +83,11 @@ void Path::go_up()
         panic("Path: Cannot go_up() when not a folder!");
 
     parts.pop_back();
+}
+
+void Path::remove_part(int index)
+{
+    parts.remove(index); // vector.remove panics if out of range, so we are ok.
 }
 
 String Path::get_part(int i) const
@@ -80,7 +98,7 @@ String Path::get_part(int i) const
 int Path::get_depth() const
 {
     // If it is a folder - then we do not count the file itself as part of the depth
-    return is_folder() ? parts.size() : parts.size()-1;
+    return is_folder() ? parts.size() : parts.size() - 1;
 }
 
 bool Path::is_folder() const
