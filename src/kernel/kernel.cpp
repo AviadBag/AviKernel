@@ -253,7 +253,6 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     setup_drivers();
 
     FS *devfs = new DevFS();
-    devfs->mount(0);
 
     VFS vfs;
     vfs.mount_fs("/dev/", "/", devfs);
