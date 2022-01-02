@@ -1,0 +1,64 @@
+#ifndef _FAT32_H
+#define _FAT32_H
+
+#include "fs/fs.h"
+
+#include <stdint.h>
+
+// This is an implementation of the FAT 32 file system
+
+struct fat32_boot_sector
+{
+	uint8_t unused1[3];
+	char oem_name[8];
+	uint16_t bytes_per_sector;
+	uint8_t sectors_per_cluster;
+	uint16_t reserved_sectors_count;
+	uint8_t number_of_fats;
+	uint16_t unused2;
+	uint16_t unused3;
+	uint8_t media;
+	uint16_t unused4;
+	uint16_t sectors_per_track;
+	uint16_t number_of_heads;
+	uint32_t number_of_hidden_sectors;
+	uint32_t number_of_sectors;
+
+	uint32_t sectors_per_fat;
+	uint16_t extra_flags;
+	uint16_t fs_version;
+	uint32_t root_cluster;
+	uint16_t fs_info_sector;
+	uint16_t boot_sector_copy_sector;
+	uint8_t reserved1[12];
+	uint8_t unused5;
+	uint8_t reserved2;
+	uint8_t boot_sig;
+	uint32_t volume_id;
+	char volume_label[11];
+	char fs_type[8];
+	char boot_code[420];
+	uint16_t bootable_signature;
+} __attribute__((__packed__));
+
+using fat_entry_t = uint32_t;
+
+class FAT32 : public FS
+{
+public:
+	// ------------------- Methods Overriden -------------------
+	virtual void mount(Path what) override;
+	virtual void umount() override;
+
+	virtual fs_status_code read(Path path, uint64_t count, uint64_t offset, char *buf) override;
+	virtual fs_status_code write(Path path, uint64_t count, uint64_t offset, char *buf) override;
+
+	virtual fs_status_code get_file_size(Path path, uint64_t *size) override;
+	virtual fs_status_code create_file(Path path) override;
+	virtual fs_status_code delete_file(Path path) override;
+	virtual fs_status_code list_files(Path path, Vector<Path> *) override;
+
+	virtual bool file_exist(Path path) override;
+};
+
+#endif
