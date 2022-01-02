@@ -258,16 +258,6 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     VFS vfs;
     vfs.mount_fs("/dev/", "/", devfs);
 
-    int file_w = vfs.open("/dev/sda", O_WRONLY);
-    char buf[512];
-    memset(buf, 'k', 512);
-    vfs.write(file_w, buf, 512);
-
-    int file_r = vfs.open("/dev/sda", O_RDONLY);
-    char buf1[512];
-    vfs.read(file_r, buf1, 512);
-    DumpHex(buf1, 512);
-
     /* Clean up */
     devfs->umount();
     delete devfs;
