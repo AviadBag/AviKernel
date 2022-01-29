@@ -20,6 +20,8 @@
 #define O_CREAT 0b100000
 #define O_EXCL 0b1000000
 
+#define VFS_ERROR -1
+
 struct MountedFS
 {
     Path mount_path;

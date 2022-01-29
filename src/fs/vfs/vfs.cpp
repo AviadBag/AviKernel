@@ -185,7 +185,7 @@ int VFS::open(const char *path_str, int oflag, ...)
 exit_err_cleanup:
     free_descriptor(desct);
 exit_err:
-    return -1;
+    return VFS_ERROR;
 }
 
 uint64_t VFS::read(int desct, void *buf, uint64_t nbyte)
@@ -214,21 +214,21 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     if (desct >= VFS_OPEN_FILES_MAX || !file_descriptors[desct].in_use)
     {
         set_errno(EBADF);
-        return -1;
+        return VFS_ERROR;
     }
 
     // Is the given file open for reading/writing?
     if ((operation == VFS_OPR_READ && !file_descriptors[desct].read) || (operation == VFS_OPR_WRITE && !file_descriptors[desct].write))
     {
         set_errno(EBADF);
-        return -1;
+        return VFS_ERROR;
     }
 
     // Check for overflow (Only when reading)
     if (operation == VFS_OPR_READ && file_descriptors[desct].position + offset + nbyte > file_descriptors[desct].size)
     {
         set_errno(EOVERFLOW);
-        return -1;
+        return VFS_ERROR;
     }
 
     // Get the FS
