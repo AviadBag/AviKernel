@@ -59,6 +59,10 @@ public:
 	virtual fs_status_code list_files(Path path, Vector<Path> *) override;
 
 	virtual bool file_exist(Path path) override;
+
+private:
+	int raw_disk;				   // A file pointer to the raw disk
+	fat32_boot_sector boot_sector; // Will hold the boot sector info.
 };
 
 #endif

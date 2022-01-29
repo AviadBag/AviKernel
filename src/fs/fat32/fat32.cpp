@@ -1,7 +1,24 @@
 #include "fs/fat32/fat32.h"
+#include "fs/vfs/vfs.h"
 
-void FAT32::mount(__attribute__((unused)) Path path)
+#include <cstdio.h>
+
+void FAT32::mount(Path path)
 {
+    // Get the file pointer for the drive
+    raw_disk = VFS::get_instance()->open(path.to_string().c_str(), O_RDWR);
+    if (raw_disk == VFS_ERROR)
+    {
+        panic("Error while mounting FAT32");
+    }
+
+    // Get boot sector
+    if (VFS::get_instance()->read(raw_disk, &boot_sector, 512) == VFS_ERROR)
+    {
+        panic("Error while mounting FAT32");
+    }
+
+    printf("Mounting FAT32 fs from %s, OEM name: %s", path.to_string().c_str(), boot_sector.oem_name);
 }
 
 void FAT32::umount()
