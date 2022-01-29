@@ -4,7 +4,7 @@
 #include <posix/errno.h>
 #include <cstdio.h>
 
-VFS::VFS()
+void VFS::initialize()
 {
     // Descriptors 0, 1, 2 are reserved (POSIX)
     for (int i = 0; i <= 2; i++)
@@ -277,4 +277,17 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     }
 
     return nbyte;
+}
+
+/* ------------------------- Singelton stuff. ------------------------- */
+VFS *VFS::instance = nullptr;
+
+VFS::VFS() {}
+
+VFS *VFS::get_instance()
+{
+    if (!instance)
+        instance = new VFS;
+
+    return instance;
 }

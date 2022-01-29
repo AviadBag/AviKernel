@@ -23,6 +23,7 @@
 #include "utils/io.h"
 
 #include "fs/devfs/devfs.h"
+#include "fs/fat32/fat32.h"
 #include "fs/vfs/vfs.h"
 
 #include <cstdio.h>
@@ -254,8 +255,11 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
 
     FS *devfs = new DevFS();
 
-    VFS vfs;
-    vfs.mount_fs("/dev/", "/", devfs);
+    VFS *vfs = vfs->get_instance();
+    vfs->initialize();
+    vfs->mount_fs("/dev/", "/", devfs);
+    FAT32 *fat32 = new FAT32();
+    vfs->mount_fs("/", "/dev/sdb", fat32);
 
     /* Clean up */
     devfs->umount();
