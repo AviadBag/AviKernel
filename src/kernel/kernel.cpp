@@ -185,23 +185,6 @@ void setup_exceptions_handlers()
         nullptr);
 }
 
-const char *fs_status_to_string(fs_status_code s)
-{
-    switch (s)
-    {
-    case FS_OK:
-        return "FS_OK";
-    case FS_NO_SUCH_FILE:
-        return "FS_NO_SUCH_FILE";
-    case FS_NO_SUCH_DIR:
-        return "FS_NO_SUCH_DIR";
-    case FS_UNSUPPORTED_OPERATION:
-        return "FS_UNSUPPORTED_OPERATION";
-    default:
-        return "INVALID";
-    }
-}
-
 void DumpHex(const void *data, size_t size)
 {
     char ascii[17];

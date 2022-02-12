@@ -5,6 +5,7 @@
 
 #include <cstdio.h>
 #include <cstring.h>
+#include <posix/errno.h>
 
 void DevFS::mount([[gnu::unused]] Path what)
 {
@@ -26,25 +27,31 @@ void DevFS::mount([[gnu::unused]] Path what)
 
 void DevFS::umount() {} // Nothing here
 
-fs_status_code DevFS::read(Path path, uint64_t count, uint64_t offset, char *buf)
+uint64_t DevFS::read(Path path, uint64_t count, uint64_t offset, char *buf)
 {
     return io(DEVFS_OPR_READ, path, count, offset, buf);
 }
 
-fs_status_code DevFS::write(Path path, uint64_t count, uint64_t offset, char *buf)
+uint64_t DevFS::write(Path path, uint64_t count, uint64_t offset, char *buf)
 {
     return io(DEVFS_OPR_WRITE, path, count, offset, buf);
 }
 
-fs_status_code DevFS::io(devfs_operation operation, Path path, uint64_t count, uint64_t offset, char *buf)
+uint64_t DevFS::io(devfs_operation operation, Path path, uint64_t count, uint64_t offset, char *buf)
 {
     // Is it a folder?
     if (path.is_folder())
-        return FS_FILE_IS_REQUIRED;
+    {
+        set_errno(EISDIR);
+        return false;
+    }
 
     // Does this file exist?
     if (!file_exist(path))
-        return FS_NO_SUCH_FILE;
+    {
+        set_errno(ENOENT);
+        return false;
+    }
 
     // Is it a storage drive?
     if (path.to_string().substr(1, 2) == "sd" && path.to_string().size() == 4)
@@ -57,18 +64,24 @@ fs_status_code DevFS::io(devfs_operation operation, Path path, uint64_t count, u
             panic("DevFS:io() - got an invalid operation!");
     }
 
-    return FS_OK;
+    return true;
 }
 
-fs_status_code DevFS::get_file_size(Path path, uint64_t *size)
+uint64_t DevFS::get_file_size(Path path, uint64_t *size)
 {
     // Is it a folder?
     if (path.is_folder())
-        return FS_FILE_IS_REQUIRED;
+    {
+        set_errno(EISDIR);
+        return false;
+    }
 
     // Does this file exist?
     if (!file_exist(path))
-        return FS_NO_SUCH_FILE;
+    {
+        set_errno(ENOENT);
+        return false;
+    }
 
     // Is it a storage drive?
     if (path.to_string().substr(1, 2) == "sd" && path.to_string().size() == 4)
@@ -85,10 +98,10 @@ fs_status_code DevFS::get_file_size(Path path, uint64_t *size)
         *size = drive->get_size_by();
     }
 
-    return FS_OK;
+    return true;
 }
 
-fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t offset, char *buf)
+uint64_t DevFS::storage_drive_read(Path path, uint64_t count, uint64_t offset, char *buf)
 {
     char drive_char = path.to_string()[3]; // "/sda" => 'a', "/sdz" => 'z'...
     char drive_number = drive_char - 'a';  // 'a' => 0, 'z' => 25...
@@ -113,7 +126,10 @@ fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t off
     // Allocate the temporarily buffer
     char *temp_buf = new char[sectors_count * sector_size];
     if (!temp_buf)
-        return FS_NOT_ENOUGH_MEMORY;
+    {
+        set_errno(ENOMEM);
+        return false;
+    }
 
     // READ!
 
@@ -145,10 +161,10 @@ fs_status_code DevFS::storage_drive_read(Path path, uint64_t count, uint64_t off
     memcpy(buf, temp_buf + (offset % sector_size), count);
     delete[] temp_buf;
 
-    return FS_OK;
+    return true;
 }
 
-fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t offset, char *buf)
+uint64_t DevFS::storage_drive_write(Path path, uint64_t count, uint64_t offset, char *buf)
 {
     char drive_char = path.to_string()[3]; // "/sda" => 'a', "/sdz" => 'z'...
     char drive_number = drive_char - 'a';  // 'a' => 0, 'z' => 25...
@@ -174,7 +190,10 @@ fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t of
     {
         char *sectors = new char[sector_size * sectors_count];
         if (!sectors)
-            return FS_NOT_ENOUGH_MEMORY;
+        {
+            set_errno(ENOMEM);
+            return false;
+        }
 
         // First, read the sector
         storage_driver->read_sectors(drive_number, lba, sectors_count, sectors);
@@ -196,7 +215,10 @@ fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t of
         char *last_sector = new char[sector_size];
 
         if (!first_sector || !last_sector)
-            return FS_NOT_ENOUGH_MEMORY;
+        {
+            set_errno(ENOMEM);
+            return false;
+        }
 
         // We will first treat the first and last sectors
         // Read them
@@ -248,7 +270,7 @@ fs_status_code DevFS::storage_drive_write(Path path, uint64_t count, uint64_t of
         delete[] last_sector;
     }
 
-    return FS_OK;
+    return true;
 }
 
 bool DevFS::file_exist(Path path)
@@ -259,21 +281,26 @@ bool DevFS::file_exist(Path path)
     return root_dir.exist(path);
 }
 
-fs_status_code DevFS::create_file([[gnu::unused]] Path path)
+uint64_t DevFS::create_file([[gnu::unused]] Path path)
 {
-    return FS_UNSUPPORTED_OPERATION;
+    set_errno(ENOTSUP);
+    return false;
 }
 
-fs_status_code DevFS::delete_file([[gnu::unused]] Path path)
+uint64_t DevFS::delete_file([[gnu::unused]] Path path)
 {
-    return FS_UNSUPPORTED_OPERATION;
+    set_errno(ENOTSUP);
+    return false;
 }
 
-fs_status_code DevFS::list_files(Path path, Vector<Path> *vect)
+uint64_t DevFS::list_files(Path path, Vector<Path> *vect)
 {
     if (!path.is_root())
-        return FS_NO_SUCH_DIR; // There is only one folder in devfs - the root folder.
+    {
+        set_errno(ENOENT); // There is only one folder in devfs - the root folder.
+        return false;
+    }
 
     *vect = root_dir;
-    return FS_OK;
+    return true;
 }
