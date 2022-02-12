@@ -21,34 +21,34 @@ public:
     virtual void mount(Path what) override;
     virtual void umount() override;
 
-    virtual fs_status_code read(Path path, uint64_t count, uint64_t offset, char *buf) override;
-    virtual fs_status_code write(Path path, uint64_t count, uint64_t offset, char *buf) override;
+    virtual uint64_t read(Path path, uint64_t count, uint64_t offset, char *buf) override;
+    virtual uint64_t write(Path path, uint64_t count, uint64_t offset, char *buf) override;
 
-    virtual fs_status_code get_file_size(Path path, uint64_t *size) override;
-    virtual fs_status_code create_file(Path path) override;
-    virtual fs_status_code delete_file(Path path) override;
-    virtual fs_status_code list_files(Path path, Vector<Path> *) override;
+    virtual uint64_t get_file_size(Path path, uint64_t *size) override;
+    virtual uint64_t create_file(Path path) override;
+    virtual uint64_t delete_file(Path path) override;
+    virtual uint64_t list_files(Path path, Vector<Path> *) override;
 
     virtual bool file_exist(Path path) override;
 
 private:
     // ------------------- Regular Methods -------------------
-    fs_status_code storage_drive_read(Path path, uint64_t count, uint64_t offset, char *buf);  // <path> must be a legal storage drive path. Unexpected results if else!
-    fs_status_code storage_drive_write(Path path, uint64_t count, uint64_t offset, char *buf); // <path> must be a legal storage drive path. Unexpected results if else!
+    uint64_t storage_drive_read(Path path, uint64_t count, uint64_t offset, char *buf);  // <path> must be a legal storage drive path. Unexpected results if else!
+    uint64_t storage_drive_write(Path path, uint64_t count, uint64_t offset, char *buf); // <path> must be a legal storage drive path. Unexpected results if else!
 
     // ------------------- Methods with Long Docs -------------------
     /**
      * This is the main method of the devfs module. It gets the required operation (r/w), and calls the
      * appropriate function.
-     * 
+     *
      * @param operation What operation to do? (read/write)
      * @param path      The path to the file
      * @param count     How many bytes to read/write?
      * @param offset    From what offset to begin?
      * @param buf       The buffer to write from / read into
-     * @return fs_status_code 
+     * @return uint64_t
      */
-    fs_status_code io(devfs_operation operation, Path path, uint64_t count, uint64_t offset, char *buf);
+    uint64_t io(devfs_operation operation, Path path, uint64_t count, uint64_t offset, char *buf);
 
     // ------------------- Member Variables -------------------
     Vector<Path> root_dir; // Will contain /sda, /sdb...

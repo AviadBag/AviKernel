@@ -92,7 +92,6 @@ int VFS::open(const char *path_str, int oflag, ...)
     // I must declare the variables at the beginning, because else - it does not allow me to use 'goto'.
     int desct;
     bool exists;
-    fs_status_code code;
     MountedFS mounted_fs;
     Path path = path_str, trimmed_path;
 
@@ -142,20 +141,8 @@ int VFS::open(const char *path_str, int oflag, ...)
     // Create the file if needed
     if (O_CREAT && !exists)
     {
-        code = mounted_fs.fs->create_file(trimmed_path);
-        switch (code)
-        {
-        case FS_NOT_ENOUGH_MEMORY:
-            panic("VFS::open() -> Not enough memory!");
-            break;
-        case FS_UNSUPPORTED_OPERATION:
-            set_errno(EACCES);
-            goto exit_err_cleanup;
-        case FS_OK:
-            break;
-        default:
-            panic("VFS::open() -> unimplemented return code while trying to create a file");
-        }
+        if (!mounted_fs.fs->create_file(trimmed_path))
+            return false;
     }
 
     // Fill the data in the descriptor
@@ -164,20 +151,8 @@ int VFS::open(const char *path_str, int oflag, ...)
     file_descriptors[desct].read = (oflag & O_RDONLY) || (oflag & O_RDWR);
     file_descriptors[desct].write = (oflag & O_WRONLY) || (oflag & O_RDWR);
     file_descriptors[desct].append = (oflag & O_APPEND);
-    code = mounted_fs.fs->get_file_size(trimmed_path, &file_descriptors[desct].size);
-    switch (code)
-    {
-    case FS_NOT_ENOUGH_MEMORY:
-        panic("VFS::open() -> Not enough memory!");
-        break;
-    case FS_UNSUPPORTED_OPERATION:
-        set_errno(EACCES);
-        goto exit_err_cleanup;
-    case FS_OK:
-        break;
-    default:
-        panic("VFS::open() -> unimplemented return code while trying to create a file");
-    }
+    if (!mounted_fs.fs->get_file_size(trimmed_path, &file_descriptors[desct].size))
+        return false;
 
     return desct;
 
@@ -214,21 +189,21 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     if (desct >= VFS_OPEN_FILES_MAX || !file_descriptors[desct].in_use)
     {
         set_errno(EBADF);
-        return VFS_ERROR;
+        return false;
     }
 
     // Is the given file open for reading/writing?
     if ((operation == VFS_OPR_READ && !file_descriptors[desct].read) || (operation == VFS_OPR_WRITE && !file_descriptors[desct].write))
     {
         set_errno(EBADF);
-        return VFS_ERROR;
+        return false;
     }
 
     // Check for overflow (Only when reading)
     if (operation == VFS_OPR_READ && file_descriptors[desct].position + offset + nbyte > file_descriptors[desct].size)
     {
         set_errno(EOVERFLOW);
-        return VFS_ERROR;
+        return false;
     }
 
     // Get the FS
@@ -241,21 +216,13 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
         trimmed_path.remove_part(0);
 
     // Action!
-    fs_status_code code;
+    uint64_t code;
     if (operation == VFS_OPR_WRITE)
         code = mounted_fs.fs->write(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
     else
         code = mounted_fs.fs->read(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
-    switch (code)
-    {
-    case FS_NOT_ENOUGH_MEMORY:
-        panic("VFS::read()/write() -> Not enough memory!");
-        break;
-    case FS_OK:
-        break;
-    default:
-        panic("VFS::read()/write() -> unimplemented return code while trying to create a file");
-    }
+    if (!code)
+        return false;
 
     // Increment the position in the file descriptor.
     file_descriptors[desct].position += nbyte + offset;
@@ -263,17 +230,8 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     // If it was a write - recalculate the file size, for it might have changed.
     if (operation == VFS_OPR_WRITE)
     {
-        code = mounted_fs.fs->get_file_size(trimmed_path, &file_descriptors[desct].size);
-        switch (code)
-        {
-        case FS_NOT_ENOUGH_MEMORY:
-            panic("VFS::open() -> Not enough memory!");
-            break;
-        case FS_OK:
-            break;
-        default:
-            panic("VFS::open() -> unimplemented return code while trying to create a file");
-        }
+        if (!mounted_fs.fs->get_file_size(trimmed_path, &file_descriptors[desct].size))
+            return false;
     }
 
     return nbyte;
