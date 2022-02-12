@@ -42,6 +42,8 @@ struct fat32_boot_sector
 } __attribute__((__packed__));
 
 using fat_entry_t = uint32_t;
+using cluster_number = uint64_t;
+using sector_number = uint64_t;
 
 class FAT32 : public FS
 {
@@ -61,6 +63,15 @@ public:
 	virtual bool file_exist(Path path) override;
 
 private:
+	// Converts the given sector number to bytes offset that can be given to pread
+	uint64_t sector_to_offset(sector_number sector);
+
+	// Returns the next cluster in the chain.
+	cluster_number get_next_cluster(cluster_number);
+
+	// Is it EOC?
+	bool is_last_cluster(cluster_number);
+
 	int raw_disk;				   // A file pointer to the raw disk
 	fat32_boot_sector boot_sector; // Will hold the boot sector info.
 };
