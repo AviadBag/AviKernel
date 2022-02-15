@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-// This is an implementation of the FAT 32 file system
+// This is a read-only implementation of the FAT 32 file system
 
 struct fat32_boot_sector
 {
@@ -66,14 +66,19 @@ private:
 	// Converts the given sector number to bytes offset that can be given to pread
 	uint64_t sector_to_offset(sector_number sector);
 
-	// Returns the next cluster in the chain.
-	cluster_number get_next_cluster(cluster_number);
+	// Returns the next cluster in the chain. Returns false upon failure, and sets errno.
+	bool get_next_cluster(cluster_number, cluster_number *result);
 
-	// Is it EOC?
+	// Is it the last cluster in the chain?
 	bool is_last_cluster(cluster_number);
 
 	int raw_disk;				   // A file pointer to the raw disk
 	fat32_boot_sector boot_sector; // Will hold the boot sector info.
+	/**
+	 * Will point to the FAT. I can't know now it's size, for it depends on boot_sector.sectors_per_fat.
+	 */
+	uint32_t *fat;
+	uint64_t fat_size_bytes;
 };
 
 #endif

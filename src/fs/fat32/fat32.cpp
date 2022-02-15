@@ -6,6 +6,9 @@
 
 void FAT32::mount(Path path)
 {
+    // Here I panic on error. I would like in the future to change it, to return errno. But for that I
+    // will have to change fs. So later.
+
     // Get the file pointer for the drive
     raw_disk = VFS::get_instance()->open(path.to_string().c_str(), O_RDWR);
     if (raw_disk == VFS_ERROR)
@@ -14,7 +17,24 @@ void FAT32::mount(Path path)
     }
 
     // Get boot sector
-    if (VFS::get_instance()->read(raw_disk, &boot_sector, 512) == VFS_ERROR)
+    if (!VFS::get_instance()->read(raw_disk, &boot_sector, 512))
+    {
+        panic("Error while mounting FAT32");
+    }
+
+    // Get the FAT.
+    // First, allocate.
+    fat_size_bytes = sector_to_offset(boot_sector.sectors_per_fat);
+    fat = new uint32_t[fat_size_bytes];
+    if (!fat)
+    {
+        panic("Error while mounting FAT32");
+    }
+
+    // Read!
+    uint64_t fat_offset_bytes = sector_to_offset(boot_sector.reserved_sectors_count);
+    printf("Reading fat... Fat's offset is %llu, Fat's size is %llu\n", fat_offset_bytes, fat_size_bytes);
+    if (!VFS::get_instance()->pread(raw_disk, fat, fat_size_bytes, fat_offset_bytes))
     {
         panic("Error while mounting FAT32");
     }
@@ -72,12 +92,12 @@ uint64_t FAT32::sector_to_offset(sector_number sector)
     return sector * boot_sector.bytes_per_sector;
 }
 
-cluster_number FAT32::get_next_cluster(cluster_number cluster)
+bool FAT32::get_next_cluster(cluster_number cluster, cluster_number *result)
 {
 }
 
 bool FAT32::is_last_cluster(cluster_number cluster)
 {
-    cluster &= 0x0FFFFFFF;
+    cluster &= 0x0FFFFFFF; // The first byte does not matter.
     return cluster >= 0x0FFFFFF8 && cluster <= 0x0FFFFFFF;
 }
