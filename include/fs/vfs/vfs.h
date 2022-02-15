@@ -52,7 +52,7 @@ public:
     // ------------------- Methods with long docs -------------------
     /**
      * @brief Mounts the given fs in the given path.
-     * 
+     *
      * @param where  Where to mount. For example - "/dev/", "/"... - MUST BE A DIRECTORY. PANICS IF NOT.
      * @param device What device does this FS use? (For example - "/dev/sda"). - MUST NOT BE A DIRECTORY. PANICS IF NOT.
      *               Give "/" if a device is not needed!
@@ -79,11 +79,11 @@ private:
 
     /**
      * @brief This is the main io() function. It handles reading and writing.
-     * 
+     *
      * @param desct     The file descriptor
      * @param buf       The buffer to read from / write into
      * @param nbyte     How many bytes read / write?
-     * @param offset    From what offset?
+     * @param offset    From what offset? If != 0, it will be used INSTEAD of current position.
      * @param operation Do you want to read or write?
      * @return uint64_t How many bytes read/written or -1 if error.
      */

@@ -215,17 +215,21 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     for (int i = 0; i < mounted_fs.mount_path.get_depth(); i++)
         trimmed_path.remove_part(0);
 
+    // Set the required offset
+    if (offset > 0)
+        file_descriptors[desct].position = offset;
+
     // Action!
     uint64_t code;
     if (operation == VFS_OPR_WRITE)
-        code = mounted_fs.fs->write(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
+        code = mounted_fs.fs->write(trimmed_path, nbyte, file_descriptors[desct].position, (char *)buf);
     else
-        code = mounted_fs.fs->read(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
+        code = mounted_fs.fs->read(trimmed_path, nbyte, file_descriptors[desct].position, (char *)buf);
     if (!code)
         return false;
 
     // Increment the position in the file descriptor.
-    file_descriptors[desct].position += nbyte + offset;
+    file_descriptors[desct].position += nbyte;
 
     // If it was a write - recalculate the file size, for it might have changed.
     if (operation == VFS_OPR_WRITE)
