@@ -66,8 +66,8 @@ private:
 	// Converts the given sector number to bytes offset that can be given to pread
 	uint64_t sector_to_offset(sector_number sector);
 
-	// Returns the next cluster in the chain. Returns false upon failure, and sets errno.
-	bool get_next_cluster(cluster_number, cluster_number *result);
+	// Returns the next cluster in the chain.
+	cluster_number get_next_cluster(cluster_number);
 
 	// Is it the last cluster in the chain?
 	bool is_last_cluster(cluster_number);

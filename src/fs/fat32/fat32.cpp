@@ -92,12 +92,13 @@ uint64_t FAT32::sector_to_offset(sector_number sector)
     return sector * boot_sector.bytes_per_sector;
 }
 
-bool FAT32::get_next_cluster(cluster_number cluster, cluster_number *result)
+cluster_number FAT32::get_next_cluster(cluster_number cluster)
 {
+    cluster &= 0x0FFFFFFF; // The first four bits should be ignored.
+    return fat[cluster];
 }
 
 bool FAT32::is_last_cluster(cluster_number cluster)
 {
-    cluster &= 0x0FFFFFFF; // The first byte does not matter.
     return cluster >= 0x0FFFFFF8 && cluster <= 0x0FFFFFFF;
 }
