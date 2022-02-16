@@ -50,6 +50,11 @@ bool FAT32DirectoryEntry::is_long_entry()
     return get_attributes() & 0x0F;
 }
 
+bool FAT32DirectoryEntry::is_short_entry()
+{
+    return !is_long_entry();
+}
+
 // ---------------------- Short Name Methods ----------------------
 String FAT32DirectoryEntry::se_get_name()
 {
@@ -134,7 +139,7 @@ bool FAT32DirectoryEntry::le_is_last()
 String FAT32DirectoryEntry::le_get_name()
 {
     String s;
-    char indexes[] = {1, 3, 5, 7, 9, 14, 16, 18, 20, 22, 24, 28, 30};
+    int indexes[] = {1, 3, 5, 7, 9, 14, 16, 18, 20, 22, 24, 28, 30};
     for (size_t i = 0; i < sizeof(indexes) / sizeof(indexes[0]); i++)
     {
         char c = bytes[indexes[i]];
