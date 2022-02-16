@@ -15,6 +15,7 @@ class FAT32DirectoryEntry
 public:
     // Gets the bytes themselves.
     FAT32DirectoryEntry(uint8_t *bytes); // Given an array of 32 bytes. Copies it to an inner array.
+    FAT32DirectoryEntry();               // Should not be called. Here only to allow it to be used in templates.
 
     // ---------------------- Getters ----------------------
     bool is_used(); // If true - you surely should use it.

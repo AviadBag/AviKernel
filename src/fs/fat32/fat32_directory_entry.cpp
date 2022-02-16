@@ -1,10 +1,17 @@
 #include "fs/fat32/fat32_directory_entry.h"
+#include "kernel/panic.h"
 
 FAT32DirectoryEntry::FAT32DirectoryEntry(uint8_t *bytes)
 {
     // Copy the given array into an inner array.
     for (int i = 0; i < FAT32_DIR_ENTRY_LENGTH; i++)
         this->bytes[i] = bytes[i];
+}
+
+FAT32DirectoryEntry::FAT32DirectoryEntry()
+{
+    for (int i = 0; i < FAT32_DIR_ENTRY_LENGTH; i++)
+        this->bytes[i] = 0;
 }
 
 uint8_t *FAT32DirectoryEntry::get_bytes()
