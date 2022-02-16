@@ -128,7 +128,7 @@ uint8_t FAT32DirectoryEntry::le_get_order()
 
 bool FAT32DirectoryEntry::le_is_last()
 {
-    return bytes[0] & 0x40;
+    return bytes[0] == 0;
 }
 
 String FAT32DirectoryEntry::le_get_name()
@@ -137,7 +137,7 @@ String FAT32DirectoryEntry::le_get_name()
     char indexes[] = {1, 3, 5, 7, 9, 14, 16, 18, 20, 22, 24, 28, 30};
     for (size_t i = 0; i < sizeof(indexes) / sizeof(indexes[0]); i++)
     {
-        char c = bytes[i];
+        char c = bytes[indexes[i]];
         if (!c)
             return s;
         s += c;
