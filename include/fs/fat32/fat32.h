@@ -3,6 +3,7 @@
 
 #include "fs/fs.h"
 #include "fs/fat32/fat32_directory_entry.h"
+#include "fs/fat32/fat32_file.h"
 
 #include <stdint.h>
 
@@ -76,6 +77,10 @@ private:
 
 	// Reads the folder starting on the given cluster into the given vector. Returns false and sets errno upon failure.
 	bool read_dir(cluster_number first_cluster, Vector<FAT32DirectoryEntry> *entries);
+
+	// As opposed to read_dir(), this function returns a list of FAT32File's, based on read_dir()'s result.
+	// Returns false and sets errno upon failure.
+	bool get_dir(cluster_number first_cluster, Vector<FAT32File> *files);
 
 	// Is it the last cluster in the chain?
 	bool is_last_cluster(cluster_number);

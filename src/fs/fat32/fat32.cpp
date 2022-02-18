@@ -1,6 +1,7 @@
 #include "fs/fat32/fat32.h"
 #include "fs/vfs/vfs.h"
 #include "fs/fat32/fat32_directory_entry.h"
+#include "fs/fat32/fat32_file.h"
 
 #include <posix/errno.h>
 #include <cstdio.h>
@@ -57,21 +58,14 @@ void FAT32::mount(Path path)
     }
 
     // Just for testing - view the root directory
-    Vector<FAT32DirectoryEntry> root_dir_entries;
-    if (!read_dir(boot_sector.root_cluster, &root_dir_entries))
+    Vector<FAT32File> files;
+    if (!get_dir(boot_sector.root_cluster, &files))
         panic("Error while mounting FAT32");
-    for (int i = 0; i < root_dir_entries.size(); i++)
+
+    for (int i = 0; i < files.size(); i++)
     {
-        FAT32DirectoryEntry entry = root_dir_entries.get(i);
-        if (entry.is_short_entry())
-        {
-            printf("Reading file %s...\n", entry.se_get_name().c_str());
-            char *buf;
-            if (!read_file(entry.se_get_file_size_bytes(), entry.se_get_first_cluster(), &buf))
-                panic("Error while mounting FAT32");
-            for (uint32_t i = 0; i < entry.se_get_file_size_bytes(); i++)
-                putchar(buf[i]);
-        }
+        FAT32File file = files.get(i);
+        printf("%s %s %d\n", file.get_name().c_str(), file.is_directory() ? "dir" : "file", file.get_size_bytes());
     }
 
     printf("Mounting FAT32 fs from %s, OEM name: %s", path.to_string().c_str(), boot_sector.oem_name);
@@ -148,6 +142,34 @@ bool FAT32::read_dir(cluster_number first_cluster, Vector<FAT32DirectoryEntry> *
         }
 
         cluster = get_next_cluster(cluster);
+    }
+
+    return true;
+}
+
+bool FAT32::get_dir(cluster_number first_cluster, Vector<FAT32File> *files)
+{
+    // Get the folder entries
+    Vector<FAT32DirectoryEntry> entries;
+    if (!read_dir(first_cluster, &entries))
+        return false;
+
+    // Converts them into FAT32File's
+    for (int i = 0; i < entries.size(); i++)
+    {
+        FAT32DirectoryEntry entry = entries.get(i);
+
+        // Put all of the long entries in the array
+        Vector<FAT32DirectoryEntry> long_entries;
+        while (entry.is_long_entry())
+        {
+            long_entries.append(entry);
+            i++;
+            entry = entries.get(i);
+        }
+
+        FAT32File file(entry, long_entries);
+        files->append(file);
     }
 
     return true;
