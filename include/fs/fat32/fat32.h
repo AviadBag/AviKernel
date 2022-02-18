@@ -2,6 +2,7 @@
 #define _FAT32_H
 
 #include "fs/fs.h"
+#include "fs/fat32/fat32_directory_entry.h"
 
 #include <stdint.h>
 
@@ -63,21 +64,30 @@ public:
 	virtual bool file_exist(Path path) override;
 
 private:
-	// Converts the given sector number to bytes offset that can be given to pread
+	// Converts the given sector/cluster number to bytes offset that can be given to pread
 	uint64_t sector_to_offset(sector_number sector);
+	uint64_t cluster_to_offset(cluster_number cluster);
 
 	// Returns the next cluster in the chain.
 	cluster_number get_next_cluster(cluster_number);
 
+	// Allocates a buffer and returns the given file data. Returns false and sets errno upon failure.
+	bool read_file(uint32_t file_size_bytes, cluster_number first_cluster, char **buf);
+
+	// Reads the folder starting on the given cluster into the given vector. Returns false and sets errno upon failure.
+	bool read_dir(cluster_number first_cluster, Vector<FAT32DirectoryEntry> *entries);
+
 	// Is it the last cluster in the chain?
 	bool is_last_cluster(cluster_number);
+
+	uint64_t get_cluster_size_bytes();
 
 	int raw_disk;				   // A file pointer to the raw disk
 	fat32_boot_sector boot_sector; // Will hold the boot sector info.
 	/**
 	 * Will point to the FAT. I can't know now it's size, for it depends on boot_sector.sectors_per_fat.
 	 */
-	uint32_t *fat;
+	uint32_t *fat = nullptr;
 	uint64_t fat_size_bytes;
 };
 
