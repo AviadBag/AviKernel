@@ -82,6 +82,13 @@ private:
 	// Returns false and sets errno upon failure.
 	bool get_dir(cluster_number first_cluster, Vector<FAT32File> *files);
 
+	// Like get_dir(), but gives folder by it's path.
+	// Returns false and sets errno upon failure.
+	bool get_dir_path(Path path, Vector<FAT32File> *files);
+
+	// A helper function for get_dir_path().
+	bool get_dir_path(Path path, Vector<FAT32File> root_dir, Vector<FAT32File> *files);
+
 	// Is it the last cluster in the chain?
 	bool is_last_cluster(cluster_number);
 

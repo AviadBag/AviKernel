@@ -62,12 +62,6 @@ void FAT32::mount(Path path)
     if (!get_dir(boot_sector.root_cluster, &files))
         panic("Error while mounting FAT32");
 
-    for (int i = 0; i < files.size(); i++)
-    {
-        FAT32File file = files.get(i);
-        printf("%s %s %d\n", file.get_name().c_str(), file.is_directory() ? "dir" : "file", file.get_size_bytes());
-    }
-
     printf("Mounting FAT32 fs from %s, OEM name: %s", path.to_string().c_str(), boot_sector.oem_name);
 }
 
@@ -175,16 +169,75 @@ bool FAT32::get_dir(cluster_number first_cluster, Vector<FAT32File> *files)
     return true;
 }
 
+bool FAT32::get_dir_path(Path path, Vector<FAT32File> *files)
+{
+    Vector<FAT32File> root_dir;
+    if (!get_dir(boot_sector.root_cluster, &root_dir))
+        return false;
+
+    return get_dir_path(path, root_dir, files);
+}
+
+bool FAT32::get_dir_path(Path path, Vector<FAT32File> root_dir, Vector<FAT32File> *files)
+{
+    // Simplest case - the "root" is required
+    if (path.is_root())
+    {
+        *files = root_dir;
+        return true;
+    }
+
+    // More complicated case - dive into the next folder, until only "root" is required.
+    cluster_number next_dir_cluster;
+    bool found = false;
+    String next_folder_name = path.get_part(0);
+    for (int i = 0; i < root_dir.size(); i++)
+    {
+        FAT32File dir = root_dir.get(i);
+        if (dir.is_directory() && dir.get_name() == next_folder_name)
+        {
+            next_dir_cluster = dir.get_first_cluster();
+            found = true;
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        set_errno(ENOENT); // There is no such directory
+        return false;
+    }
+
+    path.remove_part(0); // Go to the next directory
+    Vector<FAT32File> next_dir_contents;
+    // Get the data of the just found directory, and give it to the next recutsion as it's root directory.
+    if (!get_dir(next_dir_cluster, &next_dir_contents))
+        return false;
+
+    return get_dir_path(path, next_dir_contents, files);
+}
+
 void FAT32::umount()
 {
     if (fat)
         delete fat;
 }
 
-uint64_t FAT32::read(__attribute__((unused)) Path path, __attribute__((unused)) uint64_t count, __attribute__((unused)) uint64_t offset, __attribute__((unused)) char *buf)
+uint64_t FAT32::read(Path path, __attribute__((unused)) uint64_t count, __attribute__((unused)) uint64_t offset, __attribute__((unused)) char *buf)
 {
-    set_errno(ENOTSUP);
-    return false;
+    // TESTING
+    Vector<FAT32File> files;
+    Path dir_path = path;
+    dir_path.make_folder();
+    if (!get_dir_path(dir_path, &files))
+        return false;
+    for (int i = 0; i < files.size(); i++)
+    {
+        FAT32File file = files.get(i);
+        printf("%s %s %d\n", file.get_name().c_str(), file.is_directory() ? "dir" : "file", file.get_size_bytes());
+    }
+
+    return true;
 }
 
 uint64_t FAT32::write(__attribute__((unused)) Path path, __attribute__((unused)) uint64_t count, __attribute__((unused)) uint64_t offset, __attribute__((unused)) char *buf)
