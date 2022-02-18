@@ -2,9 +2,12 @@
 #define __FAT32_FILE_H__
 
 #include "fat32_directory_entry.h"
+
 #include <utils/vector.h>
 
 /* Represents a fat32 file. This is a higher level representation of a directory entry. */
+
+using cluster_number = uint64_t;
 
 class FAT32File
 {
@@ -16,6 +19,7 @@ public:
     bool is_directory();
     uint32_t get_size_bytes();
     String get_name();
+    cluster_number get_first_cluster();
 
 private:
     // The main method - converts the short and long entries into the fields of this class.
@@ -34,6 +38,7 @@ private:
     bool _is_directory;
     uint32_t size_bytes;
     String name;
+    cluster_number first_cluster;
 };
 
 #endif // __FAT32_FILE_H__

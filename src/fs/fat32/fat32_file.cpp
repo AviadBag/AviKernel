@@ -17,6 +17,7 @@ void FAT32File::setup_data(FAT32DirectoryEntry short_entry, Vector<FAT32Director
 {
     _is_directory = short_entry.is_directory();
     size_bytes = short_entry.se_get_file_size_bytes();
+    first_cluster = short_entry.se_get_first_cluster();
     setup_name(short_entry, long_entries);
 }
 
@@ -80,4 +81,9 @@ uint32_t FAT32File::get_size_bytes()
 String FAT32File::get_name()
 {
     return name;
+}
+
+cluster_number FAT32File::get_first_cluster()
+{
+    return first_cluster;
 }
