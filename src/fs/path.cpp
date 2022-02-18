@@ -52,6 +52,15 @@ void Path::fill_vector(String _s)
         parts.append(s);
 }
 
+void Path::make_folder()
+{
+    if (is_folder())
+        return;
+
+    folder = true;
+    remove_part(get_number_of_parts() - 1);
+}
+
 int Path::get_number_of_parts() const
 {
     return parts.size();
