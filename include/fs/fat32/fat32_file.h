@@ -12,7 +12,9 @@ using cluster_number = uint64_t;
 class FAT32File
 {
 public:
-    // A long entry is not necessary.
+    FAT32File(); // Empty constructor, so I will be able to use it with Vector. (Puts default values)
+
+    // Long entries are not necessary
     FAT32File(FAT32DirectoryEntry short_entry);
     FAT32File(FAT32DirectoryEntry short_entry, Vector<FAT32DirectoryEntry> long_entries);
 

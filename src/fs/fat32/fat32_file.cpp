@@ -2,6 +2,14 @@
 
 #include <utils/vector.h>
 
+FAT32File::FAT32File()
+{
+    _is_directory = false;
+    size_bytes = 0;
+    first_cluster = 0;
+    name = "<no name>";
+}
+
 FAT32File::FAT32File(FAT32DirectoryEntry short_entry)
 {
     Vector<FAT32DirectoryEntry> long_entries; // empty
