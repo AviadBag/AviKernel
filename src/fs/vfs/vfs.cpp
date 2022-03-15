@@ -185,6 +185,10 @@ uint64_t VFS::pwrite(int desct, const void *buf, uint64_t nbyte, uint64_t offset
 
 uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vfs_operation operation)
 {
+    // Set the required offset
+    if (offset > 0)
+        file_descriptors[desct].position = offset;
+
     // Is it a legal descriptor?
     if (desct >= VFS_OPEN_FILES_MAX || !file_descriptors[desct].in_use)
     {
@@ -200,7 +204,7 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     }
 
     // Check for overflow (Only when reading)
-    if (operation == VFS_OPR_READ && file_descriptors[desct].position + offset + nbyte > file_descriptors[desct].size)
+    if (operation == VFS_OPR_READ && file_descriptors[desct].position + nbyte > file_descriptors[desct].size)
     {
         set_errno(EOVERFLOW);
         return false;
@@ -214,10 +218,6 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     Path trimmed_path = file_descriptors[desct].file_path;
     for (int i = 0; i < mounted_fs.mount_path.get_depth(); i++)
         trimmed_path.remove_part(0);
-
-    // Set the required offset
-    if (offset > 0)
-        file_descriptors[desct].position = offset;
 
     // Action!
     uint64_t code;
