@@ -121,6 +121,8 @@ uint64_t DevFS::storage_drive_read(Path path, uint64_t count, uint64_t offset, c
     // How many sectors do we have to read? (Round up)
     uint64_t starting_sector = lba;
     uint64_t ending_sector = (offset + count) / sector_size;
+    if ((offset + count) % sector_size == 0)
+        ending_sector--;
     uint64_t sectors_count = ending_sector - starting_sector + 1;
 
     // Allocate the temporarily buffer
