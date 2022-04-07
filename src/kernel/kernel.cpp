@@ -25,6 +25,8 @@
 #include "fs/devfs/devfs.h"
 #include "fs/vfs/vfs.h"
 
+#include "posix/errno.h"
+
 #include <cstdio.h>
 #include <cstdlib.h>
 #include <cstring.h>
@@ -88,7 +90,7 @@ void setup_drivers()
             printf("------ Drives: ------\n");
             for (int i = 0; i < storage_driver->get_number_of_drives(); i++)
             {
-                printf("Drive {%d} -> Drive Size: %f MB\n", i, storage_driver->get_drive(i)->get_size_mb());
+                printf("Drive {%d} -> Drive Size: %lu MB", i, storage_driver->get_drive(i)->get_size_mb());
             }
         }
     }
