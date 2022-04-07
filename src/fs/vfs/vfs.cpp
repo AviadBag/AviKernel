@@ -185,6 +185,10 @@ uint64_t VFS::pwrite(int desct, const void *buf, uint64_t nbyte, uint64_t offset
 
 uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vfs_operation operation)
 {
+    // Is <count> == 0?
+    if (nbyte == 0)
+        return 0;
+
     // Is it a legal descriptor?
     if (desct >= VFS_OPEN_FILES_MAX || !file_descriptors[desct].in_use)
     {
