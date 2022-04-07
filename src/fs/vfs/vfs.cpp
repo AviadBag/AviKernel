@@ -29,6 +29,11 @@ int VFS::allocate_descriptor()
     return desct;
 }
 
+bool VFS::is_legal_descriptor(int desc)
+{
+    return !(desc >= VFS_OPEN_FILES_MAX || !file_descriptors[desc].in_use);
+}
+
 void VFS::free_descriptor(int desct)
 {
     if (!file_descriptors[desct].in_use)
@@ -163,6 +168,19 @@ exit_err:
     return -1;
 }
 
+int VFS::close(int fildes)
+{
+    if (!is_legal_descriptor(fildes))
+    {
+        set_errno(EBADF);
+        return -1;
+    }
+
+    free_descriptor(fildes);
+
+    return 0;
+}
+
 uint64_t VFS::read(int desct, void *buf, uint64_t nbyte)
 {
     return io(desct, buf, nbyte, 0, VFS_OPR_READ);
@@ -190,7 +208,7 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
         return 0;
 
     // Is it a legal descriptor?
-    if (desct >= VFS_OPEN_FILES_MAX || !file_descriptors[desct].in_use)
+    if (!is_legal_descriptor(desct))
     {
         set_errno(EBADF);
         return false;
