@@ -172,6 +172,13 @@ uint64_t DevFS::storage_drive_write(Path path, uint64_t count, uint64_t offset, 
     // Gain the storage driver
     StorageDriver *storage_driver = (StorageDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
 
+    // Do we have enough space?
+    if (offset + count > storage_driver->get_drive(drive_number)->get_size_by())
+    {
+        set_errno(ENOSPC);
+        return false;
+    }
+
     // Determine sector size
     uint32_t sector_size = storage_driver->get_drive(drive_number)->get_sector_size();
 
