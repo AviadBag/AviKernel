@@ -1,10 +1,13 @@
 #ifndef __VGA_TEXT_H__
 #define __VGA_TEXT_H__
 
+#include <stdint.h>
+
 #define VGA_ROWS 25
 #define VGA_COLUMNS 80
 
-class VgaText {
+class VgaText
+{
 public:
     static void putchar(char c);
     static void clear();
@@ -17,7 +20,10 @@ private:
     static void backspace();
     static void scroll();
     static void copy_row(int from, int to);
-    static int XYToOffset();
+    static uint16_t xy_to_memory_offset();
+    static void move_cursor();
+    static void initalize_cursor();
+    static void write_data_register(uint8_t index, uint8_t what);
 
     static int x;
     static int y;
