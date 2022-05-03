@@ -6,6 +6,9 @@ CROSS   := ~/cross-compiler/bin
 
 CXX       := ${CROSS}/i686-elf-g++
 CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-sized-deallocation -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/libc -I ${INCLUDE}/libc++
+ifdef test
+	CXX_FLAGS += -DTEST
+endif
 
 ASM       := nasm
 ASM_FLAGS := -felf32 -g -F dwarf -O0 -w-number-overflow

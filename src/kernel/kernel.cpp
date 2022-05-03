@@ -27,6 +27,10 @@
 
 #include "posix/errno.h"
 
+#ifdef TEST
+#include "test/tester.h"
+#endif
+
 #include <cstdio.h>
 #include <cstdlib.h>
 #include <cstring.h>
@@ -237,6 +241,9 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     setup_exceptions_handlers();
     setup_drivers();
 
+#ifdef TEST
+    Tester::test();
+#else
     FS *devfs = new DevFS();
 
     VFS vfs;
@@ -245,6 +252,7 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     /* Clean up */
     devfs->umount();
     delete devfs;
+#endif
 
     // Endless loop!
     while (1)
