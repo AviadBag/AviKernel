@@ -94,7 +94,7 @@ void setup_drivers()
             printf("------ Drives: ------\n");
             for (int i = 0; i < storage_driver->get_number_of_drives(); i++)
             {
-                printf("Drive {%d} -> Drive Size: %lu MB", i, storage_driver->get_drive(i)->get_size_mb());
+                printf("Drive {%d} -> Drive Size: %lu MB\n", i, storage_driver->get_drive(i)->get_size_mb());
             }
         }
     }

@@ -42,7 +42,7 @@ void VFS::free_descriptor(int desct)
     file_descriptors[desct].in_use = false;
 }
 
-void VFS::mount_fs(Path where, Path device, FS *what)
+int VFS::mount_fs(Path where, Path device, FS *what)
 {
     if (device.is_folder() && !device.is_root())
         panic("VFS::mount_fs() -> Given a folder as a device!");
@@ -53,8 +53,11 @@ void VFS::mount_fs(Path where, Path device, FS *what)
     MountedFS mfs;
     mfs.mount_path = where;
     mfs.fs = what;
-    what->mount(device);
+    if (!what->mount(device))
+        return 0;
     mounted_fss.append(mfs);
+
+    return 1;
 }
 
 bool VFS::get_mounted_fs(Path path, MountedFS *m)
@@ -214,6 +217,9 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
         return false;
     }
 
+    // Calculate the actual offset
+    uint64_t actual_offset = (offset == 0) ? file_descriptors[desct].position : offset;
+
     // Is the given file open for reading/writing?
     if ((operation == VFS_OPR_READ && !file_descriptors[desct].read) || (operation == VFS_OPR_WRITE && !file_descriptors[desct].write))
     {
@@ -222,7 +228,7 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     }
 
     // Check for overflow (Only when reading)
-    if (operation == VFS_OPR_READ && file_descriptors[desct].position + offset + nbyte > file_descriptors[desct].size)
+    if (operation == VFS_OPR_READ && actual_offset + nbyte > file_descriptors[desct].size)
     {
         set_errno(EOVERFLOW);
         return false;
@@ -240,14 +246,14 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     // Action!
     uint64_t code;
     if (operation == VFS_OPR_WRITE)
-        code = mounted_fs.fs->write(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
+        code = mounted_fs.fs->write(trimmed_path, nbyte, actual_offset, (char *)buf);
     else
-        code = mounted_fs.fs->read(trimmed_path, nbyte, file_descriptors[desct].position + offset, (char *)buf);
+        code = mounted_fs.fs->read(trimmed_path, nbyte, actual_offset, (char *)buf);
     if (!code)
         return false;
 
     // Increment the position in the file descriptor.
-    file_descriptors[desct].position += nbyte + offset;
+    file_descriptors[desct].position = actual_offset + nbyte;
 
     // If it was a write - recalculate the file size, for it might have changed.
     if (operation == VFS_OPR_WRITE)
