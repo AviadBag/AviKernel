@@ -7,7 +7,7 @@
 #include <cstring.h>
 #include <posix/errno.h>
 
-void DevFS::mount([[gnu::unused]] Path what)
+int DevFS::mount([[gnu::unused]] Path what)
 {
     /* --------------- Add all of the storage drives --------------- */
     StorageDriver *storage_driver = (StorageDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
@@ -23,9 +23,11 @@ void DevFS::mount([[gnu::unused]] Path what)
         Path path(path_str);
         root_dir.append(path);
     }
+
+    return true;
 }
 
-void DevFS::umount() {} // Nothing here
+int DevFS::umount() { return true; } // Nothing here
 
 uint64_t DevFS::read(Path path, uint64_t count, uint64_t offset, char *buf)
 {
@@ -280,12 +282,13 @@ uint64_t DevFS::storage_drive_write(Path path, uint64_t count, uint64_t offset, 
     return true;
 }
 
-bool DevFS::file_exist(Path path)
+int DevFS::file_exist(Path path)
 {
     if (path.is_folder())
-        return path.is_root(); // We have only one folder - the root folder.
+        return path.is_root() == true ? FS_FILE_EXIST : FS_FILE_N_EXISTS; // We have only one folder - the root folder.
 
-    return root_dir.exist(path);
+    // We have only one level.
+    return root_dir.exist(path) == true ? FS_FILE_EXIST : FS_FILE_N_EXISTS;
 }
 
 uint64_t DevFS::create_file([[gnu::unused]] Path path)

@@ -18,8 +18,8 @@ class DevFS : public FS
 {
 public:
     // ------------------- Methods Overriden -------------------
-    virtual void mount(Path what) override;
-    virtual void umount() override;
+    virtual int mount(Path what) override;
+    virtual int umount() override;
 
     virtual uint64_t read(Path path, uint64_t count, uint64_t offset, char *buf) override;
     virtual uint64_t write(Path path, uint64_t count, uint64_t offset, char *buf) override;
@@ -29,7 +29,7 @@ public:
     virtual uint64_t delete_file(Path path) override;
     virtual uint64_t list_files(Path path, Vector<Path> *) override;
 
-    virtual bool file_exist(Path path) override;
+    virtual int file_exist(Path path) override;
 
 private:
     // ------------------- Regular Methods -------------------

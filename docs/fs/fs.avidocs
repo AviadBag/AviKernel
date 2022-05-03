@@ -9,8 +9,8 @@ get_file_size(Path path, uint64_t* size) - Gives the size of the given file.
 create_file(Path path) - Creates the given file/folder.
 delete_file(Path path) - Deletes the given file/folder.
 list_files(Path path, Vector<Path>*)  - Fills the given vector with all the files/dirs in the given path. 
-file_exist(Path path) - Does this file/folder exist?
+file_exist(Path path) - Does this file/folder exist? Returns FS_FILE_EXIST if exists, FS_FILE_N_EXISTS if not. (0 if error)
 
-every function returns > 1 upon success, and 0 upon failure, and sets errno.
+Every function returns > 1 upon success, and 0 upon failure, and sets errno.
 
 It is important to emphasize that write() DOES NOT discard the previous file contents!
