@@ -42,7 +42,7 @@ void VFS::free_descriptor(int desct)
     file_descriptors[desct].in_use = false;
 }
 
-void VFS::mount_fs(Path where, Path device, FS *what)
+int VFS::mount_fs(Path where, Path device, FS *what)
 {
     if (device.is_folder() && !device.is_root())
         panic("VFS::mount_fs() -> Given a folder as a device!");
@@ -53,8 +53,11 @@ void VFS::mount_fs(Path where, Path device, FS *what)
     MountedFS mfs;
     mfs.mount_path = where;
     mfs.fs = what;
-    what->mount(device);
+    if (!what->mount(device))
+        return 0;
     mounted_fss.append(mfs);
+
+    return 1;
 }
 
 bool VFS::get_mounted_fs(Path path, MountedFS *m)

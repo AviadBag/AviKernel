@@ -58,8 +58,9 @@ public:
      * @param device What device does this FS use? (For example - "/dev/sda"). - MUST NOT BE A DIRECTORY. PANICS IF NOT.
      *               Give "/" if a device is not needed!
      * @param what   The filesystem to mount.
+     * @return nonzero on success; 0 and sets errno on failure.
      */
-    void mount_fs(Path where, Path device, FS *what);
+    int mount_fs(Path where, Path device, FS *what);
 
     // ------------------- Regular Methods -------------------
     int open(const char *path, int oflag, ...);
