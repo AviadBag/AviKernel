@@ -15,8 +15,8 @@ public:
     virtual ~FS(){};
 
     // On some File systems, <what> is ignored. (For example, on temp-fs... You only keep the data in the memory...)
-    virtual void mount(Path what) = 0;
-    virtual void umount() = 0;
+    virtual int mount(Path what) = 0;
+    virtual int umount() = 0;
 
     virtual uint64_t read(Path path, uint64_t count, uint64_t offset, char *buf) = 0;
     virtual uint64_t write(Path path, uint64_t count, uint64_t offset, char *buf) = 0;

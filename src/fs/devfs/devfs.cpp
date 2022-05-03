@@ -7,7 +7,7 @@
 #include <cstring.h>
 #include <posix/errno.h>
 
-void DevFS::mount([[gnu::unused]] Path what)
+int DevFS::mount([[gnu::unused]] Path what)
 {
     /* --------------- Add all of the storage drives --------------- */
     StorageDriver *storage_driver = (StorageDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_STORAGE_DRIVER);
@@ -23,9 +23,11 @@ void DevFS::mount([[gnu::unused]] Path what)
         Path path(path_str);
         root_dir.append(path);
     }
+
+    return true;
 }
 
-void DevFS::umount() {} // Nothing here
+int DevFS::umount() { return true; } // Nothing here
 
 uint64_t DevFS::read(Path path, uint64_t count, uint64_t offset, char *buf)
 {
