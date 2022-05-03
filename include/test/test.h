@@ -21,4 +21,10 @@
             panic("ASSERT_NOT_ZERO() -> Assertion failed! %s:%d->%s()", __FILE__, __LINE__, __func__); \
     }
 
+#define ASSERT_NOT_NULL(exp)                                                                           \
+    {                                                                                                  \
+        if (exp == 0)                                                                                  \
+            panic("ASSERT_NOT_NULL() -> Assertion failed! %s:%d->%s()", __FILE__, __LINE__, __func__); \
+    }
+
 #endif
