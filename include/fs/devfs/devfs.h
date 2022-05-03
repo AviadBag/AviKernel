@@ -29,7 +29,7 @@ public:
     virtual uint64_t delete_file(Path path) override;
     virtual uint64_t list_files(Path path, Vector<Path> *) override;
 
-    virtual bool file_exist(Path path) override;
+    virtual int file_exist(Path path) override;
 
 private:
     // ------------------- Regular Methods -------------------

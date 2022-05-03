@@ -280,12 +280,13 @@ uint64_t DevFS::storage_drive_write(Path path, uint64_t count, uint64_t offset, 
     return true;
 }
 
-bool DevFS::file_exist(Path path)
+int DevFS::file_exist(Path path)
 {
     if (path.is_folder())
-        return path.is_root(); // We have only one folder - the root folder.
+        return path.is_root() == true ? FS_FILE_EXIST : FS_FILE_N_EXISTS; // We have only one folder - the root folder.
 
-    return root_dir.exist(path);
+    // We have only one level.
+    return root_dir.exist(path) == true ? FS_FILE_EXIST : FS_FILE_N_EXISTS;
 }
 
 uint64_t DevFS::create_file([[gnu::unused]] Path path)

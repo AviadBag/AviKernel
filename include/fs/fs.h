@@ -6,6 +6,9 @@
 
 #include <stdint.h>
 
+#define FS_FILE_EXIST 1
+#define FS_FILE_N_EXISTS 2
+
 class FS
 {
 public:
@@ -23,7 +26,7 @@ public:
     virtual uint64_t delete_file(Path path) = 0;
     virtual uint64_t list_files(Path path, Vector<Path> *) = 0;
 
-    virtual bool file_exist(Path path) = 0;
+    virtual int file_exist(Path path) = 0;
 };
 
 #endif
