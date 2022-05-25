@@ -1,0 +1,14 @@
+{
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptoolst",
+                "jeff-hykin.better-cpp-syntax",
+                "ms-vscode.cpptools-themes"
+            ]
+        }
+    },
+}
