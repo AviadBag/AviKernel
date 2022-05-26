@@ -40,8 +40,8 @@ RUN rm -rf *
 RUN apt-get install gdb
 
 # Setup project
-RUN git clone https://github.com/AviadBag/AviKernel.git
-RUN mkdir AviKernel/isodir
+#RUN git clone https://github.com/AviadBag/AviKernel.git
+#RUN mkdir AviKernel/isodir
 
 # Make sure we are up-to-date
 ENTRYPOINT cd AviKernel \
