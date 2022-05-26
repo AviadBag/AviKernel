@@ -6,8 +6,9 @@ ENV PATH=/opt/cross/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:
 
 # Install dependencies
 RUN apt-get update -y
-RUN apt-get install wget build-essential bison flex libgmp3-dev libmpc-dev libmpfr-dev texinfo grub-pc-bin git -y
-WORKDIR /src
+RUN apt-get install wget build-essential bison flex libgmp3-dev libmpc-dev libmpfr-dev texinfo grub-pc-bin nasm git -y
+
+WORKDIR ~/ 
 
 # Download cross-compiler
 RUN wget https://mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-11.3.0/gcc-11.3.0.tar.gz --no-check-certificate \
@@ -28,6 +29,14 @@ RUN mkdir build-gcc \
    &&  make all-target-libgcc \
    &&  make install-gcc \
    &&  make install-target-libgcc 
+
+# Add to path
 ENV PATH=/opt/cross/bin:/opt/cross/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Clean up
+RUN rm -rf *
+
+# Setup project
+RUN git clone https://aviadbag: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@github.com/AviadBag/AviKernel.git
 
 CMD ["/bin/sh" "-c" "bash"]
