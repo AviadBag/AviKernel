@@ -7,7 +7,8 @@
             "extensions": [
                 "ms-vscode.cpptoolst",
                 "jeff-hykin.better-cpp-syntax",
-                "ms-vscode.cpptools-themes"
+                "ms-vscode.cpptools-themes",
+                "vscodevim.vim"
             ]
         }
     },
