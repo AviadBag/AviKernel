@@ -37,7 +37,7 @@ ENV PATH=/opt/cross/bin:/opt/cross/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:
 RUN rm -rf *
 
 # Later dependencies (So I won't have to rebuild the image every time I add one)
-RUN apt-get install gdb
+RUN apt-get install -y gdb
 
 # Setup project
 RUN git clone https://github.com/AviadBag/AviKernel.git
