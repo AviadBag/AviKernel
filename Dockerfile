@@ -6,7 +6,7 @@ ENV PATH=/opt/cross/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:
 
 # Install dependencies
 RUN apt-get update -y
-RUN apt-get install wget build-essential bison flex libgmp3-dev libmpc-dev libmpfr-dev texinfo grub-pc-bin nasm git -y
+RUN apt-get install wget build-essential bison flex libgmp3-dev libmpc-dev libmpfr-dev texinfo grub-pc-bin nasm git xorriso vim qemu-system -y
 
 WORKDIR ~/ 
 
@@ -38,5 +38,6 @@ RUN rm -rf *
 
 # Setup project
 RUN git clone https://aviadbag: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@github.com/AviadBag/AviKernel.git
+RUN mkdir AviKernel/isodir
 
 CMD ["/bin/sh" "-c" "bash"]
