@@ -40,4 +40,8 @@ RUN rm -rf *
 RUN git clone https://aviadbag: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@github.com/AviadBag/AviKernel.git
 RUN mkdir AviKernel/isodir
 
-CMD ["/bin/sh" "-c" "bash"]
+# Make sure we are up-to-date
+ENTRYPOINT cd AviKernel \
+        && git pull \
+	&& bash
+
