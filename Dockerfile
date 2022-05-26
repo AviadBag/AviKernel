@@ -37,7 +37,7 @@ ENV PATH=/opt/cross/bin:/opt/cross/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:
 RUN rm -rf *
 
 # Setup project
-RUN git clone https://aviadbag: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@github.com/AviadBag/AviKernel.git
+RUN git clone https://github.com/AviadBag/AviKernel.git
 RUN mkdir AviKernel/isodir
 
 # Make sure we are up-to-date
