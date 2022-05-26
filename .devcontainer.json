@@ -1,4 +1,5 @@
 {
+    "name": "AviKernel Dev Container",
     "build": {
         "dockerfile": "Dockerfile"
     },
@@ -12,4 +13,5 @@
             ]
         }
     },
+    "postAttachCommand": ["git", "pull"]
 }
