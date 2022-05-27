@@ -8,7 +8,7 @@
 
 int Ext2::mount(Path what)
 {
-    printf("Mounting Ext2...");
+    printf("Mounting Ext2...\n");
 
     // Acquire file descriptor for the disk
     disk = VFS::get_instance()->open(what.to_string().c_str(), O_RDWR);
@@ -18,6 +18,8 @@ int Ext2::mount(Path what)
     // Read superblock
     if (!VFS::get_instance()->pread(disk, &super_block, sizeof(ext2_super_block), SUPERBLOCK_OFFSET))
         return false;
+
+    printf("Block size: %llu bytes\n", get_block_size());
 
     return true;
 }
@@ -53,4 +55,9 @@ uint64_t Ext2::list_files(Path path, Vector<Path> *)
 
 int Ext2::file_exist(Path path)
 {
+}
+
+uint64_t Ext2::get_block_size()
+{
+    return 1024 << super_block.s_log_block_size;
 }

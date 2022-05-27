@@ -77,6 +77,8 @@ public:
     virtual int file_exist(Path path) override;
 
 private:
+    uint64_t get_block_size();
+
     ext2_super_block super_block;
     int disk; // A file descriptor to our disk
 };
