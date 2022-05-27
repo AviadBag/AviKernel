@@ -59,6 +59,18 @@ struct ext2_super_block
     uint32_t s_reserved[190];          /* Padding to the end of the block */
 };
 
+struct ext2_group_desc
+{
+    uint32_t bg_block_bitmap;      /* Blocks bitmap block */
+    uint32_t bg_inode_bitmap;      /* Inodes bitmap block */
+    uint32_t bg_inode_table;       /* Inodes table block */
+    uint16_t bg_free_blocks_count; /* Free blocks count */
+    uint16_t bg_free_inodes_count; /* Free inodes count */
+    uint16_t bg_used_dirs_count;   /* Directories count */
+    uint16_t bg_pad;
+    uint32_t bg_reserved[3];
+};
+
 class Ext2 : public FS
 {
 public:
@@ -78,8 +90,13 @@ public:
 
 private:
     uint64_t get_block_size();
+    uint64_t get_blocks_gropus_count();
+    uint64_t get_block_offset(uint64_t block);
+    bool read_block_groups_table();             // Sets errno on error
+    bool read_block(uint64_t block, char *buf); // Sets errno on error
 
     ext2_super_block super_block;
+    ext2_group_desc *group_desc_table;
     int disk; // A file descriptor to our disk
 };
 
