@@ -14,7 +14,7 @@ void testing(String what)
     printf("[+] Testing %s...\n", what.c_str());
 }
 
-void test_devfs_rw(VFS *vfs)
+void test_devfs_rw()
 {
     testing("DevFS R/W methods");
 
@@ -25,24 +25,24 @@ void test_devfs_rw(VFS *vfs)
     garbage[4999] = '\0';
 
     // Get a file descriptor to sda
-    int file = vfs->open("/dev/sda", O_RDWR);
+    int file = VFS::get_instance()->open("/dev/sda", O_RDWR);
     ASSERT_NOT_ZERO(file);
 
     // Write the garbage somewhere on the disk
-    ASSERT_NOT_NULL(vfs->pwrite(file, garbage, 5000, 391010));
+    ASSERT_NOT_NULL(VFS::get_instance()->pwrite(file, garbage, 5000, 391010));
 
     // Read the garbage, make sure it is the same
     char *result = new char[5000];
     ASSERT_NOT_NULL(result);
-    ASSERT_NOT_NULL(vfs->pread(file, result, 5000, 391010));
+    ASSERT_NOT_NULL(VFS::get_instance()->pread(file, result, 5000, 391010));
     ASSERT_EQUAL(strcmp(garbage, result), 0);
 }
 
-void test_devfs(VFS *vfs)
+void test_devfs()
 {
     testing("DevFS");
 
-    test_devfs_rw(vfs);
+    test_devfs_rw();
 }
 
 void test_fs()
@@ -51,10 +51,9 @@ void test_fs()
 
     /* Initialize */
     FS *devfs = new DevFS();
-    VFS vfs;
-    ASSERT_NOT_ZERO(vfs.mount_fs("/dev/", "/", devfs));
+    ASSERT_NOT_ZERO(VFS::get_instance()->mount_fs("/dev/", "/", devfs));
 
-    test_devfs(&vfs);
+    test_devfs();
 
     /* Clean up */
     ASSERT_NOT_ZERO(devfs->umount());
@@ -66,4 +65,6 @@ void Tester::test()
     printf("\nBeginning unit testing! Heidad Lameidad!\n");
 
     test_fs();
+
+    printf("Testing done");
 }

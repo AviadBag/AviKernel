@@ -264,3 +264,14 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
 
     return nbyte;
 }
+
+/* ------------------------- Singelton stuff. ------------------------- */
+VFS *VFS::instance = nullptr;
+
+VFS *VFS::get_instance()
+{
+    if (!instance)
+        instance = new VFS;
+
+    return instance;
+}

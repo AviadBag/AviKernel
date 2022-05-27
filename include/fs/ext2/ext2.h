@@ -75,6 +75,10 @@ public:
     virtual uint64_t list_files(Path path, Vector<Path> *) override;
 
     virtual int file_exist(Path path) override;
+
+private:
+    ext2_super_block super_block;
+    int disk; // A file descriptor to our disk
 };
 
 #endif

@@ -7,6 +7,8 @@
 int Ext2::mount(Path what)
 {
     printf("Mounting Ext2...");
+
+    // Read superblock
 }
 
 int Ext2::umount()

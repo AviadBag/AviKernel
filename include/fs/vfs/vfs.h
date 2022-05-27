@@ -47,9 +47,6 @@ enum vfs_operation
 class VFS
 {
 public:
-    // ------------------- Constructor -------------------
-    VFS();
-
     // ------------------- Methods with long docs -------------------
     /**
      * @brief Mounts the given fs in the given path.
@@ -94,6 +91,18 @@ private:
     // ------------------- Member Variables -------------------
     Vector<MountedFS> mounted_fss;                 // All of the currently mounted file systems
     FileDesc file_descriptors[VFS_OPEN_FILES_MAX]; // All of the file descriptors
+
+    /* ------------------------- Singelton stuff. ------------------------- */
+public:
+    static VFS *get_instance();
+
+    VFS(VFS &other) = delete; // Should not be cloneable.
+    void operator=(const VFS &other) = delete;
+
+private:
+    VFS(); // This is a singelton - So a private constructor.
+
+    static VFS *instance;
 };
 
 #endif // __VFS_H__
