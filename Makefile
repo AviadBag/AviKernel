@@ -31,11 +31,11 @@ CRTEND_OBJ:=$(shell $(CXX) $(CXX_FLAGS) -print-file-name=crtend.o)
 # All the object files
 OBJ := $(CRTI_OBJ) $(CRTBEGIN_OBJ) ${OBJECTS_ASM} ${OBJECTS_CPP} $(CRTEND_OBJ) $(CRTN_OBJ)
 
-KERNEL := ${BIN}/kernel.bin
+KERNEL := ${BIN}/kernel.bin 
 ISO    := os.iso
 
 VM             := qemu-system-i386
-VM_FLAGS       := ${ISO} -curses
+VM_FLAGS       := -hda ${ISO} -curses -hdb ext2.img
 VM_DEBUG_FLAGS := -s -S
 
 all: ${ISO}
