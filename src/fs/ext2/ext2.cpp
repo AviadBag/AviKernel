@@ -4,11 +4,22 @@
 
 #include <cstdio.h>
 
+#define SUPERBLOCK_OFFSET 1024 // Starting 1024 bytes from beginning of disk
+
 int Ext2::mount(Path what)
 {
     printf("Mounting Ext2...");
 
+    // Acquire file descriptor for the disk
+    disk = VFS::get_instance()->open(what.to_string().c_str(), O_RDWR);
+    if (!disk)
+        return false;
+
     // Read superblock
+    if (!VFS::get_instance()->pread(disk, &super_block, sizeof(ext2_super_block), SUPERBLOCK_OFFSET))
+        return false;
+
+    return true;
 }
 
 int Ext2::umount()
