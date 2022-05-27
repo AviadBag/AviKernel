@@ -24,6 +24,7 @@ int Ext2::mount(Path what)
 
 int Ext2::umount()
 {
+    return VFS::get_instance()->close(disk);
 }
 
 uint64_t Ext2::read(Path path, uint64_t count, uint64_t offset, char *buf)
