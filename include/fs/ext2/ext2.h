@@ -1,5 +1,5 @@
-#ifndef _DEVFS_H
-#define _DEVFS_H
+#ifndef _EXT2_H
+#define _EXT2_H
 
 #include "fs/fs.h"
 #include "fs/path.h"
