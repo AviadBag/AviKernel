@@ -6,6 +6,9 @@
 
 #include <stdint.h>
 
+using inode_t = uint64_t;
+using block_t = uint64_t;
+
 struct ext2_super_block
 {
     uint32_t s_inodes_count;           /* Inodes count */
@@ -71,6 +74,69 @@ struct ext2_group_desc
     uint32_t bg_reserved[3];
 };
 
+struct ext2_inode
+{
+    uint16_t i_mode;        /* File mode */
+    uint16_t i_uid;         /* Low 16 bits of Owner Uid */
+    uint32_t i_size;        /* Size in bytes */
+    uint32_t i_atime;       /* Access time */
+    uint32_t i_ctime;       /* Creation time */
+    uint32_t i_mtime;       /* Modification time */
+    uint32_t i_dtime;       /* Deletion Time */
+    uint16_t i_gid;         /* Low 16 bits of Group Id */
+    uint16_t i_links_count; /* Links count */
+    uint32_t i_blocks;      /* Blocks count */
+    uint32_t i_flags;       /* File flags */
+    union
+    {
+        struct
+        {
+            uint32_t l_i_reserved1;
+        } linux1;
+        struct
+        {
+            uint32_t h_i_translator;
+        } hurd1;
+        struct
+        {
+            uint32_t m_i_reserved1;
+        } masix1;
+    } osd1;                /* OS dependent 1 */
+    uint32_t i_block[15];  /* Pointers to blocks */
+    uint32_t i_generation; /* File version (for NFS) */
+    uint32_t i_file_acl;   /* File ACL */
+    uint32_t i_dir_acl;    /* Directory ACL */
+    uint32_t i_faddr;      /* Fragment address */
+    union
+    {
+        struct
+        {
+            uint8_t l_i_frag;  /* Fragment number */
+            uint8_t l_i_fsize; /* Fragment size */
+            uint16_t i_pad1;
+            uint16_t l_i_uid_high; /* these 2 fields    */
+            uint16_t l_i_gid_high; /* were reserved2[0] */
+            uint32_t l_i_reserved2;
+        } linux2;
+        struct
+        {
+            uint8_t h_i_frag;  /* Fragment number */
+            uint8_t h_i_fsize; /* Fragment size */
+            uint16_t h_i_mode_high;
+            uint16_t h_i_uid_high;
+            uint16_t h_i_gid_high;
+            uint32_t h_i_author;
+        } hurd2;
+        struct
+        {
+            uint8_t m_i_frag;  /* Fragment number */
+            uint8_t m_i_fsize; /* Fragment size */
+            uint16_t m_pad1;
+            uint32_t m_i_reserved2[2];
+        } masix2;
+    } osd2; /* OS dependent 2 */
+};
+
 class Ext2 : public FS
 {
 public:
@@ -91,12 +157,14 @@ public:
 private:
     uint64_t get_block_size();
     uint64_t get_blocks_gropus_count();
-    uint64_t get_block_offset(uint64_t block);
-    bool read_block_groups_table();             // Sets errno on error
-    bool read_block(uint64_t block, char *buf); // Sets errno on error
+    uint64_t get_block_offset(block_t block);
+    bool read_block_groups_table();                  // Sets errno on error
+    bool read_block(block_t block, void *buf);       // Sets errno on error
+    bool read_inode(inode_t inode, ext2_inode *buf); // Sets errno on error
 
     ext2_super_block super_block;
     ext2_group_desc *group_desc_table;
+    ext2_inode root_directory;
     int disk; // A file descriptor to our disk
 };
 

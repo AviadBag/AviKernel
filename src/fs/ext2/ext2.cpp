@@ -4,6 +4,7 @@
 
 #include <posix/errno.h>
 #include <cstdio.h>
+#include <cstring.h>
 
 #define SUPERBLOCK_OFFSET 1024 // Starting 1024 bytes from beginning of disk
 
@@ -26,11 +27,8 @@ int Ext2::mount(Path what)
     if (!read_block_groups_table())
         return false;
 
-    for (uint64_t i = 0; i < get_blocks_gropus_count(); i++)
-    {
-        ext2_group_desc desc = group_desc_table[i];
-        printf("%u   ", desc.bg_free_inodes_count);
-    }
+    // Read root directory
+    read_inode(2, &root_directory);
 
     return true;
 }
@@ -44,7 +42,7 @@ bool Ext2::read_block_groups_table()
         set_errno(ENOMEM);
         return false;
     }
-    uint64_t group_descs_table_block = get_block_size() == 1024 ? 2 : 1;
+    block_t group_descs_table_block = get_block_size() == 1024 ? 2 : 1;
     return VFS::get_instance()->pread(
         disk,
         group_desc_table,
@@ -52,14 +50,55 @@ bool Ext2::read_block_groups_table()
         get_block_offset(group_descs_table_block));
 }
 
-uint64_t Ext2::get_block_offset(uint64_t block)
+uint64_t Ext2::get_block_offset(block_t block)
 {
     return block * get_block_size();
 }
 
-bool Ext2::read_block(uint64_t block, char *buf)
+bool Ext2::read_block(block_t block, void *buf)
 {
     return VFS::get_instance()->pread(disk, buf, get_block_size(), get_block_offset(block));
+}
+
+bool Ext2::read_inode(inode_t inode, ext2_inode *buf)
+{
+    /**
+     * IMPORTANT COMMENT
+     * sizeof(ext2_inode) is 128, but super_block.s_inode_size might be 256, or even more.
+     * Therefore, when copying inode into the buffer, you must copy the first 128 bytes only.
+     * But when iterating over inodes, the jump should be of super_block.s_inode_size
+     */
+
+    // In what block group our inode is?
+    uint64_t block_group = (inode - 1) / super_block.s_inodes_per_group;
+
+    // What's our index in the block group's inode table?
+    uint64_t index_inode_table = (inode - 1) % super_block.s_inodes_per_group;
+
+    // How many inodes per block in the inode table?
+    uint64_t inodes_per_block = get_block_size() / super_block.s_inode_size;
+
+    // What block do we need?
+    block_t block = group_desc_table[block_group].bg_inode_table + (index_inode_table / inodes_per_block);
+
+    // Read the block
+    char *block_buf = new char[get_block_size()];
+    if (!block_buf)
+    {
+        set_errno(ENOMEM);
+        return false;
+    }
+    if (!read_block(block, block_buf))
+        return false;
+
+    // What inode is it in the block?
+    uint64_t inode_in_block = index_inode_table % inodes_per_block;
+
+    // Copy the correct inode from the block
+    memcpy(buf, block_buf + (inode_in_block * super_block.s_inode_size), sizeof(ext2_inode));
+
+    delete block_buf;
+    return true;
 }
 
 int Ext2::umount()
