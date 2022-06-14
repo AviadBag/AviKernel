@@ -28,9 +28,21 @@ int Ext2::mount(Path what)
         return false;
 
     // Read root directory
-    read_inode(2, &root_directory);
+    printf("Reading root directory... (inode %d)\n", EXT2_ROOT_INO);
+    read_inode_struct(EXT2_ROOT_INO, &root_directory);
+    print_inode(root_directory);
 
     return true;
+}
+
+void Ext2::print_inode(ext2_inode inode)
+{
+    bool is_dir = inode.i_mode & EXT2_S_IFDIR;
+    printf("Inode type: %s, size: %zu B", is_dir ? "Directory" : "File", inode.i_size);
+    if (is_dir)
+        printf(", Is a hashed index directory? %s", inode.i_flags & EXT2_INDEX_FL ? "Yes" : "No");
+
+    putchar('\n');
 }
 
 bool Ext2::read_block_groups_table()
@@ -60,7 +72,7 @@ bool Ext2::read_block(block_t block, void *buf)
     return VFS::get_instance()->pread(disk, buf, get_block_size(), get_block_offset(block));
 }
 
-bool Ext2::read_inode(inode_t inode, ext2_inode *buf)
+bool Ext2::read_inode_struct(inode_t inode, ext2_inode *buf)
 {
     /**
      * IMPORTANT COMMENT

@@ -137,6 +137,15 @@ struct ext2_inode
     } osd2; /* OS dependent 2 */
 };
 
+#define EXT2_ROOT_INO 2
+
+// File types (i_mode)
+#define EXT2_S_IFREG 0x8000 // Regular file
+#define EXT2_S_IFDIR 0x4000 // A directory
+
+// Inode flags (i_flags)
+#define EXT2_INDEX_FL 0x00001000 // Hash indexed directory
+
 class Ext2 : public FS
 {
 public:
@@ -158,9 +167,10 @@ private:
     uint64_t get_block_size();
     uint64_t get_blocks_gropus_count();
     uint64_t get_block_offset(block_t block);
-    bool read_block_groups_table();                  // Sets errno on error
-    bool read_block(block_t block, void *buf);       // Sets errno on error
-    bool read_inode(inode_t inode, ext2_inode *buf); // Sets errno on error
+    bool read_block_groups_table();                         // Sets errno on error
+    bool read_block(block_t block, void *buf);              // Sets errno on error
+    bool read_inode_struct(inode_t inode, ext2_inode *buf); // Sets errno on error
+    void print_inode(ext2_inode inode);                     // Used for testing
 
     ext2_super_block super_block;
     ext2_group_desc *group_desc_table;
