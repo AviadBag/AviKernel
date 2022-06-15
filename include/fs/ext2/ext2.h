@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 using inode_t = uint64_t;
-using block_t = uint64_t;
+using block_t = uint32_t;
 
 struct ext2_super_block
 {
@@ -102,7 +102,7 @@ struct ext2_inode
             uint32_t m_i_reserved1;
         } masix1;
     } osd1;                /* OS dependent 1 */
-    uint32_t i_block[15];  /* Pointers to blocks */
+    block_t i_block[15];   /* Pointers to blocks */
     uint32_t i_generation; /* File version (for NFS) */
     uint32_t i_file_acl;   /* File ACL */
     uint32_t i_dir_acl;    /* Directory ACL */
@@ -167,10 +167,12 @@ private:
     uint64_t get_block_size();
     uint64_t get_blocks_gropus_count();
     uint64_t get_block_offset(block_t block);
-    bool read_block_groups_table();                         // Sets errno on error
-    bool read_block(block_t block, void *buf);              // Sets errno on error
-    bool read_inode_struct(inode_t inode, ext2_inode *buf); // Sets errno on error
-    void print_inode(ext2_inode inode);                     // Used for testing
+    bool read_block_groups_table();                            // Sets errno on error
+    bool read_block(block_t block, void *buf, uint64_t count); // If <count> != 0, reads <count> bytes. Sets errno on error
+    bool read_inode_struct(inode_t inode, ext2_inode *buf);    // Sets errno on error
+    // Reads a file represented by <inode>. Sets errno on error. Assumes that offset + count is not an overflow.
+    bool read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offset);
+    void print_inode(ext2_inode inode); // Used for testing
 
     ext2_super_block super_block;
     ext2_group_desc *group_desc_table;
