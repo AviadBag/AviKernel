@@ -248,8 +248,10 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     FS *devfs = new DevFS();
     Ext2 *ext2 = new Ext2();
 
-    VFS::get_instance()->mount_fs("/dev/", "/", devfs);
-    VFS::get_instance()->mount_fs("/", "/dev/sdb", ext2);
+    if (!VFS::get_instance()->mount_fs("/dev/", "/", devfs))
+        panic("Error mounting devfs");
+    if (!VFS::get_instance()->mount_fs("/", "/dev/sdb", ext2))
+        panic("Error mounting /dev/sdb2");
 
     /* Clean up */
     devfs->umount();
