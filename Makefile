@@ -35,7 +35,7 @@ KERNEL := ${BIN}/kernel.bin
 ISO    := os.iso
 
 VM             := qemu-system-i386
-VM_FLAGS       := -hda ${ISO} -curses -hdb ext2.img
+VM_FLAGS       := -hda ${ISO} -hdb ext2.img # -curses
 VM_DEBUG_FLAGS := -s -S
 
 all: ${ISO}

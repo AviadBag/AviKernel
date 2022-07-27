@@ -39,7 +39,7 @@ int Ext2::mount(Path what)
     ext2_inode lames_inode;
     read_inode_struct(0x10, &lames_inode);
     char *buf = new char[8000];
-    read_inode(lames_inode, buf, 8000, 0);
+    read_inode(lames_inode, buf, 8000, 3000);
     for (int i = 0; i < 256; i++)
         putchar(buf[i]);
     for (int i = 7000; i < 8000; i++)
@@ -60,23 +60,28 @@ void Ext2::print_inode(ext2_inode inode)
 
 bool Ext2::read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offset)
 {
-    if (offset != 0)
-        panic("EXT2: read_inode with offset is not yet implemented");
-
     // How many blocks do we need to read?
     uint64_t number_of_blocks = count / get_block_size() + 1;
-    if (number_of_blocks >= EXT2_FIRST_INDIRECT_BLOCK)
+    uint64_t first_block_index = offset / get_block_size();
+    uint64_t last_block_index = number_of_blocks + first_block_index;
+    if (last_block_index >= EXT2_FIRST_INDIRECT_BLOCK)
         panic("EXT2: reading indirect blocks is not yet implemented");
 
     // For every block
-    for (int i = 0; i < number_of_blocks; i++)
+    for (uint64_t i = first_block_index; i < last_block_index; i++)
     {
         // Read!
         block_t block = inode.i_block[i];
 
         bool last_block = (i + 1 == number_of_blocks);
         uint64_t read_size = (last_block ? count : get_block_size());
-        if (!read_block(block, buf, read_size))
+
+        if (offset != 0 && i == first_block_index) // First block
+        {
+            read_size -= offset % get_block_size();
+        }
+
+        if (!read_block(block, buf, read_size, offset))
             return false;
         count -= read_size;
         buf += read_size;
@@ -107,9 +112,9 @@ uint64_t Ext2::get_block_offset(block_t block)
     return block * get_block_size();
 }
 
-bool Ext2::read_block(block_t block, void *buf, uint64_t count = 0)
+bool Ext2::read_block(block_t block, void *buf, uint64_t count = 0, uint64_t offset = 0)
 {
-    return VFS::get_instance()->pread(disk, buf, count == 0 ? get_block_size() : count, get_block_offset(block));
+    return VFS::get_instance()->pread(disk, buf, count == 0 ? get_block_size() : count, get_block_offset(block) + offset);
 }
 
 bool Ext2::read_inode_struct(inode_t inode, ext2_inode *buf)

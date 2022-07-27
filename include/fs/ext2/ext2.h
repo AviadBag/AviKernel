@@ -167,9 +167,10 @@ private:
     uint64_t get_block_size();
     uint64_t get_blocks_gropus_count();
     uint64_t get_block_offset(block_t block);
-    bool read_block_groups_table();                            // Sets errno on error
-    bool read_block(block_t block, void *buf, uint64_t count); // If <count> != 0, reads <count> bytes. Sets errno on error
-    bool read_inode_struct(inode_t inode, ext2_inode *buf);    // Sets errno on error
+    bool read_block_groups_table(); // Sets errno on error
+    // If <count> != 0, reads <count> bytes. Else, reads BLOCK_SIZE bytes. Sets errno on error
+    bool read_block(block_t block, void *buf, uint64_t count, uint64_t offset);
+    bool read_inode_struct(inode_t inode, ext2_inode *buf); // Sets errno on error
     // Reads a file represented by <inode>. Sets errno on error. Assumes that offset + count is not an overflow.
     bool read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offset);
     void print_inode(ext2_inode inode); // Used for testing
