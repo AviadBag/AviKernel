@@ -247,7 +247,8 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     FS *devfs = new DevFS();
 
     VFS vfs;
-    vfs.mount_fs("/dev/", "/", devfs);
+    if (!vfs.mount_fs("/dev/", "/", devfs))
+        panic("Error mounting devfs");
 
     /* Clean up */
     devfs->umount();
