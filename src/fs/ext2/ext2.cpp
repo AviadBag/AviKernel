@@ -39,10 +39,8 @@ int Ext2::mount(Path what)
     ext2_inode lames_inode;
     read_inode_struct(0x10, &lames_inode);
     char *buf = new char[8000];
-    read_inode(lames_inode, buf, 8000, 3000);
+    read_inode(lames_inode, buf, 8000, 5000);
     for (int i = 0; i < 256; i++)
-        putchar(buf[i]);
-    for (int i = 7000; i < 8000; i++)
         putchar(buf[i]);
 
     return true;
@@ -63,7 +61,7 @@ bool Ext2::read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offs
     // How many blocks do we need to read?
     uint64_t number_of_blocks = count / get_block_size() + 1;
     uint64_t first_block_index = offset / get_block_size();
-    uint64_t last_block_index = number_of_blocks + first_block_index;
+    uint64_t last_block_index = (number_of_blocks + first_block_index) - 1;
     if (last_block_index >= EXT2_FIRST_INDIRECT_BLOCK)
         panic("EXT2: reading indirect blocks is not yet implemented");
 
