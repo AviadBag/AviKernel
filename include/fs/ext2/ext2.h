@@ -167,7 +167,8 @@ private:
     uint64_t get_block_size();
     uint64_t get_blocks_gropus_count();
     uint64_t get_block_offset(block_t block);
-    bool read_block_groups_table(); // Sets errno on error
+    uint64_t get_inode_size(ext2_inode inode); // Returns the file size that the given inode is representing.
+    bool read_block_groups_table();            // Sets errno on error
     // If <count> != 0, reads <count> bytes. Else, reads BLOCK_SIZE bytes. Sets errno on error
     bool read_block(block_t block, void *buf, uint64_t count, uint64_t offset);
     bool read_inode_struct(inode_t inode, ext2_inode *buf); // Sets errno on error

@@ -39,9 +39,10 @@ int Ext2::mount(Path what)
     // For testing - read lesmiserables.txt - inode 0x10
     ext2_inode lames_inode;
     read_inode_struct(0x10, &lames_inode);
-    char *buf = new char[8000];
-    read_inode(lames_inode, buf, 8000, 0);
-    for (int i = 0; i < 8000; i++)
+    uint64_t size = get_inode_size(lames_inode);
+    char *buf = new char[size];
+    read_inode(lames_inode, buf, size, 0);
+    for (int i = 0; i < size; i++)
         IO::outb(0x3F8, buf[i]);
     printf("Done\n");
 
@@ -88,6 +89,20 @@ bool Ext2::read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offs
     }
 
     return true;
+}
+
+uint64_t Ext2::get_inode_size(ext2_inode inode)
+{
+    /**
+     * In revision 0, i_dir_acl is 0, and i_size is the size.
+     * In revision 1, i_dir_acl is the higher 32 bits, and i_size is the lower 32 bits.
+     */
+
+    uint64_t size = 0;
+    size |= inode.i_size;
+    size |= (inode.i_dir_acl << 32);
+
+    return size;
 }
 
 bool Ext2::read_block_groups_table()
