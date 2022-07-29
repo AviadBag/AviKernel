@@ -1,0 +1,13 @@
+{
+    "configurations": [
+        {
+            "name": "Basic",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/include/libc",
+                "${workspaceFolder}/include/libc++"
+            ]
+        }
+    ],
+    "version": 4
+}
