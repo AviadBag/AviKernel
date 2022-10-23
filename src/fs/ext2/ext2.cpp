@@ -42,7 +42,7 @@ int Ext2::mount(Path what)
     uint64_t size = get_inode_size(lames_inode);
     char *buf = new char[size];
     read_inode(lames_inode, buf, size, 0);
-    for (int i = 0; i < size; i++)
+    for (uint64_t i = 0; i < size; i++)
         IO::outb(0x3F8, buf[i]);
     printf("Done\n");
 
@@ -61,34 +61,7 @@ void Ext2::print_inode(ext2_inode inode)
 
 bool Ext2::read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offset)
 {
-    // How many blocks do we need to read?
-    uint64_t number_of_blocks = count / get_block_size() + 1;
-    uint64_t first_block_index = offset / get_block_size();
-    uint64_t last_block_index = (number_of_blocks + first_block_index) - 1;
-    if (last_block_index >= EXT2_FIRST_INDIRECT_BLOCK)
-        panic("EXT2: reading indirect blocks is not yet implemented");
-
-    // For every block
-    for (uint64_t i = first_block_index; i <= last_block_index; i++)
-    {
-        // Read!
-        block_t block = inode.i_block[i];
-
-        bool last_block = (i == last_block_index);
-        uint64_t read_size = (last_block ? count : get_block_size());
-
-        if (offset != 0 && i == first_block_index) // First block
-        {
-            read_size -= offset % get_block_size();
-        }
-
-        if (!read_block(block, buf, read_size, offset))
-            return false;
-        count -= read_size;
-        buf += read_size;
-    }
-
-    return true;
+    panic("EXT2: read_inode not yet implemented");
 }
 
 uint64_t Ext2::get_inode_size(ext2_inode inode)
@@ -100,7 +73,7 @@ uint64_t Ext2::get_inode_size(ext2_inode inode)
 
     uint64_t size = 0;
     size |= inode.i_size;
-    size |= (inode.i_dir_acl << 32);
+    size |= ((uint64_t) inode.i_dir_acl << 32);
 
     return size;
 }
