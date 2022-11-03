@@ -61,7 +61,27 @@ void Ext2::print_inode(ext2_inode inode)
 
 bool Ext2::read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offset)
 {
-    panic("EXT2: read_inode not yet implemented");
+    uint64_t no_blocks = calc_no_blocks(count, offset);
+}
+
+uint64_t Ext2::calc_no_blocks(uint64_t bytes_count, uint64_t offset)
+{
+    if (bytes_count == 0) return 0;
+
+    // We surely need to read the first block
+    uint64_t blocks_count = 1;
+
+    uint64_t offset_in_1st_block = offset % get_block_size();
+    bytes_count -= (get_block_size() - offset_in_1st_block);
+
+    // Now offset is aligned to block size
+    blocks_count += (bytes_count / get_block_size());
+
+    // Check block align overflow
+    if (bytes_count % get_block_size() != 0)
+        blocks_count++;
+
+    return blocks_count;
 }
 
 uint64_t Ext2::get_inode_size(ext2_inode inode)
@@ -73,7 +93,7 @@ uint64_t Ext2::get_inode_size(ext2_inode inode)
 
     uint64_t size = 0;
     size |= inode.i_size;
-    size |= ((uint64_t) inode.i_dir_acl << 32);
+    size |= ((uint64_t)inode.i_dir_acl << 32);
 
     return size;
 }
