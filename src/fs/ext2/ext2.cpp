@@ -180,32 +180,46 @@ int Ext2::umount()
     return VFS::get_instance()->close(disk);
 }
 
-uint64_t Ext2::read(Path path, uint64_t count, uint64_t offset, char *buf)
+uint64_t Ext2::read([[gnu::unused]] Path path, [[gnu::unused]] uint64_t count, [[gnu::unused]] uint64_t offset, [[gnu::unused]] char *buf)
 {
+    set_errno(ENOTSUP);
+    return 0;
 }
 
-uint64_t Ext2::write(Path path, uint64_t count, uint64_t offset, char *buf)
+uint64_t Ext2::write([[gnu::unused]] Path path, [[gnu::unused]] uint64_t count, [[gnu::unused]] uint64_t offset, [[gnu::unused]] char *buf)
 {
+    set_errno(ENOTSUP);
+    return 0;
 }
 
-uint64_t Ext2::get_file_size(Path path, uint64_t *size)
+uint64_t Ext2::get_file_size([[gnu::unused]] Path path, [[gnu::unused]] uint64_t *size)
 {
+    set_errno(ENOTSUP);
+    return 0;
 }
 
-uint64_t Ext2::create_file(Path path)
+uint64_t Ext2::create_file([[gnu::unused]] Path path)
 {
+    set_errno(ENOTSUP);
+    return 0;
 }
 
-uint64_t Ext2::delete_file(Path path)
+uint64_t Ext2::delete_file([[gnu::unused]] Path path)
 {
+    set_errno(ENOTSUP);
+    return 0;
 }
 
-uint64_t Ext2::list_files(Path path, Vector<Path> *)
+uint64_t Ext2::list_files([[gnu::unused]] Path path, [[gnu::unused]] Vector<Path> *)
 {
+    set_errno(ENOTSUP);
+    return 0;
 }
 
-int Ext2::file_exist(Path path)
+int Ext2::file_exist([[gnu::unused]] Path path)
 {
+    set_errno(ENOTSUP);
+    return 0;
 }
 
 uint64_t Ext2::get_block_size()
