@@ -170,8 +170,17 @@ private:
     uint64_t get_inode_size(ext2_inode inode); // Returns the file size that the given inode is representing.
     bool read_block_groups_table();            // Sets errno on error
 
-    // If <count> != 0, reads <count> bytes. Else, reads BLOCK_SIZE bytes. Sets errno on error
+    /**
+     * @brief Reads the given block from the disk
+     * 
+     * @param block  What block to read?
+     * @param buf    The buf to read into
+     * @param count  How many bytes to read from the block? If 0, reads BLOCK_SIZE bytes
+     * @param offset Offset in block to start reading from
+     * @return bool  True on success, false on error
+     */
     bool read_block(block_num block, void *buf, uint64_t count, uint64_t offset);
+
     bool read_inode_struct(inode_num inode, ext2_inode *buf); // Sets errno on error
 
     // Reads a file represented by <inode>. Sets errno on error. Assumes that offset + count is not an overflow.

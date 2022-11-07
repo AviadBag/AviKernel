@@ -1,14 +1,16 @@
 #include "fs/ext2/ext2.h"
 #include "fs/vfs/vfs.h"
 #include "fs/path.h"
+
 #include "utils/io.h"
+#include "utils/macro.h"
 
 #include <posix/errno.h>
 #include <cstdio.h>
 #include <cstring.h>
 
-#define EXT2_SUPERBLOCK_OFFSET 1024 // Starting 1024 bytes from beginning of disk
-#define EXT2_FIRST_INDIRECT_BLOCK 13
+#define EXT2_SUPERBLOCK_OFFSET 1024  // Starting 1024 bytes from beginning of disk
+#define EXT2_FIRST_INDIRECT_BLOCK 12 // Starting from index 0
 
 int Ext2::mount(Path what)
 {
@@ -39,11 +41,14 @@ int Ext2::mount(Path what)
     // For testing - read lesmiserables.txt - inode 0x10
     ext2_inode lames_inode;
     read_inode_struct(0x10, &lames_inode);
-    uint64_t size = get_inode_size(lames_inode);
+    uint64_t size = 30000;
     char *buf = new char[size];
     read_inode(lames_inode, buf, size, 0);
     for (uint64_t i = 0; i < size; i++)
+    {
+        putchar(buf[i]);
         IO::outb(0x3F8, buf[i]);
+    }
     printf("Done\n");
 
     return true;
@@ -64,12 +69,43 @@ bool Ext2::read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offs
     uint32_t no_blocks = calc_no_blocks(count, offset);
     block_num *blocks_nums = new block_num[no_blocks]; // Will contain the list of blocks we need to read
     if (!get_blocks_nums(inode, blocks_nums, no_blocks, offset))
-        return -1;
+        return false;
+
+    for (uint32_t i = 0; i < no_blocks; i++)
+    {
+        uint64_t _offset = 0;
+        if (i == 0) // First block
+            _offset = offset % get_block_size();
+
+        uint64_t _count = count;
+        if (i == no_blocks - 1) // Last block
+            _count = (offset + count) % get_block_size();
+
+        // Read!
+        if (!read_block(blocks_nums[i], buf, _count, _offset))
+            return false;
+
+        ADD_TO_VOID_P(buf, _count);
+    }
+
+    return true;
 }
 
-bool Ext2::get_blocks_nums(ext2_inode inode, block_num* array, uint32_t no_blocks, uint64_t offset)
+bool Ext2::get_blocks_nums(ext2_inode inode, block_num *array, uint32_t no_blocks, uint64_t offset)
 {
-    
+    // Index of first block in blocks array
+    uint32_t first_block_idx = offset / get_block_size();
+    uint32_t last_block_idx = first_block_idx + no_blocks - 1;
+
+    // Simplest case - we do not need to read indirect blocks
+    if (last_block_idx < EXT2_FIRST_INDIRECT_BLOCK)
+    {
+        memcpy(array, &inode.i_block[first_block_idx], no_blocks * sizeof(block_num));
+        return true;
+    }
+
+    set_errno(ENOTSUP);
+    return false;
 }
 
 uint32_t Ext2::calc_no_blocks(uint64_t bytes_count, uint64_t offset)
