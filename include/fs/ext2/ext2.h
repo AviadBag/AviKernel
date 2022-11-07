@@ -6,8 +6,8 @@
 
 #include <stdint.h>
 
-using inode_t = uint64_t;
-using block_t = uint32_t;
+using inode_num = uint64_t; // An inode number
+using block_num = uint32_t; // A block number
 
 struct ext2_super_block
 {
@@ -102,7 +102,7 @@ struct ext2_inode
             uint32_t m_i_reserved1;
         } masix1;
     } osd1;                /* OS dependent 1 */
-    block_t i_block[15];   /* Pointers to blocks */
+    block_num i_block[15]; /* Pointers to blocks */
     uint32_t i_generation; /* File version (for NFS) */
     uint32_t i_file_acl;   /* File ACL */
     uint32_t i_dir_acl;    /* Directory ACL */
@@ -166,21 +166,33 @@ public:
 private:
     uint64_t get_block_size();
     uint64_t get_blocks_gropus_count();
-    uint64_t get_block_offset(block_t block);
+    uint64_t get_block_offset(block_num block);
     uint64_t get_inode_size(ext2_inode inode); // Returns the file size that the given inode is representing.
     bool read_block_groups_table();            // Sets errno on error
-    
+
     // If <count> != 0, reads <count> bytes. Else, reads BLOCK_SIZE bytes. Sets errno on error
-    bool read_block(block_t block, void *buf, uint64_t count, uint64_t offset);
-    bool read_inode_struct(inode_t inode, ext2_inode *buf); // Sets errno on error
-    
+    bool read_block(block_num block, void *buf, uint64_t count, uint64_t offset);
+    bool read_inode_struct(inode_num inode, ext2_inode *buf); // Sets errno on error
+
     // Reads a file represented by <inode>. Sets errno on error. Assumes that offset + count is not an overflow.
     bool read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offset);
     void print_inode(ext2_inode inode); // Used for testing
-    
+
     // How many blocks do we need to read for the given file offset and count
     // Notice - offset is relative to file start
-    uint64_t calc_no_blocks(uint64_t bytes_count, uint64_t offset);
+    uint32_t calc_no_blocks(uint64_t bytes_count, uint64_t offset);
+
+    /**
+     * Reads into the given array all of the blocks that need to be read.
+     * 
+     * @param inode The inode of the file we want to read
+     * @param block_num The array to fill with the block numbers
+     * @param no_blocks The number of blocks to read
+     * @param offset The offset from the start of the file
+     * 
+     * @return true on success, false on error
+    */
+    bool get_blocks_nums(ext2_inode inode, block_num* array, uint32_t no_blocks, uint64_t offset);
 
     ext2_super_block super_block;
     ext2_group_desc *group_desc_table;

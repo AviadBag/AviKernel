@@ -61,15 +61,24 @@ void Ext2::print_inode(ext2_inode inode)
 
 bool Ext2::read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offset)
 {
-    uint64_t no_blocks = calc_no_blocks(count, offset);
+    uint32_t no_blocks = calc_no_blocks(count, offset);
+    block_num *blocks_nums = new block_num[no_blocks]; // Will contain the list of blocks we need to read
+    if (!get_blocks_nums(inode, blocks_nums, no_blocks, offset))
+        return -1;
 }
 
-uint64_t Ext2::calc_no_blocks(uint64_t bytes_count, uint64_t offset)
+bool Ext2::get_blocks_nums(ext2_inode inode, block_num* array, uint32_t no_blocks, uint64_t offset)
 {
-    if (bytes_count == 0) return 0;
+    
+}
+
+uint32_t Ext2::calc_no_blocks(uint64_t bytes_count, uint64_t offset)
+{
+    if (bytes_count == 0)
+        return 0;
 
     // We surely need to read the first block
-    uint64_t blocks_count = 1;
+    uint32_t blocks_count = 1;
 
     uint64_t offset_in_1st_block = offset % get_block_size();
     bytes_count -= (get_block_size() - offset_in_1st_block);
@@ -107,7 +116,7 @@ bool Ext2::read_block_groups_table()
         set_errno(ENOMEM);
         return false;
     }
-    block_t group_descs_table_block = get_block_size() == 1024 ? 2 : 1;
+    block_num group_descs_table_block = get_block_size() == 1024 ? 2 : 1;
     return VFS::get_instance()->pread(
         disk,
         group_desc_table,
@@ -115,17 +124,17 @@ bool Ext2::read_block_groups_table()
         get_block_offset(group_descs_table_block));
 }
 
-uint64_t Ext2::get_block_offset(block_t block)
+uint64_t Ext2::get_block_offset(block_num block)
 {
     return block * get_block_size();
 }
 
-bool Ext2::read_block(block_t block, void *buf, uint64_t count = 0, uint64_t offset = 0)
+bool Ext2::read_block(block_num block, void *buf, uint64_t count = 0, uint64_t offset = 0)
 {
     return VFS::get_instance()->pread(disk, buf, count == 0 ? get_block_size() : count, get_block_offset(block) + offset);
 }
 
-bool Ext2::read_inode_struct(inode_t inode, ext2_inode *buf)
+bool Ext2::read_inode_struct(inode_num inode, ext2_inode *buf)
 {
     /**
      * IMPORTANT COMMENT
@@ -144,7 +153,7 @@ bool Ext2::read_inode_struct(inode_t inode, ext2_inode *buf)
     uint64_t inodes_per_block = get_block_size() / super_block.s_inode_size;
 
     // What block do we need?
-    block_t block = group_desc_table[block_group].bg_inode_table + (index_inode_table / inodes_per_block);
+    block_num block = group_desc_table[block_group].bg_inode_table + (index_inode_table / inodes_per_block);
 
     // Read the block
     char *block_buf = new char[get_block_size()];
