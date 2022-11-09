@@ -43,6 +43,8 @@ int Ext2::mount(Path what)
     read_inode_struct(0x10, &lames_inode);
     uint64_t size = 30000;
     char *buf = new char[size];
+    if (!buf)
+        panic("Cannot read test file lames - out of memory");
     read_inode(lames_inode, buf, size, 0);
     for (uint64_t i = 0; i < size; i++)
     {
@@ -71,21 +73,23 @@ bool Ext2::read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offs
     if (!get_blocks_nums(inode, blocks_nums, no_blocks, offset))
         return false;
 
+    // Read every block
     for (uint32_t i = 0; i < no_blocks; i++)
     {
-        uint64_t _offset = 0;
-        if (i == 0) // First block
-            _offset = offset % get_block_size();
+        uint64_t offset_in_block = 0; // Offset in current block
+        if (i == 0)                   // First block
+            offset_in_block = offset % get_block_size();
 
-        uint64_t _count = count;
+        // How many to read from the block
+        uint64_t count_in_block = get_block_size() - offset_in_block;
         if (i == no_blocks - 1) // Last block
-            _count = (offset + count) % get_block_size();
+            count_in_block = (offset + count) % get_block_size();
 
         // Read!
-        if (!read_block(blocks_nums[i], buf, _count, _offset))
+        if (!read_block(blocks_nums[i], buf, count_in_block, offset_in_block))
             return false;
 
-        ADD_TO_VOID_P(buf, _count);
+        ADD_TO_VOID_P(buf, count_in_block);
     }
 
     return true;
