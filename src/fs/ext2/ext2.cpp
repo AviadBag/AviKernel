@@ -81,9 +81,11 @@ bool Ext2::read_inode(ext2_inode inode, void *buf, uint64_t count, uint64_t offs
             offset_in_block = offset % get_block_size();
 
         // How many to read from the block
-        uint64_t count_in_block = get_block_size() - offset_in_block;
+        uint64_t count_in_block;
         if (i == no_blocks - 1) // Last block
-            count_in_block = (offset + count) % get_block_size();
+            count_in_block = ((offset + count) % get_block_size()) - offset_in_block;
+        else
+            count_in_block = get_block_size() - offset_in_block;
 
         // Read!
         if (!read_block(blocks_nums[i], buf, count_in_block, offset_in_block))
