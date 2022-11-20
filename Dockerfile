@@ -11,7 +11,7 @@ RUN apt-get install wget build-essential bison flex libgmp3-dev libmpc-dev libmp
 WORKDIR ~/ 
 
 # Download cross-compiler
-RUN wget https://mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-11.3.0/gcc-11.3.0.tar.gz --no-check-certificate \
+RUN wget https://ftp.gnu.org/gnu/gcc/gcc-11.3.0/gcc-11.3.0.tar.gz --no-check-certificate \
    &&  wget https://mirrors.kernel.org/gnu/binutils/binutils-2.38.tar.gz --no-check-certificate
 RUN tar -xzf gcc-11.3.0.tar.gz \
    &&  tar -xzf binutils-2.38.tar.gz
@@ -39,12 +39,5 @@ RUN rm -rf *
 # Later dependencies (So I won't have to rebuild the image every time I add one)
 RUN apt-get install -y gdb
 
-# Setup project
-#RUN git clone https://github.com/AviadBag/AviKernel.git
-#RUN mkdir AviKernel/isodir
-
-# Make sure we are up-to-date
-ENTRYPOINT cd AviKernel \
-        && git pull \
-	&& bash
-
+VOLUME /avikernel
+WORKDIR /avikernel
