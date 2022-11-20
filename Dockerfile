@@ -39,6 +39,5 @@ RUN rm -rf *
 # Later dependencies (So I won't have to rebuild the image every time I add one)
 RUN apt-get install -y gdb
 
-# Enter bash
-ENTRYPOINT bash
-
+VOLUME /avikernel
+WORKDIR /avikernel
