@@ -6,11 +6,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define PMMGR_PAGE_SIZE (1024 * 4) // 4 KB
+#define PMMGR_BLOCK_SIZE (1024 * 4) // 4 KB
 
-typedef void* physical_addr;
+typedef void *physical_addr;
 
-class PhysicalMgr {
+class PhysicalMgr
+{
 public:
     // higher_memory_size is in bytes!
     static void initialize(uint32_t higher_memory_size, uint32_t mmap_addr, uint32_t mmap_length);
@@ -25,13 +26,13 @@ private:
     static void fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length);
 
 private:
-    // "what" is PMMGR_BITMAP_PAGE_USED or PMMGR_BITMAP_PAGE_FREE.
+    // "what" is PMMGR_BITMAP_BLOCK_USED or PMMGR_BITMAP_BLOCK_FREE.
     // "size" = how many bytes.
     // size must be > 0!
     static void mark_memory_as(uint32_t start_address, size_t size, int what);
 
-    static uint32_t* bitmap; // A clear bit means a free page.
-    static uint64_t number_of_pages;
+    static uint32_t *bitmap; // A clear bit means a free block.
+    static uint64_t number_of_blocks;
     static uint64_t number_of_cells;
     static uint64_t bitmap_size;
 };
