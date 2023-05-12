@@ -5,8 +5,16 @@
 #include <cstdio.h>
 #include <cstring.h>
 
-#define PMMGR_USABLE_MEMORY_START 0x100000 // One MB
-#define PMMGR_MAPPED_MEMORY_END 0x400000   // 4 MB
+#define PMMGR_USABLE_MEMORY_START 0x100000 // One MB. The lower memory (< 1MB) is reserved for hardware.
+/**
+ * @brief 4MB.
+ * During early start up we set up a temporary virtual memory table. (See src/boot/boot.asm).
+ * There we identity-map the first 4MB, and map the kernel. Therefore we can currently
+ * only use the first 4MB and the kernel memory space.
+ * We are still providing blocks on higher addressed, but they are to be used only after the
+ * virtual memory manager is initialized.
+ */
+#define PMMGR_BOOT_MAPPING_MEMORY_END 0x400000
 
 #define PMMGR_BITMAP_BLOCK_USED 1
 #define PMMGR_BITMAP_BLOCK_FREE 0
@@ -35,7 +43,7 @@ void PhysicalMgr::initialize(uint32_t higher_memory_size, uint32_t mmap_addr, ui
     printf("Initializing Physical Memory Manager...\n");
 
     // Init variables
-    number_of_blocks = higher_memory_size / PMMGR_BLOCK_SIZE; // higher_memory_size
+    number_of_blocks = higher_memory_size / PMMGR_BLOCK_SIZE;
     number_of_cells = number_of_blocks / 32;
     bitmap_size = number_of_cells * 4; // Every cell is 32 bits, I need it in 8 bits units.
 
@@ -90,7 +98,7 @@ void PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
     multiboot_memory_map_t *entry = (multiboot_memory_map_t *)mmap_addr;
     while ((uint32_t)entry < (mmap_addr + mmap_length))
     {
-        if (entry->type == MULTIBOOT_MEMORY_AVAILABLE && entry->addr >= PMMGR_USABLE_MEMORY_START && entry->addr + bitmap_size < PMMGR_MAPPED_MEMORY_END)
+        if (entry->type == MULTIBOOT_MEMORY_AVAILABLE && entry->addr >= PMMGR_USABLE_MEMORY_START && entry->addr + bitmap_size < PMMGR_BOOT_MAPPING_MEMORY_END)
         {
             if (entry->len >= bitmap_size)
             {
