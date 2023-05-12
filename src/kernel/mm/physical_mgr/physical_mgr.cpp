@@ -68,7 +68,7 @@ void PhysicalMgr::mark_memory_as(uint32_t start_address, size_t size, int what)
 void PhysicalMgr::fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
 {
     // Fill the bitmap with ones. (By default, all the blocks are used).
-    mark_memory_as(0, number_of_blocks - 1, PMMGR_BITMAP_BLOCK_USED);
+    memset(bitmap, 0, bitmap_size);
 
     multiboot_memory_map_t *entry = (multiboot_memory_map_t *)mmap_addr;
     while ((uint32_t)entry < (mmap_addr + mmap_length))
