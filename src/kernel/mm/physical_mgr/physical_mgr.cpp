@@ -28,6 +28,7 @@
 // The oppesite of PMMGR_ADDRESS_TO_BLOCK
 #define PMMGR_BLOCK_TO_ADDRESS(address) ((address)*PMMGR_BLOCK_SIZE)
 
+// The kernel is currently mapped virtually at 0xC0000000
 #define PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(v) ((physical_addr)((uint32_t)(v)-0xC0000000))
 
 uint32_t *PhysicalMgr::bitmap;
@@ -49,48 +50,6 @@ void PhysicalMgr::initialize(uint32_t higher_memory_size, uint32_t mmap_addr, ui
 
     find_memory_for_bitmap(mmap_addr, mmap_length);
     fill_bitmap(mmap_addr, mmap_length);
-}
-
-void PhysicalMgr::mark_memory_as(uint32_t start_address, size_t size, int what)
-{
-    size_t start_block = PMMGR_ADDRESS_TO_BLOCK(start_address);
-    size_t end_block = PMMGR_ADDRESS_TO_BLOCK(start_address + size);
-    size_t blocks_count = end_block - start_block + 1; // There is at least one block
-    for (size_t i = 0; i < blocks_count; i++)
-    {
-        if (what == PMMGR_BITMAP_BLOCK_USED)
-            Bitmap::set(bitmap, start_block + i);
-        else
-            Bitmap::clear(bitmap, start_block + i);
-    }
-}
-
-void PhysicalMgr::fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
-{
-    // Fill the bitmap with ones. (By default, all the blocks are used).
-    memset(bitmap, 0, bitmap_size);
-
-    multiboot_memory_map_t *entry = (multiboot_memory_map_t *)mmap_addr;
-    while ((uint32_t)entry < (mmap_addr + mmap_length))
-    {
-        if (entry->type == MULTIBOOT_MEMORY_AVAILABLE)
-            // Mark this memory region as free
-            mark_memory_as(entry->addr, entry->size, PMMGR_BITMAP_BLOCK_FREE);
-
-        // Go to next entry
-        entry = (multiboot_memory_map_t *)((unsigned int)entry + entry->size + sizeof(entry->size));
-    }
-
-    // Mark the first MB as used
-    mark_memory_as(0, PMMGR_USABLE_MEMORY_START, PMMGR_BITMAP_BLOCK_USED);
-
-    // Mark the bitmap as used
-    mark_memory_as((uint32_t)bitmap, bitmap_size, PMMGR_BITMAP_BLOCK_USED);
-
-    // Mark the kernel area as used
-    uint32_t kernelStartP = (uint32_t)PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(&kernelStart);
-    uint32_t kernelEndP = (uint32_t)PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(&kernelEnd);
-    mark_memory_as(kernelStartP, kernelEndP - kernelStartP, PMMGR_BITMAP_BLOCK_USED);
 }
 
 void PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
@@ -135,6 +94,49 @@ void PhysicalMgr::find_memory_for_bitmap(uint32_t mmap_addr, uint32_t mmap_lengt
     panic("Physical Memory Manager: Not enough memory! Could not find enough place for the physical allocator bitmap");
 }
 
+void PhysicalMgr::fill_bitmap(uint32_t mmap_addr, uint32_t mmap_length)
+{
+    // Fill the bitmap with ones. (By default, all the blocks are used).
+    memset(bitmap, 0, bitmap_size);
+
+    // Iterate over the memory map to find the availabe memory regions.
+    multiboot_memory_map_t *entry = (multiboot_memory_map_t *)mmap_addr;
+    while ((uint32_t)entry < (mmap_addr + mmap_length))
+    {
+        if (entry->type == MULTIBOOT_MEMORY_AVAILABLE)
+            // Mark this memory region as free
+            mark_memory_as(entry->addr, entry->size, PMMGR_BITMAP_BLOCK_FREE);
+
+        // Go to next entry
+        entry = (multiboot_memory_map_t *)((unsigned int)entry + entry->size + sizeof(entry->size));
+    }
+
+    // Mark the first MB as used (Reserved for hardware)
+    mark_memory_as(0, PMMGR_USABLE_MEMORY_START, PMMGR_BITMAP_BLOCK_USED);
+
+    // Mark the bitmap as used
+    mark_memory_as((uint32_t)bitmap, bitmap_size, PMMGR_BITMAP_BLOCK_USED);
+
+    // Mark the kernel area as used
+    uint32_t kernelStartP = (uint32_t)PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(&kernelStart);
+    uint32_t kernelEndP = (uint32_t)PMMGR_VIRTUAL_TO_PHYSICAL_ADDR(&kernelEnd);
+    mark_memory_as(kernelStartP, kernelEndP - kernelStartP, PMMGR_BITMAP_BLOCK_USED);
+}
+
+void PhysicalMgr::mark_memory_as(uint32_t start_address, size_t size, int what)
+{
+    size_t start_block = PMMGR_ADDRESS_TO_BLOCK(start_address);
+    size_t end_block = PMMGR_ADDRESS_TO_BLOCK(start_address + size);
+    size_t blocks_count = end_block - start_block + 1; // There is at least one block
+    for (size_t i = 0; i < blocks_count; i++)
+    {
+        if (what == PMMGR_BITMAP_BLOCK_USED)
+            Bitmap::set(bitmap, start_block + i);
+        else
+            Bitmap::clear(bitmap, start_block + i);
+    }
+}
+
 physical_addr PhysicalMgr::allocate_block()
 {
     // Iterate on each cell, and check where there is a free block.
@@ -145,12 +147,12 @@ physical_addr PhysicalMgr::allocate_block()
         {
             for (int j = 0; j < 32; j++)
             {
-                int cell_number = i * 32 + j;
-                if (Bitmap::test(bitmap, cell_number) == PMMGR_BITMAP_BLOCK_FREE)
+                int bit = i * 32 + j;
+                if (Bitmap::test(bitmap, bit) == PMMGR_BITMAP_BLOCK_FREE)
                 {
                     // We have found a block!
-                    Bitmap::set(bitmap, cell_number);
-                    return (physical_addr)PMMGR_BLOCK_TO_ADDRESS(cell_number);
+                    Bitmap::set(bitmap, bit);
+                    return (physical_addr)PMMGR_BLOCK_TO_ADDRESS(bit);
                 }
             }
         }
@@ -161,7 +163,7 @@ physical_addr PhysicalMgr::allocate_block()
 
 void PhysicalMgr::free_block(physical_addr block)
 {
-    if ((uint32_t)block % PMMGR_BLOCK_SIZE != 0) // This is not a block size.
+    if ((uint32_t)block % PMMGR_BLOCK_SIZE != 0) // This is not page aligned!.
         return;
 
     size_t block_number = PMMGR_ADDRESS_TO_BLOCK((uint32_t)block);
