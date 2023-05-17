@@ -63,7 +63,7 @@ private:
      * @brief Invalidates the cache for the given page.
      *
      */
-    static inline void invalidate(virtual_addr);
+    static inline void invalidate_cache(virtual_addr);
 };
 
 #endif // __VIRTUAL_MGR_H__

@@ -6,23 +6,22 @@
 #include <cstdio.h>
 #include <cstring.h>
 
-// Extracts the page table index from a virtual address
-#define VMMGR_GET_PAGE_TABLE_INDEX(v_address) ((((uint32_t)(v_address)) >> 12) & 0x3FF)
-
 // Extracts the page directory index from a virtual address
 #define VMMGR_GET_PAGE_DIRECTORY_INDEX(v_address) ((((uint32_t)(v_address)) >> 22) & 0x3FF)
 
-// Sets the table index in a given virtual address.
-#define VMMGR_SET_PAGE_TABLE_INDEX(v_address, t_index) ((virtual_addr)((uint32_t)(v_address) | ((t_index) << 12)))
+// Extracts the page table index from a virtual address
+#define VMMGR_GET_PAGE_TABLE_INDEX(v_address) ((((uint32_t)(v_address)) >> 12) & 0x3FF)
 
 // Sets the directory index in a given virtual address.
 #define VMMGR_SET_PAGE_DIRECTORY_INDEX(v_address, d_index) ((virtual_addr)((uint32_t)(v_address) | ((d_index) << 22)))
 
+// Sets the table index in a given virtual address.
+#define VMMGR_SET_PAGE_TABLE_INDEX(v_address, t_index) ((virtual_addr)((uint32_t)(v_address) | ((t_index) << 12)))
+
 #define VMMGR_KERNEL_VIRTUAL_BASE_ADDR 0xC0000000 // 3GB
-#define VMMGR_4_MB 0x400000
 
 // Converts a kernel virtual address to it's physical form.
-#define KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(v_addr) ((physical_addr)((uint32_t)(v_addr)-VMMGR_KERNEL_VIRTUAL_BASE_ADDR))
+#define VMMGR_KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(v_addr) ((physical_addr)((uint32_t)(v_addr)-VMMGR_KERNEL_VIRTUAL_BASE_ADDR))
 
 // The page etable is the last entry in the page directory.
 #define VMMGRE_PAGE_ETABLE_DIRECTORY_INDEX 1023
@@ -38,7 +37,7 @@ virtual_addr VirtualMgr::get_page_table_virtual_address(int index)
     return addr;
 }
 
-void VirtualMgr::invalidate(virtual_addr v_addr)
+void VirtualMgr::invalidate_cache(virtual_addr v_addr)
 {
     asm volatile("invlpg (%0)" ::"r"(v_addr)
                  : "memory");
@@ -80,12 +79,12 @@ void VirtualMgr::map(virtual_addr v_addr, physical_addr p_addr, bool requires_su
     // Map the desired page in the page table
     PageTableEntry page_table_entry(true, true, requires_supervisor, p_addr);
     (*page_table)[index_in_page_table] = page_table_entry.to_bytes();
-    invalidate(v_addr);
+    invalidate_cache(v_addr);
 }
 
 void VirtualMgr::put_page_etable()
 {
-    physical_addr page_etable_physcical_addr = KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(page_etable);
+    physical_addr page_etable_physcical_addr = VMMGR_KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(page_etable);
     PageDirectoryEntry page_etable_directory_entry(true, true, true, false, page_etable_physcical_addr);
 
     // The page directory is stored in cr3. It's a physical address, but I have identity mapping there.
@@ -108,9 +107,9 @@ void VirtualMgr::initialize()
     printf("Initializing Virtual Memory Manager...\n");
 
     memset(page_etable, 0, sizeof(uint32_t) * 1024);
-    put_page_etable();                                                                              // Put the etable in the default, setup-on-boot, page directory.
-    map_range((virtual_addr)VMMGR_KERNEL_VIRTUAL_BASE_ADDR, 0, VMMGR_4_MB / VMMGR_PAGE_SIZE, true); // Map kernel
-    map_range(0, 0, VMMGR_4_MB / VMMGR_PAGE_SIZE, true);                                            // First 4 mb identity mapping
-    Registers::set_cr3((uint32_t)KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(page_directory));                  // Switch to MY page directory
-    put_page_etable();                                                                              // Put the etable in MY directory.
+    put_page_etable();                                                                            // Put the etable in the default, setup-on-boot, page directory.
+    map_range((virtual_addr)VMMGR_KERNEL_VIRTUAL_BASE_ADDR, 0, 0x400000 / VMMGR_PAGE_SIZE, true); // Map kernel
+    map_range(0, 0, 0x400000 / VMMGR_PAGE_SIZE, true);                                            // First 4 mb identity mapping
+    Registers::set_cr3((uint32_t)VMMGR_KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(page_directory));          // Switch to MY page directory
+    put_page_etable();                                                                            // Put the etable in MY directory.
 }
