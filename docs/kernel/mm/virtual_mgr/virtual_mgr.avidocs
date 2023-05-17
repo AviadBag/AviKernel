@@ -1,0 +1,27 @@
+The Virtual Memory manager is responsible for mapping physical addresses to physical ones.
+Upon initialization it replaces the boot paging directory with it's own, and from then on - 
+the vmmgr alone manages stuff about virtual memory.
+
+Internal workings:
+It's pretty simple, but there is one important concept to understand:
+The page_etable.
+The page_etable comes to address a difficult problem - the page tables need to be kept somewhere.
+The page directory can be saved in the stack, as it is not that big, but the page tables shouldn't.
+This is where page_etable comes into place. Whenever we need to initialize a new page table, we allocate
+a frame from the physical manager. This frame will be our new page table. But the physical manager gives 
+us only a physical address. We need to map it. Where? At the end of our virtual memory, right in the
+page_etable!
+
+So to sum up, page_etable is just another page table, that is used to keep all the others page tables.
+page_etable is on the stack. 
+page_etable is always at the end of the virtual memory.
+
+And honestly, I don't remember why it's called page_*e*table.
+
+
+A map of the virtual memory:
+|first 4 MB|       - identity mapping (for drivers etc.)
+...                - free space
+|0xC0000000 - 4MB| - kernel
+...                - free space
+|last 4KB|         - page_etable
