@@ -18,7 +18,7 @@
 // Sets the directory index in a given virtual address.
 #define VMMGR_SET_PAGE_DIRECTORY_INDEX(v_address, d_index) ((virtual_addr)((uint32_t)(v_address) | ((d_index) << 22)))
 
-#define VMMGR_KERNEL_VIRTUAL_BASE_ADDR 0xC0000000
+#define VMMGR_KERNEL_VIRTUAL_BASE_ADDR 0xC0000000 // 3GB
 #define VMMGR_4_MB 0x400000
 
 // Converts a kernel virtual address to it's physical form.
@@ -59,7 +59,7 @@ void VirtualMgr::map(virtual_addr v_addr, physical_addr p_addr, bool requires_su
     virtual_addr page_table_virtual_addr = get_page_table_virtual_address(index_in_page_directory);
     uint32_t(*page_table)[1024] = (uint32_t(*)[1024])page_table_virtual_addr;
 
-    // Check if the required page table already exists
+    // Maybe the required page table doesn't exists
     if (!page_table_etable_entry.get_present()) {
         // The page table does not exist - create it
         physical_addr page_table_addr = PhysicalMgr::allocate_block();
@@ -105,7 +105,7 @@ void VirtualMgr::initialize()
 {
     printf("Initializing Virtual Memory Manager...\n");
 
-    put_page_etable(); // Put the etable in the boot directory.
+    put_page_etable(); // Put the etable in the default, setup-on-boot, page directory.
     map_range((virtual_addr)VMMGR_KERNEL_VIRTUAL_BASE_ADDR, 0, VMMGR_4_MB / VMMGR_PAGE_SIZE, true); // Map kernel
     map_range(0, 0, VMMGR_4_MB / VMMGR_PAGE_SIZE, true); // First 4 mb identity mapping
     Registers::set_cr3((uint32_t)KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(page_directory)); // Switch to MY page directory
