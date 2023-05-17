@@ -5,6 +5,9 @@
 #include "fs/devfs/devfs.h"
 #include "fs/vfs/vfs.h"
 
+#include "kernel/mm/virtual_mgr/virtual_mgr.h"
+#include "kernel/mm/physical_mgr/physical_mgr.h"
+
 #include <string.h>
 #include <cstdio.h>
 #include <cstring.h>
@@ -82,9 +85,51 @@ void test_fs()
     OUTSIDE();
 }
 
+void test_vmmgr()
+{
+    INSIDE();
+    testing("Virtual Memory Manager");
+
+    // Allocate some physical blocks
+    physical_addr test_p_blocks[100];
+    for (int i = 0; i < 100; i++)
+    {
+        physical_addr block = PhysicalMgr::allocate_block();
+        ASSERT_NOT_NULL(block);
+        test_p_blocks[i] = block;
+    }
+
+    // Map them to 2GB, for example
+    virtual_addr test_v_blocks[100];
+    for (int i = 0; i < 100; i++)
+    {
+        test_v_blocks[i] = (virtual_addr)(0x200000 + i * VMMGR_PAGE_SIZE);
+        VirtualMgr::map(test_v_blocks[i], test_p_blocks[i], false);
+    }
+
+    // And write!
+    for (int i = 0; i < 100; i++)
+    {
+        memset(test_v_blocks[i], 5, VMMGR_PAGE_SIZE);
+    }
+
+    OUTSIDE();
+}
+
+void test_mm()
+{
+    INSIDE();
+    testing("Memory Managment");
+
+    test_vmmgr();
+
+    OUTSIDE();
+}
+
 void Tester::test()
 {
     printf("\nBeginning unit testing! Heidad Lameidad!\n");
 
+    test_mm();
     test_fs();
 }
