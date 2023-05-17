@@ -100,7 +100,7 @@ void VirtualMgr::map_range(virtual_addr v_addr, physical_addr p_addr, size_t cou
         p_addr = (physical_addr)((uint32_t)(p_addr) + VMMGR_PAGE_SIZE);
     }
 }
-extern "C" void set_cr3(uint32_t);
+
 void VirtualMgr::initialize()
 {
     printf("Initializing Virtual Memory Manager...\n");
