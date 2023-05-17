@@ -60,7 +60,8 @@ void VirtualMgr::map(virtual_addr v_addr, physical_addr p_addr, bool requires_su
     uint32_t(*page_table)[1024] = (uint32_t(*)[1024])page_table_virtual_addr;
 
     // Maybe the required page table doesn't exists
-    if (!page_table_etable_entry.get_present()) {
+    if (!page_table_etable_entry.get_present())
+    {
         // The page table does not exist - create it
         physical_addr page_table_addr = PhysicalMgr::allocate_block();
 
@@ -94,7 +95,8 @@ void VirtualMgr::put_page_etable()
 
 void VirtualMgr::map_range(virtual_addr v_addr, physical_addr p_addr, size_t count, bool requires_supervisor)
 {
-    for (size_t i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++)
+    {
         map(v_addr, p_addr, requires_supervisor);
         v_addr = (virtual_addr)((uint32_t)(v_addr) + VMMGR_PAGE_SIZE);
         p_addr = (physical_addr)((uint32_t)(p_addr) + VMMGR_PAGE_SIZE);
@@ -105,9 +107,10 @@ void VirtualMgr::initialize()
 {
     printf("Initializing Virtual Memory Manager...\n");
 
-    put_page_etable(); // Put the etable in the default, setup-on-boot, page directory.
+    memset(page_etable, 0, sizeof(uint32_t) * 1024);
+    put_page_etable();                                                                              // Put the etable in the default, setup-on-boot, page directory.
     map_range((virtual_addr)VMMGR_KERNEL_VIRTUAL_BASE_ADDR, 0, VMMGR_4_MB / VMMGR_PAGE_SIZE, true); // Map kernel
-    map_range(0, 0, VMMGR_4_MB / VMMGR_PAGE_SIZE, true); // First 4 mb identity mapping
-    Registers::set_cr3((uint32_t)KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(page_directory)); // Switch to MY page directory
-    put_page_etable(); // Put the etable in MY directory.
+    map_range(0, 0, VMMGR_4_MB / VMMGR_PAGE_SIZE, true);                                            // First 4 mb identity mapping
+    Registers::set_cr3((uint32_t)KERNEL_VIRTUAL_ADDR_TO_PHYSICAL(page_directory));                  // Switch to MY page directory
+    put_page_etable();                                                                              // Put the etable in MY directory.
 }
