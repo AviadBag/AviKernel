@@ -1,4 +1,4 @@
-The Virtual Memory manager is responsible for mapping physical addresses to physical ones.
+The Virtual Memory manager is responsible for mapping physical addresses to virtual ones.
 Upon initialization it replaces the boot paging directory with it's own, and from then on - 
 the vmmgr alone manages stuff about virtual memory.
 
