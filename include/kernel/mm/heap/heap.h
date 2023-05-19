@@ -37,6 +37,9 @@ public:
 
     /**
      * @brief Changes the size of the given chunk. Data will remain unchanged.
+     *        If <ptr> is NULL, then the call is equivalent to malloc(new_size).
+     *        If <new_size> is equal to zero, and <ptr> is not NULL, then the call is equiva‐
+     *        lent to free(ptr)
      *
      * @param ptr      A pointer to the memory chunk to resize.
      * @param new_size The new required size.
