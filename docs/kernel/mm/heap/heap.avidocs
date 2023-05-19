@@ -1,0 +1,23 @@
+The heap starts right after the kernel.
+
+The memory space is divided into holes and allocated spaces. Every hole starts with a header of type heap_hole_header,
+every allocated space starts with a size_t indicating it's size.
+
+The heap holds a doubly linked list of pointers to all of the holes we have. malloc() runs over this list and finds a hole that is big enough
+for it's needs, and removes it from the holes list.
+Every memory space that is not in the list is considered allocated, and it's heap_hole_header is invalid.
+
+Upon initialization the heap contains only one hole, the size of one page. When needed the heap extends itself.
+
+An example of a memory map:
+
+(size_t x -> allocated space)
+(heap_hole_header -> a hole)     <-------- holes_list_head
+(size_t x -> allocated space)
+(size_t x -> allocated space)
+(heap_hole_header -> a hole)
+(size_t x -> allocated space)
+(size_t x -> allocated space)
+(size_t x -> allocated space)
+(size_t x -> allocated space)
+(heap_hole_header -> a hole)     <-------- holes_list_tail
