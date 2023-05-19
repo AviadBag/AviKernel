@@ -15,16 +15,17 @@
 
 extern "C" uint32_t kernelEnd; // This variable sits at the end of the kernel.
 
-heap_header *Heap::holes_list_head;
-heap_header *Heap::holes_list_tail;
+heap_hole_header *Heap::holes_list_head;
+heap_hole_header *Heap::holes_list_tail;
 void *Heap::last_page;
 
 void Heap::initialize()
 {
     printf("Initializing Heap...\n");
 
+    // Set the beginning of the memory right after the kernel.
     // kernelEnd is page aligned, and holes_list_head should also be page aligned..
-    holes_list_head = holes_list_tail = (heap_header *)(&kernelEnd + VMMGR_PAGE_SIZE);
+    holes_list_head = holes_list_tail = (heap_hole_header *)(&kernelEnd + VMMGR_PAGE_SIZE);
     physical_addr first_frame = PhysicalMgr::allocate_block();
     if (!first_frame)
         panic("Not enough space for heap!");
@@ -32,6 +33,7 @@ void Heap::initialize()
     VirtualMgr::map(holes_list_head, first_frame, true);
     last_page = holes_list_head;
 
+    // Set our first hole.
     holes_list_head->size = PMMGR_BLOCK_SIZE;
     holes_list_head->prev = NULL;
     holes_list_head->next = NULL;
@@ -39,11 +41,11 @@ void Heap::initialize()
 
 bool Heap::extend_heap(size_t size)
 {
-    size_t desired_size = size + sizeof(heap_header); // How many size we REALLY nead
+    size_t desired_size = size + sizeof(heap_hole_header); // What size we REALLY need
     size_t desired_pages = desired_size / VMMGR_PAGE_SIZE + 1;
 
-    heap_header *header = NULL;
-    HEAP_ADD_TO_VOID_P(last_page, VMMGR_PAGE_SIZE);
+    heap_hole_header *header = NULL;
+    HEAP_ADD_TO_VOID_P(last_page, VMMGR_PAGE_SIZE); // Get to the END of the heap.
 
     bool status = true;
 
@@ -53,20 +55,18 @@ bool Heap::extend_heap(size_t size)
         physical_addr frame = PhysicalMgr::allocate_block();
         if (!frame)
         {
+            // Oh no, not enough memory.
             status = false;
             break;
         }
 
         VirtualMgr::map(last_page, frame, true);
         if (header == NULL) // Do it only at the first time
-            header = (heap_header *)last_page;
+            header = (heap_hole_header *)last_page;
     }
 
     // Fill header
     header->size = number_of_pages_done * VMMGR_PAGE_SIZE;
-    header->next = NULL;
-    header->prev = holes_list_tail;
-
     insert_to_holes_list(header);
 
     return status;
@@ -77,15 +77,16 @@ void *Heap::malloc(size_t size)
     if (size == 0)
         return NULL;
 
-    size_t required_size = size + sizeof(size_t); // I also have to store the amount of allocated bytes.
+    size_t required_size = size + sizeof(size_t); // Include the header
 
     // Find the first big enough hole
-    heap_header *node = holes_list_head;
-    heap_header *hole = NULL;
+    heap_hole_header *node = holes_list_head;
+    heap_hole_header *hole = NULL;
     while (node != NULL)
     {
         if (node->size >= required_size)
         {
+            // Yay we found one!
             hole = node;
             break;
         }
@@ -93,9 +94,11 @@ void *Heap::malloc(size_t size)
         node = node->next;
     }
 
-    if (hole == NULL) // Not found...
+    if (hole == NULL) // We haven't found any hole..
     {
+        // Try extending the heap
         if (!extend_heap(required_size))
+            // Not enough memory.
             return NULL;
 
         return malloc(size); // Try again
@@ -114,13 +117,13 @@ void *Heap::malloc(size_t size)
     return addr;
 }
 
-size_t Heap::split(heap_header *hole, size_t size)
+size_t Heap::split(heap_hole_header *hole, size_t size)
 {
-    if (hole->size - size > sizeof(heap_header)) // Can it be splitted?
+    if (hole->size - size > sizeof(heap_hole_header)) // Can it be splitted?
     {
         // Where to split? (We must preserve space for the heap header, so we will be able to fill it when free)
-        size_t offset = size > sizeof(heap_header) ? size : sizeof(heap_header);
-        heap_header *new_hole = (heap_header *)((char *)hole + offset); // Here will be the header of the new hole
+        size_t offset = size > sizeof(heap_hole_header) ? size : sizeof(heap_hole_header);
+        heap_hole_header *new_hole = (heap_hole_header *)((char *)hole + offset); // Here will be the header of the new hole
 
         // Fill data about the new hole
         new_hole->size = hole->size - offset;
@@ -134,7 +137,7 @@ size_t Heap::split(heap_header *hole, size_t size)
     return 0;
 }
 
-void Heap::remove_from_holes_list(heap_header *hole)
+void Heap::remove_from_holes_list(heap_hole_header *hole)
 {
     // Case 1 - This is the only hole
     if (hole->prev == NULL && hole->next == NULL)
@@ -160,7 +163,7 @@ void Heap::remove_from_holes_list(heap_header *hole)
     }
 }
 
-void Heap::insert_to_holes_list(heap_header *hole)
+void Heap::insert_to_holes_list(heap_hole_header *hole)
 {
     if (holes_list_tail == NULL) // The list is empty
     {
@@ -171,7 +174,8 @@ void Heap::insert_to_holes_list(heap_header *hole)
     else
     {
         // Find the right place.
-        heap_header *node = holes_list_head;
+        // At the end of the loop, <node> will contain the node that should be AFTER <hole>
+        heap_hole_header *node = holes_list_head;
         while (node != NULL)
         {
             if (hole < node)
@@ -199,7 +203,7 @@ void Heap::insert_to_holes_list(heap_header *hole)
         // Case 3: That should be put in the middle
         else
         {
-            heap_header *prev = node->prev;
+            heap_hole_header *prev = node->prev;
 
             // Bind to prev
             prev->next = hole;
@@ -212,19 +216,19 @@ void Heap::insert_to_holes_list(heap_header *hole)
     }
 }
 
-void Heap::merge_next(heap_header *header)
+void Heap::merge_next(heap_hole_header *header)
 {
     header->size += header->next->size;
     remove_from_holes_list(header->next);
 }
 
-void Heap::merge_previous(heap_header *header)
+void Heap::merge_previous(heap_hole_header *header)
 {
     header->prev->size += header->size;
     remove_from_holes_list(header);
 }
 
-void Heap::merge(heap_header *header)
+void Heap::merge(heap_hole_header *header)
 {
     if ((char *)header->prev + header->prev->size == (char *)header)
         merge_previous(header);
@@ -237,9 +241,9 @@ void Heap::free(void *addr)
     /* Warning: When using this code in other places, do "- sizeof(size_t)", because the size indicator counts itself
     as well! */
     HEAP_SUBTRACT_FROM_VOID_P(addr, sizeof(size_t)); // Go to the actual beginning of the allocated space.
-    size_t how_many_bytes = *(size_t *)(addr);
+    size_t how_many_bytes = *(size_t *)(addr);       // At the beginning of every allocated chunk there is a size_t indicating the size of this chunk.
 
-    heap_header *header = (heap_header *)addr;
+    heap_hole_header *header = (heap_hole_header *)addr; // Now that it's free we should populate it with a header.
     header->size = how_many_bytes;
     insert_to_holes_list(header);
 
