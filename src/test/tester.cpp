@@ -116,12 +116,33 @@ void test_vmmgr()
     OUTSIDE();
 }
 
+void test_heap()
+{
+    INSIDE();
+    testing("Heap");
+
+    int *a = new int;
+    int *b = new int;
+
+    *a = 5;
+    *b = 6;
+
+    delete a;
+    ASSERT_EQUAL(*b, 6);
+
+    // Clean up
+    delete b;
+
+    OUTSIDE();
+}
+
 void test_mm()
 {
     INSIDE();
     testing("Memory Managment");
 
     test_vmmgr();
+    test_heap();
 
     OUTSIDE();
 }
