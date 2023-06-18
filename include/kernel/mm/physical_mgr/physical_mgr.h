@@ -26,7 +26,7 @@ public:
      * @brief The main function of the PMMGR - allocates you a physical block somewhere.
      *        The given block hes the size of PMMGR_BLOCK_SIZE.
      *
-     * @return physical_addr
+     * @return physical_addr The address of the newly allocated block
      */
     static physical_addr allocate_block();
 
