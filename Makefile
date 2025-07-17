@@ -4,17 +4,26 @@ INCLUDE := include
 CONFIG  := config
 CROSS   := /opt/cross/bin
 
-CXX       := ${CROSS}/i686-elf-g++
+OSNAME := $(shell uname)
+
+ifeq ($(OSNAME), Darwin) # MacOS; We assume the cross compiler was installed with brew.
+	CXX    := i686-elf-g++
+	LINKER := i686-elf-gcc
+	MKRESCUE := i686-elf-grub-mkrescue
+else
+	CXX    := ${CROSS}/i686-elf-g++
+	LINKER := ${CROSS}/i686-elf-gcc
+	MKRESCUE := grub-mkrescue
+endif
 CXX_FLAGS := -c -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-sized-deallocation -fno-rtti -g -O0 -I ${INCLUDE} -I ${INCLUDE}/libc -I ${INCLUDE}/libc++
+LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc 
+
 ifdef test
 	CXX_FLAGS += -DTEST
 endif
 
 ASM       := nasm
 ASM_FLAGS := -felf32 -g -F dwarf -O0 -w-number-overflow
-
-LINKER       := ${CROSS}/i686-elf-gcc
-LINKER_FLAGS := -ffreestanding -O2 -nostdlib -lgcc 
 
 SOURCES_ASM := $(shell find ${SRC} -type f -name '*.asm')
 SOURCES_CPP := $(shell find ${SRC} -type f -name '*.cpp')
@@ -35,7 +44,7 @@ KERNEL := ${BIN}/kernel.bin
 ISO    := os.iso
 
 VM             := qemu-system-i386
-VM_FLAGS       := ${ISO} -curses
+VM_FLAGS       := ${ISO}
 VM_DEBUG_FLAGS := -s -S
 
 all: ${ISO}
@@ -53,7 +62,7 @@ ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	@cp ${KERNEL} isodir/boot/kernel.bin
 	@cp ${CONFIG}/grub.cfg isodir/boot/grub/grub.cfg
 	@echo "PACKAGE     ${KERNEL}"
-	@grub-mkrescue -o $@ isodir > /dev/null 2>&1
+	@${MKRESCUE} -o $@ isodir > /dev/null 2>&1
 
 # Caution: ${LINKER_FLAGS} MUST be at the end of the line!
 ${KERNEL}: ${OBJ}
