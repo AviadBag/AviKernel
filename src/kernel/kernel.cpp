@@ -73,8 +73,9 @@ void setup_drivers()
         uint8_t function_number = device.get_function_number();
         uint8_t class_code = pci_driver->get_class_code(device);
         uint8_t sub_class_code = pci_driver->get_sub_class_code(device);
+        const char *desc = pci_driver->get_device_description(device);
 
-        printf("Found a device of type 0x%X-0x%X, at PCI %d:%d:%d\n", class_code, sub_class_code, bus_nubmer, device_number, function_number);
+        printf("Found PCI %d:%d:%d (0x%X:0x%X) -> %s\n", bus_nubmer, device_number, function_number, class_code, sub_class_code, desc);
     }
 
     ClockDriver *clock_driver = (ClockDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_CLOCK_DRIVER);

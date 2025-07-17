@@ -8,12 +8,13 @@
 
 #include <stdint.h>
 
-class PCIDriver : public Driver {
+class PCIDriver : public Driver
+{
 public:
     virtual void setup_driver_and_device() override;
     virtual bool exist() override;
 
-    Vector<PCIDevice>* get_devices();
+    Vector<PCIDevice> *get_devices();
 
     uint16_t get_vendor_id(PCIDevice d);
     uint16_t get_device_id(PCIDevice d);
@@ -21,6 +22,7 @@ public:
     uint8_t get_sub_class_code(PCIDevice d);
     uint8_t get_header_type(PCIDevice d);
     uint8_t get_prog_if(PCIDevice d);
+    const char *get_device_description(PCIDevice d);
 
     void set_prog_if(PCIDevice d, uint8_t prog_if);
 
