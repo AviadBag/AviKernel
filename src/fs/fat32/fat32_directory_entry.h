@@ -1,8 +1,8 @@
 #ifndef __FAT32_DIRECTORY_ENTRY_H__
 #define __FAT32_DIRECTORY_ENTRY_H__
 
-#include <stdint.h>
 #include <libc++/string.h>
+#include <stdint.h>
 
 // This class represents a single FAT32 directory entry. Can represent both a short and a long entry.
 // Methods starting with 'le' are methods regarding only long entries. (is_long_entry() is true).
@@ -10,8 +10,7 @@
 
 #define FAT32_DIR_ENTRY_LENGTH 32
 
-class FAT32DirectoryEntry
-{
+class FAT32DirectoryEntry {
 public:
     // Gets the bytes themselves.
     FAT32DirectoryEntry(uint8_t* bytes); // Given an array of 32 bytes. Copies it to an inner array.
@@ -23,13 +22,13 @@ public:
     bool is_directory();
     bool is_archive();
     bool is_long_entry();
-    
+
     String se_get_name();
     bool se_is_readonly();
     bool se_is_hidden();
     bool se_is_system_file();
     bool se_is_volume_label();
-    uint8_t  se_get_creation_time_tenth();
+    uint8_t se_get_creation_time_tenth();
     uint16_t se_get_creation_time();
     uint16_t se_get_creation_date();
     uint16_t se_get_last_access_date();
@@ -39,7 +38,7 @@ public:
     uint32_t se_get_file_size_bytes(); // Only valid when this is not a directory
 
     uint8_t le_get_order(); // What long entry is it?
-    bool le_is_last();      // Is it the last long entry?
+    bool le_is_last(); // Is it the last long entry?
     String le_get_name();
 
     uint8_t* get_bytes(); // Returns the inner bytes array. (Not the given array in the constructor).

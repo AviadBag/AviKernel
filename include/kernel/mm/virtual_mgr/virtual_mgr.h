@@ -8,10 +8,9 @@
 
 #define VMMGR_PAGE_SIZE 4096
 
-typedef void *virtual_addr;
+typedef void* virtual_addr;
 
-class VirtualMgr
-{
+class VirtualMgr {
 public:
     /**
      * @brief Initializes the Virtual Memory Manager.

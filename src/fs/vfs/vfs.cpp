@@ -1,8 +1,8 @@
 #include "fs/vfs/vfs.h"
 #include "kernel/panic.h"
 
-#include <posix/errno.h>
 #include <cstdio.h>
+#include <posix/errno.h>
 
 VFS::VFS()
 {
@@ -16,10 +16,8 @@ int VFS::allocate_descriptor()
     int desct = -1;
 
     // Find the first unused descriptor
-    for (int i = 0; i < VFS_OPEN_FILES_MAX; i++)
-    {
-        if (!file_descriptors[i].in_use)
-        {
+    for (int i = 0; i < VFS_OPEN_FILES_MAX; i++) {
+        if (!file_descriptors[i].in_use) {
             desct = i;
             break;
         }
@@ -42,7 +40,7 @@ void VFS::free_descriptor(int desct)
     file_descriptors[desct].in_use = false;
 }
 
-int VFS::mount_fs(Path where, Path device, FS *what)
+int VFS::mount_fs(Path where, Path device, FS* what)
 {
     if (device.is_folder() && !device.is_root())
         panic("VFS::mount_fs() -> Given a folder as a device!");
@@ -60,31 +58,25 @@ int VFS::mount_fs(Path where, Path device, FS *what)
     return 1;
 }
 
-bool VFS::get_mounted_fs(Path path, MountedFS *m)
+bool VFS::get_mounted_fs(Path path, MountedFS* m)
 {
     size_t max = 0;
 
-    for (int i = 0; i < mounted_fss.size(); i++)
-    {
+    for (int i = 0; i < mounted_fss.size(); i++) {
         MountedFS mounted_fs = mounted_fss.get(i);
 
-        if (mounted_fs.mount_path.get_depth() <= path.get_depth())
-        {
+        if (mounted_fs.mount_path.get_depth() <= path.get_depth()) {
             bool found = true;
-            for (int j = 0; j < mounted_fs.mount_path.get_depth(); j++)
-            {
-                if (mounted_fs.mount_path.get_part(i) != path.get_part(i))
-                {
+            for (int j = 0; j < mounted_fs.mount_path.get_depth(); j++) {
+                if (mounted_fs.mount_path.get_part(i) != path.get_part(i)) {
                     found = false;
                     break;
                 }
             }
 
-            if (found)
-            {
+            if (found) {
                 size_t n = mounted_fs.mount_path.get_depth() + 1;
-                if (n > max)
-                {
+                if (n > max) {
                     max = n;
                     *m = mounted_fs;
                 }
@@ -95,7 +87,7 @@ bool VFS::get_mounted_fs(Path path, MountedFS *m)
     return max != 0;
 }
 
-int VFS::open(const char *path_str, int oflag, ...)
+int VFS::open(const char* path_str, int oflag, ...)
 {
     // I must declare the variables at the beginning, because else - it does not allow me to use 'goto'.
     int desct;
@@ -103,8 +95,7 @@ int VFS::open(const char *path_str, int oflag, ...)
     MountedFS mounted_fs;
     Path path = path_str, trimmed_path;
 
-    if (path.is_folder())
-    {
+    if (path.is_folder()) {
         set_errno(EISDIR);
         goto exit_err;
     }
@@ -118,8 +109,7 @@ int VFS::open(const char *path_str, int oflag, ...)
     }
 
     // Retrieve the corresponding filesystem
-    if (!get_mounted_fs(path, &mounted_fs))
-    {
+    if (!get_mounted_fs(path, &mounted_fs)) {
         set_errno(ENOENT);
         goto exit_err_cleanup;
     }
@@ -134,21 +124,18 @@ int VFS::open(const char *path_str, int oflag, ...)
 
     /* -------- Treat the various cases regarding the file existance. -------- */
     // Case 1 - O_CREAT and O_EXCL = fail if file exist.
-    if ((oflag & O_CREAT) && (oflag & O_EXCL) && exists)
-    {
+    if ((oflag & O_CREAT) && (oflag & O_EXCL) && exists) {
         set_errno(EEXIST);
         goto exit_err_cleanup;
     }
     // Case 2 - O_CREAT is clear and the file does not exist; or path is empty.
-    if ((!(oflag & O_CREAT) && !exists) || !(*path_str))
-    {
+    if ((!(oflag & O_CREAT) && !exists) || !(*path_str)) {
         set_errno(ENOENT);
         goto exit_err_cleanup;
     }
 
     // Create the file if needed
-    if (O_CREAT && !exists)
-    {
+    if (O_CREAT && !exists) {
         if (!mounted_fs.fs->create_file(trimmed_path))
             return false;
     }
@@ -173,8 +160,7 @@ exit_err:
 
 int VFS::close(int fildes)
 {
-    if (!is_legal_descriptor(fildes))
-    {
+    if (!is_legal_descriptor(fildes)) {
         set_errno(EBADF);
         return -1;
     }
@@ -184,35 +170,34 @@ int VFS::close(int fildes)
     return 0;
 }
 
-uint64_t VFS::read(int desct, void *buf, uint64_t nbyte)
+uint64_t VFS::read(int desct, void* buf, uint64_t nbyte)
 {
     return io(desct, buf, nbyte, 0, VFS_OPR_READ);
 }
 
-uint64_t VFS::pread(int desct, void *buf, uint64_t nbyte, uint64_t offset)
+uint64_t VFS::pread(int desct, void* buf, uint64_t nbyte, uint64_t offset)
 {
     return io(desct, buf, nbyte, offset, VFS_OPR_READ);
 }
 
-uint64_t VFS::write(int desct, const void *buf, uint64_t nbyte)
+uint64_t VFS::write(int desct, const void* buf, uint64_t nbyte)
 {
     return io(desct, buf, nbyte, 0, VFS_OPR_WRITE);
 }
 
-uint64_t VFS::pwrite(int desct, const void *buf, uint64_t nbyte, uint64_t offset)
+uint64_t VFS::pwrite(int desct, const void* buf, uint64_t nbyte, uint64_t offset)
 {
     return io(desct, buf, nbyte, offset, VFS_OPR_WRITE);
 }
 
-uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vfs_operation operation)
+uint64_t VFS::io(int desct, const void* buf, uint64_t nbyte, uint64_t offset, vfs_operation operation)
 {
     // Is <count> == 0?
     if (nbyte == 0)
         return 0;
 
     // Is it a legal descriptor?
-    if (!is_legal_descriptor(desct))
-    {
+    if (!is_legal_descriptor(desct)) {
         set_errno(EBADF);
         return false;
     }
@@ -221,15 +206,13 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     uint64_t actual_offset = (offset == 0) ? file_descriptors[desct].position : offset;
 
     // Is the given file open for reading/writing?
-    if ((operation == VFS_OPR_READ && !file_descriptors[desct].read) || (operation == VFS_OPR_WRITE && !file_descriptors[desct].write))
-    {
+    if ((operation == VFS_OPR_READ && !file_descriptors[desct].read) || (operation == VFS_OPR_WRITE && !file_descriptors[desct].write)) {
         set_errno(EBADF);
         return false;
     }
 
     // Check for overflow (Only when reading)
-    if (operation == VFS_OPR_READ && actual_offset + nbyte > file_descriptors[desct].size)
-    {
+    if (operation == VFS_OPR_READ && actual_offset + nbyte > file_descriptors[desct].size) {
         set_errno(EOVERFLOW);
         return false;
     }
@@ -246,9 +229,9 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     // Action!
     uint64_t code;
     if (operation == VFS_OPR_WRITE)
-        code = mounted_fs.fs->write(trimmed_path, nbyte, actual_offset, (char *)buf);
+        code = mounted_fs.fs->write(trimmed_path, nbyte, actual_offset, (char*)buf);
     else
-        code = mounted_fs.fs->read(trimmed_path, nbyte, actual_offset, (char *)buf);
+        code = mounted_fs.fs->read(trimmed_path, nbyte, actual_offset, (char*)buf);
     if (!code)
         return false;
 
@@ -256,8 +239,7 @@ uint64_t VFS::io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vf
     file_descriptors[desct].position = actual_offset + nbyte;
 
     // If it was a write - recalculate the file size, for it might have changed.
-    if (operation == VFS_OPR_WRITE)
-    {
+    if (operation == VFS_OPR_WRITE) {
         if (!mounted_fs.fs->get_file_size(trimmed_path, &file_descriptors[desct].size))
             return false;
     }

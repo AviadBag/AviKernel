@@ -6,24 +6,22 @@
 #include "kernel/panic.h"
 
 template <class T>
-class VectorNode
-{
+class VectorNode {
 public:
     T data;
-    VectorNode *next;
+    VectorNode* next;
 };
 
 template <class T>
-class Vector
-{
+class Vector {
 public:
     // ------------------- Constructors and Destructor -------------------
     Vector();
-    Vector(Vector<T> &other);
+    Vector(Vector<T>& other);
     ~Vector();
 
     // ----------------------- Operators -----------------------
-    Vector<T> &operator=(const Vector &other);
+    Vector<T>& operator=(const Vector& other);
 
     // ------------------- Regular Methods -------------------
     T get(int index) const; // Panic if index is out of range
@@ -31,27 +29,27 @@ public:
     bool exist(T) const; // Does the given object exist in the list?
     int size() const;
     void remove(int index); // Panics if the index is out of range
-    void append(T);         // Panics if there is no enough memory
-    void pop_back();        // Deletes the last element; Panics if empty
+    void append(T); // Panics if there is no enough memory
+    void pop_back(); // Deletes the last element; Panics if empty
 
     // ------------------- Methods with long docs -------------------
     /**
      * Sorts the vector, according to the given function.
      * The given function gets two variables of type T as a parameter.
      * Returns true if the first parameter is bigger than the second.
-    */
+     */
     void sort(bool (*compare)(T first, T second));
 
 private:
     // ------------------- Regular Methods -------------------
-    VectorNode<T> *get_node(int index) const;
-    void append_node(VectorNode<T> *new_node);
-    void append_vector(const Vector &other);
-    void free_data();                             // Frees all of the dynamic allocated data
-    void empty_vector();                          // Empties the vector. DOES NOT FREE DATA! Call free_data() for that before.
+    VectorNode<T>* get_node(int index) const;
+    void append_node(VectorNode<T>* new_node);
+    void append_vector(const Vector& other);
+    void free_data(); // Frees all of the dynamic allocated data
+    void empty_vector(); // Empties the vector. DOES NOT FREE DATA! Call free_data() for that before.
     void panic_if_illegal_index(int index) const; // Panics if either the index is minus or out of range
 
-    VectorNode<T> *head;
+    VectorNode<T>* head;
     int vector_size;
 };
 
@@ -62,7 +60,7 @@ Vector<T>::Vector()
 }
 
 template <class T>
-Vector<T>::Vector(Vector<T> &other)
+Vector<T>::Vector(Vector<T>& other)
 {
     empty_vector();
     append_vector(other);
@@ -75,7 +73,7 @@ Vector<T>::~Vector()
 }
 
 template <class T>
-Vector<T> &Vector<T>::operator=(const Vector &other)
+Vector<T>& Vector<T>::operator=(const Vector& other)
 {
     // Destroy the previous state
     free_data();
@@ -103,18 +101,15 @@ void Vector<T>::remove(int index)
     panic_if_illegal_index(index);
 
     // The simplest case - it's the first element
-    if (index == 0)
-    {
-        VectorNode<T> *node = head->next;
+    if (index == 0) {
+        VectorNode<T>* node = head->next;
         delete head;
         head = node;
-    }
-    else
-    {
+    } else {
         // Get the node before
-        VectorNode<T> *before = get_node(index - 1);
+        VectorNode<T>* before = get_node(index - 1);
         // The next node
-        VectorNode<T> *tmp = before->next->next;
+        VectorNode<T>* tmp = before->next->next;
         // Delete
         delete before->next;
         // Advance
@@ -125,7 +120,7 @@ void Vector<T>::remove(int index)
 }
 
 template <class T>
-void Vector<T>::append_vector(const Vector &other)
+void Vector<T>::append_vector(const Vector& other)
 {
     for (int i = 0; i < other.size(); i++)
         append(other.get(i));
@@ -134,9 +129,8 @@ void Vector<T>::append_vector(const Vector &other)
 template <class T>
 void Vector<T>::free_data()
 {
-    while (head)
-    {
-        VectorNode<T> *tmp = head->next;
+    while (head) {
+        VectorNode<T>* tmp = head->next;
         delete head;
         head = tmp;
     }
@@ -157,16 +151,14 @@ void Vector<T>::pop_back()
         panic("Vector: Cannot delete last element when empty!");
 
     // There is only one element - delete it
-    else if (size() == 1)
-    {
+    else if (size() == 1) {
         free_data();
         empty_vector();
     }
 
     // There is more than one element
-    else
-    {
-        VectorNode<T> *ptr = head;
+    else {
+        VectorNode<T>* ptr = head;
         // advance until one before last
         while (ptr->next->next != nullptr)
             ptr = ptr->next;
@@ -204,7 +196,7 @@ int Vector<T>::size() const
 template <class T>
 void Vector<T>::append(T data)
 {
-    VectorNode<T> *new_node = new VectorNode<T>;
+    VectorNode<T>* new_node = new VectorNode<T>;
     if (!new_node)
         panic("Vector -> append(): Not enough memory!\n");
     new_node->data = data;
@@ -214,13 +206,12 @@ void Vector<T>::append(T data)
 }
 
 template <class T>
-void Vector<T>::append_node(VectorNode<T> *new_node)
+void Vector<T>::append_node(VectorNode<T>* new_node)
 {
     if (!head)
         head = new_node;
-    else
-    {
-        VectorNode<T> *node = head;
+    else {
+        VectorNode<T>* node = head;
         while (node->next != nullptr)
             node = node->next;
 
@@ -237,11 +228,11 @@ T Vector<T>::get(int index) const
 }
 
 template <class T>
-VectorNode<T> *Vector<T>::get_node(int index) const
+VectorNode<T>* Vector<T>::get_node(int index) const
 {
     panic_if_illegal_index(index);
 
-    VectorNode<T> *node = head;
+    VectorNode<T>* node = head;
     while (index--)
         node = node->next;
 
@@ -253,23 +244,20 @@ void Vector<T>::sort(bool (*compare)(T first, T second))
 {
     // Insertion sort
 
-    VectorNode<T> *iterator = head;
-    VectorNode<T> *iterator_prev = nullptr;
-    VectorNode<T> *new_iterator;      // The iterator might move; we want to backup is next.
-    VectorNode<T> *new_iterator_prev; // The iterator might move; We want to save his new prev.
+    VectorNode<T>* iterator = head;
+    VectorNode<T>* iterator_prev = nullptr;
+    VectorNode<T>* new_iterator; // The iterator might move; we want to backup is next.
+    VectorNode<T>* new_iterator_prev; // The iterator might move; We want to save his new prev.
     int sorted_area_size = 0;
 
-    while (iterator)
-    {
+    while (iterator) {
         new_iterator = iterator->next;
         new_iterator_prev = iterator;
 
-        VectorNode<T> *insertion_ptr = head;
-        VectorNode<T> *insertion_ptr_prev = nullptr;
-        for (int i = 0; i < sorted_area_size; i++)
-        {
-            if (compare(insertion_ptr->data, iterator->data))
-            {
+        VectorNode<T>* insertion_ptr = head;
+        VectorNode<T>* insertion_ptr_prev = nullptr;
+        for (int i = 0; i < sorted_area_size; i++) {
+            if (compare(insertion_ptr->data, iterator->data)) {
                 // We should insert <iterator> behind <insertion_ptr>
                 if (!iterator_prev)
                     continue; // This is the first item; There is nothing to do.
@@ -278,7 +266,7 @@ void Vector<T>::sort(bool (*compare)(T first, T second))
                 new_iterator = iterator->next;
 
                 iterator_prev->next = iterator->next; // Now <iterator> is not connected to the list anymore
-                iterator->next = insertion_ptr;       // Now iterator is right behind <insertion_ptr>
+                iterator->next = insertion_ptr; // Now iterator is right behind <insertion_ptr>
                 if (!insertion_ptr_prev)
                     // We are inserting behind the FIRST item - so we should only update <head>
                     head = iterator;

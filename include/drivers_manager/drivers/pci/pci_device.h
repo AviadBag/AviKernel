@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-/* This class represents a BUS device. It does not hold any useful information to the outer functions; It should be 
+/* This class represents a BUS device. It does not hold any useful information to the outer functions; It should be
 passed to the Driver in order to get the required data. */
 
 class PCIDevice {

@@ -7,8 +7,8 @@
 #define EMFILE 4 /* To many open files */
 #define EBADF 5
 #define EOVERFLOW 6
-#define EISDIR 7  /* This is a directory, and a file is required */
-#define ENOMEM 8  /* Not enough memory */
+#define EISDIR 7 /* This is a directory, and a file is required */
+#define ENOMEM 8 /* Not enough memory */
 #define ENOTSUP 9 /* Operation is not supported */
 #define ENOSPC 10 /* Not enough space on disk */
 

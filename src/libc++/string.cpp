@@ -1,8 +1,8 @@
 #include "kernel/panic.h"
 
+#include <cctype.h>
 #include <cstdlib.h>
 #include <cstring.h>
-#include <cctype.h>
 #include <string.h>
 
 #define CHECK_ALLOCATION(s)                      \
@@ -194,8 +194,7 @@ bool String::empty_or_whitespaces() const
         return true;
 
     // Check if there is a non-whitespace char
-    for (size_t i = 0; i < size(); i++)
-    {
+    for (size_t i = 0; i < size(); i++) {
         if (!isspace(at(i)))
             return false;
     }
@@ -246,9 +245,11 @@ char& String::back()
 
 String String::substr(size_t pos, size_t len) const
 {
-    if (pos == size()) return "";
-    else if (pos > size()) panic("String.substr(): pos %u is out of range", pos);
-    
+    if (pos == size())
+        return "";
+    else if (pos > size())
+        panic("String.substr(): pos %u is out of range", pos);
+
     if (len == npos) // Go until the end of the string
         len = size() - pos;
 
@@ -277,15 +278,12 @@ void String::initialize_from_char(char c)
     if (actual_string)
         delete actual_string;
 
-    if (c == '\0')
-    {
+    if (c == '\0') {
         actual_string = new char[1];
         CHECK_ALLOCATION(actual_string);
         *actual_string = c;
         _size = 0;
-    }
-    else
-    {
+    } else {
         actual_string = new char[2];
         CHECK_ALLOCATION(actual_string);
         actual_string[0] = c;

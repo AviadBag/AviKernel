@@ -1,12 +1,12 @@
 #include "kernel/input_manager.h"
-#include "drivers_manager/drivers_manager.h"
 #include "drivers_manager/drivers/keyboard/keyboard_driver.h"
+#include "drivers_manager/drivers_manager.h"
 
 Queue<char> InputManager::chars_queue;
 
 void InputManager::initialize()
 {
-    KeyboardDriver *keyboard_driver = (KeyboardDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_KEYBOARD_DRIVER);
+    KeyboardDriver* keyboard_driver = (KeyboardDriver*)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_KEYBOARD_DRIVER);
     keyboard_driver->set_on_press_listener(on_press);
 }
 

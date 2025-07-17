@@ -36,16 +36,15 @@
 #include <stddef.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    /**
+/**
  * Output a character to a custom device like UART, used by the printf() function
  * This function is declared here only. You have to write your custom implementation somewhere
  * \param character Character to output
  */
-    void putchar(char character);
+void putchar(char character);
 
 /**
  * Tiny printf implementation
@@ -56,7 +55,7 @@ extern "C"
  * \return The number of characters that are written into the array, not counting the terminating null character
  */
 #define printf printf_
-    int printf_(const char *format, ...);
+int printf_(const char* format, ...);
 
 /**
  * Tiny sprintf implementation
@@ -66,7 +65,7 @@ extern "C"
  * \return The number of characters that are WRITTEN into the buffer, not counting the terminating null character
  */
 #define sprintf sprintf_
-    int sprintf_(char *buffer, const char *format, ...);
+int sprintf_(char* buffer, const char* format, ...);
 
 /**
  * Tiny snprintf/vsnprintf implementation
@@ -80,8 +79,8 @@ extern "C"
  */
 #define snprintf snprintf_
 #define vsnprintf vsnprintf_
-    int snprintf_(char *buffer, size_t count, const char *format, ...);
-    int vsnprintf_(char *buffer, size_t count, const char *format, va_list va);
+int snprintf_(char* buffer, size_t count, const char* format, ...);
+int vsnprintf_(char* buffer, size_t count, const char* format, va_list va);
 
 /**
  * Tiny vprintf implementation
@@ -90,9 +89,9 @@ extern "C"
  * \return The number of characters that are WRITTEN into the buffer, not counting the terminating null character
  */
 #define vprintf vprintf_
-    int vprintf_(const char *format, va_list va);
+int vprintf_(const char* format, va_list va);
 
-    /**
+/**
  * printf with output function
  * You may use this as dynamic alternative to printf() with its fixed _putchar() output
  * \param out An output function which takes one character and an argument pointer
@@ -100,9 +99,9 @@ extern "C"
  * \param format A string that specifies the format of the output
  * \return The number of characters that are sent to the output function, not counting the terminating null character
  */
-    int fctprintf(void (*out)(char character, void *arg), void *arg, const char *format, ...);
+int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...);
 
-    int puts(const char *s);
+int puts(const char* s);
 
 #ifdef __cplusplus
 }

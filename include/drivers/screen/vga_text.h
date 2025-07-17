@@ -6,8 +6,7 @@
 #define VGA_ROWS 25
 #define VGA_COLUMNS 80
 
-class VgaText
-{
+class VgaText {
 public:
     static void putchar(char c);
     static void clear();

@@ -9,7 +9,7 @@
 #define PCI_CONFIG_ADDRESS_PORT 0xCF8
 #define PCI_CONFIG_DATA 0xCFC
 
-#define PCI_HAS_MULTIPLE_FUNCTIONS_MASK 0x80       // When bit 7 of the header type is on (0x80), then this device has multiple functions.
+#define PCI_HAS_MULTIPLE_FUNCTIONS_MASK 0x80 // When bit 7 of the header type is on (0x80), then this device has multiple functions.
 #define PCI_VENDOR_ID_DEVICE_DOES_NOT_EXIST 0xFFFF // When the vendor id is this, then this device does not exist.
 
 enum PCI_FIELDS_OFFSET // The offset of the 32 bit bundle contains this field.
@@ -47,7 +47,7 @@ void PCIDriver::setup_driver_and_device()
     enumerate_devices();
 }
 
-Vector<PCIDevice> *PCIDriver::get_devices()
+Vector<PCIDevice>* PCIDriver::get_devices()
 {
     return &devices;
 }
@@ -59,10 +59,8 @@ bool PCIDriver::exist()
 
 void PCIDriver::enumerate_devices()
 {
-    for (int bus = 0; bus < PCI_NUMBER_OF_BUSES; bus++)
-    {
-        for (int device_number = 0; device_number < PCI_NUMBER_OF_DEVICES_PER_BUS; device_number++)
-        {
+    for (int bus = 0; bus < PCI_NUMBER_OF_BUSES; bus++) {
+        for (int device_number = 0; device_number < PCI_NUMBER_OF_DEVICES_PER_BUS; device_number++) {
             PCIDevice device(bus, device_number, 0);
             if (!device_exists(device))
                 continue;
@@ -76,18 +74,15 @@ void PCIDriver::add_device(PCIDevice device)
 {
     uint8_t header_type = get_header_type(device);
     // TODO: Support only header type 0!
-    if (header_type & PCI_HAS_MULTIPLE_FUNCTIONS_MASK)
-    {
+    if (header_type & PCI_HAS_MULTIPLE_FUNCTIONS_MASK) {
         // Check every function of this device
-        for (int function = 0; function < PCI_NUMBER_OF_FUNCTIONS_PER_DEVICE; function++)
-        {
+        for (int function = 0; function < PCI_NUMBER_OF_FUNCTIONS_PER_DEVICE; function++) {
             PCIDevice d(device.get_bus_number(), device.get_device_number(), function);
             if (!device_exists(d))
                 continue;
             devices.append(d);
         }
-    }
-    else
+    } else
         devices.append(device);
 }
 
@@ -163,17 +158,15 @@ void PCIDriver::set_prog_if(PCIDevice d, uint8_t prog_if)
 }
 
 // Luckily was implemented by Claude..
-const char *PCIDriver::get_device_description(PCIDevice d)
+const char* PCIDriver::get_device_description(PCIDevice d)
 {
     uint8_t class_code = get_class_code(d);
     uint8_t sub_class = get_sub_class_code(d);
     uint8_t prog_if = get_prog_if(d);
 
-    switch (class_code)
-    {
+    switch (class_code) {
     case 0x0: // Unclassified
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Unclassified, Non-VGA-Compatible Unclassified Device";
         case 0x1:
@@ -183,13 +176,11 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0x1: // Mass Storage Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Mass Storage Controller, SCSI Bus Controller";
         case 0x1: // IDE Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Mass Storage Controller, IDE Controller, ISA Compatibility mode-only controller";
             case 0x5:
@@ -216,8 +207,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         case 0x4:
             return "Mass Storage Controller, RAID Controller";
         case 0x5: // ATA Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x20:
                 return "Mass Storage Controller, ATA Controller, Single DMA";
             case 0x30:
@@ -226,8 +216,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
                 return "Mass Storage Controller, ATA Controller";
             }
         case 0x6: // Serial ATA Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Mass Storage Controller, Serial ATA Controller, Vendor Specific Interface";
             case 0x1:
@@ -238,8 +227,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
                 return "Mass Storage Controller, Serial ATA Controller";
             }
         case 0x7: // Serial Attached SCSI Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Mass Storage Controller, Serial Attached SCSI Controller, SAS";
             case 0x1:
@@ -248,8 +236,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
                 return "Mass Storage Controller, Serial Attached SCSI Controller";
             }
         case 0x8: // Non-Volatile Memory Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x1:
                 return "Mass Storage Controller, Non-Volatile Memory Controller, NVMHCI";
             case 0x2:
@@ -264,8 +251,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0x2: // Network Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Network Controller, Ethernet Controller";
         case 0x1:
@@ -291,11 +277,9 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0x3: // Display Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0: // VGA Compatible Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Display Controller, VGA Compatible Controller, VGA Controller";
             case 0x1:
@@ -314,8 +298,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0x4: // Multimedia Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Multimedia Controller, Multimedia Video Controller";
         case 0x1:
@@ -331,8 +314,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0x5: // Memory Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Memory Controller, RAM Controller";
         case 0x1:
@@ -344,8 +326,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0x6: // Bridge
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Bridge, Host Bridge";
         case 0x1:
@@ -355,8 +336,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         case 0x3:
             return "Bridge, MCA Bridge";
         case 0x4: // PCI-to-PCI Bridge
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Bridge, PCI-to-PCI Bridge, Normal Decode";
             case 0x1:
@@ -371,8 +351,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         case 0x7:
             return "Bridge, CardBus Bridge";
         case 0x8: // RACEway Bridge
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Bridge, RACEway Bridge, Transparent Mode";
             case 0x1:
@@ -381,8 +360,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
                 return "Bridge, RACEway Bridge";
             }
         case 0x9: // PCI-to-PCI Bridge
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x40:
                 return "Bridge, PCI-to-PCI Bridge, Semi-Transparent, Primary bus towards host CPU";
             case 0x80:
@@ -399,11 +377,9 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0x7: // Simple Communication Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0: // Serial Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Simple Communication Controller, Serial Controller, 8250-Compatible (Generic XT)";
             case 0x1:
@@ -422,8 +398,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
                 return "Simple Communication Controller, Serial Controller";
             }
         case 0x1: // Parallel Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Simple Communication Controller, Parallel Controller, Standard Parallel Port";
             case 0x1:
@@ -440,8 +415,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         case 0x2:
             return "Simple Communication Controller, Multiport Serial Controller";
         case 0x3: // Modem
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Simple Communication Controller, Modem, Generic Modem";
             case 0x1:
@@ -466,11 +440,9 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0x8: // Base System Peripheral
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0: // PIC
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Base System Peripheral, PIC, Generic 8259-Compatible";
             case 0x1:
@@ -485,8 +457,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
                 return "Base System Peripheral, PIC";
             }
         case 0x1: // DMA Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Base System Peripheral, DMA Controller, Generic 8237-Compatible";
             case 0x1:
@@ -497,8 +468,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
                 return "Base System Peripheral, DMA Controller";
             }
         case 0x2: // Timer
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Base System Peripheral, Timer, Generic 8254-Compatible";
             case 0x1:
@@ -511,8 +481,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
                 return "Base System Peripheral, Timer";
             }
         case 0x3: // RTC Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Base System Peripheral, RTC Controller, Generic RTC";
             case 0x1:
@@ -533,8 +502,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0x9: // Input Device Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Input Device Controller, Keyboard Controller";
         case 0x1:
@@ -544,8 +512,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         case 0x3:
             return "Input Device Controller, Scanner Controller";
         case 0x4: // Gameport Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Input Device Controller, Gameport Controller, Generic";
             case 0x10:
@@ -560,8 +527,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0xA: // Docking Station
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Docking Station, Generic";
         case 0x80:
@@ -571,8 +537,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0xB: // Processor
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Processor, 386";
         case 0x1:
@@ -596,11 +561,9 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0xC: // Serial Bus Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0: // FireWire (IEEE 1394) Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Serial Bus Controller, FireWire (IEEE 1394) Controller, Generic";
             case 0x10:
@@ -613,8 +576,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         case 0x2:
             return "Serial Bus Controller, SSA";
         case 0x3: // USB Controller
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Serial Bus Controller, USB Controller, UHCI Controller";
             case 0x10:
@@ -637,8 +599,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         case 0x6:
             return "Serial Bus Controller, InfiniBand Controller";
         case 0x7: // IPMI Interface
-            switch (prog_if)
-            {
+            switch (prog_if) {
             case 0x0:
                 return "Serial Bus Controller, IPMI Interface, SMIC";
             case 0x1:
@@ -659,8 +620,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0xD: // Wireless Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Wireless Controller, iRDA Compatible Controller";
         case 0x1:
@@ -682,8 +642,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0xE: // Intelligent Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Intelligent Controller, I20";
         default:
@@ -691,8 +650,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0xF: // Satellite Communication Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x1:
             return "Satellite Communication Controller, Satellite TV Controller";
         case 0x2:
@@ -706,8 +664,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0x10: // Encryption Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Encryption Controller, Network and Computing Encryption/Decryption";
         case 0x10:
@@ -719,8 +676,7 @@ const char *PCIDriver::get_device_description(PCIDevice d)
         }
 
     case 0x11: // Signal Processing Controller
-        switch (sub_class)
-        {
+        switch (sub_class) {
         case 0x0:
             return "Signal Processing Controller, DPIO Modules";
         case 0x1:

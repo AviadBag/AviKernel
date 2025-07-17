@@ -4,15 +4,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct heap_hole_header_s
-{
-    size_t size;                     // The size of the hole, INCLUDING THE HEADER.
-    struct heap_hole_header_s *next; // A pointer to the next hole on the list.
-    struct heap_hole_header_s *prev; // A pointer to the previous hole on the list.
+typedef struct heap_hole_header_s {
+    size_t size; // The size of the hole, INCLUDING THE HEADER.
+    struct heap_hole_header_s* next; // A pointer to the next hole on the list.
+    struct heap_hole_header_s* prev; // A pointer to the previous hole on the list.
 } heap_hole_header;
 
-class Heap
-{
+class Heap {
 public:
     /**
      * @brief Initializes the Heap.
@@ -25,7 +23,7 @@ public:
      * @param size The required size for the chunk.
      * @return void* A pointer to the allocated memory.
      */
-    static void *malloc(size_t size);
+    static void* malloc(size_t size);
 
     /**
      * @brief Frees the memory chunk pointed by <ptr>. The memory must have been previously
@@ -33,7 +31,7 @@ public:
      *
      * @param ptr A pointer to the memory chunk.
      */
-    static void free(void *ptr);
+    static void free(void* ptr);
 
     /**
      * @brief Changes the size of the given chunk. Data will remain unchanged.
@@ -45,7 +43,7 @@ public:
      * @param new_size The new required size.
      * @return void*
      */
-    static void *realloc(void *ptr, size_t new_size);
+    static void* realloc(void* ptr, size_t new_size);
 
 private:
     /**
@@ -64,7 +62,7 @@ private:
      * @param size The allocates space required size.
      * @return size_t The size of the first hole. (Usually <size>, but can be more). Returns 0 if could not be splitted.
      */
-    static size_t split(heap_hole_header *hole, size_t size);
+    static size_t split(heap_hole_header* hole, size_t size);
 
     /**
      * @brief Merges given hole with previous and next holes if possible.
@@ -73,30 +71,30 @@ private:
      *
      * @param hole The hole to merge.
      */
-    static void merge(heap_hole_header *hole);
+    static void merge(heap_hole_header* hole);
 
     // Helper functions for merge(). They are not checking for possibility.
-    static void merge_previous(heap_hole_header *);
-    static void merge_next(heap_hole_header *);
+    static void merge_previous(heap_hole_header*);
+    static void merge_next(heap_hole_header*);
 
     /**
      * @brief Removes given hole from the global holes list.
      *
      * @param hole The hole to remove.
      */
-    static void remove_from_holes_list(heap_hole_header *hole);
+    static void remove_from_holes_list(heap_hole_header* hole);
 
     /**
      * @brief Inserts given hole to the global holes list, in it's right place.
      *
      * @param hole The hole to insert.
      */
-    static void insert_to_holes_list(heap_hole_header *hole);
+    static void insert_to_holes_list(heap_hole_header* hole);
 
 private:
-    static heap_hole_header *holes_list_head; // The head of the doubly linked list.
-    static heap_hole_header *holes_list_tail; // The tail of the doubly linked list.
-    static void *last_page;                   // A pointer to the last page on the heap.
+    static heap_hole_header* holes_list_head; // The head of the doubly linked list.
+    static heap_hole_header* holes_list_tail; // The tail of the doubly linked list.
+    static void* last_page; // A pointer to the last page on the heap.
 };
 
 #endif // __HEAP_H__

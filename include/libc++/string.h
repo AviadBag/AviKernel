@@ -42,7 +42,7 @@ public:
     const char& back() const;
     char& front();
     const char& front() const;
-    String substr (size_t pos = 0, size_t len = npos) const;
+    String substr(size_t pos = 0, size_t len = npos) const;
 
 private:
     void initialize_from_c_string(const char* str);

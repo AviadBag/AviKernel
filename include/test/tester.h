@@ -1,5 +1,4 @@
-class Tester
-{
+class Tester {
 public:
     static void test();
 };

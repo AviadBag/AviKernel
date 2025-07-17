@@ -26,11 +26,11 @@ size_t strlen(const char* str)
 // Taken from https://www.tutorialspoint.com/write-your-own-memcpy-in-c
 void* memcpy(void* dest, const void* src, size_t n)
 {
-    //cast src and dest to char*
+    // cast src and dest to char*
     char* src_char = (char*)src;
     char* dest_char = (char*)dest;
     for (size_t i = 0; i < n; i++)
-        dest_char[i] = src_char[i]; //copy contents byte by byte
+        dest_char[i] = src_char[i]; // copy contents byte by byte
 
     return dest;
 }

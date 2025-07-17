@@ -8,10 +8,9 @@
 
 #define PMMGR_BLOCK_SIZE (1024 * 4) // 4 KB
 
-typedef void *physical_addr;
+typedef void* physical_addr;
 
-class PhysicalMgr
-{
+class PhysicalMgr {
 public:
     /**
      * @brief the Physical Memory Manager.
@@ -68,10 +67,10 @@ private:
      * In this bitmap we store the state of every block on the system.
      * A clear bit represents a free block, a set bit is a block in use.
      */
-    static uint32_t *bitmap;
+    static uint32_t* bitmap;
 
-    static uint64_t number_of_cells;  // How many cells do we need in the bitmap? (Cell = 32bit)
-    static uint64_t bitmap_size;      // The size of the bitmap (in bytes).
+    static uint64_t number_of_cells; // How many cells do we need in the bitmap? (Cell = 32bit)
+    static uint64_t bitmap_size; // The size of the bitmap (in bytes).
     static uint64_t number_of_blocks; // The total number of the blocks we have on the system
 };
 

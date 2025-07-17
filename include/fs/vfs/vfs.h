@@ -1,8 +1,8 @@
 #ifndef __VFS_H__
 #define __VFS_H__
 
-#include "fs/path.h"
 #include "fs/fs.h"
+#include "fs/path.h"
 #include "utils/vector.h"
 
 #include <stdint.h>
@@ -20,32 +20,28 @@
 #define O_CREAT 0b100000
 #define O_EXCL 0b1000000
 
-struct MountedFS
-{
+struct MountedFS {
     Path mount_path;
-    FS *fs;
+    FS* fs;
 };
 
-struct FileDesc
-{
-    Path file_path;      /* The path of the file itself */
-    uint64_t position;   /* The pointer position inside of the file */
-    bool read;           /* Is it open for reading? */
-    bool write;          /* Is it open for writing? */
-    bool append;         /* Is it open for appending? (Only valid if write=true) */
-    uint64_t size;       /* The size of the file, in bytes */
+struct FileDesc {
+    Path file_path; /* The path of the file itself */
+    uint64_t position; /* The pointer position inside of the file */
+    bool read; /* Is it open for reading? */
+    bool write; /* Is it open for writing? */
+    bool append; /* Is it open for appending? (Only valid if write=true) */
+    uint64_t size; /* The size of the file, in bytes */
     bool in_use = false; /* Is this descriptor realy in use? */
 };
 
 /* Used for io() function. (See it's docs) */
-enum vfs_operation
-{
+enum vfs_operation {
     VFS_OPR_READ,
     VFS_OPR_WRITE
 };
 
-class VFS
-{
+class VFS {
 public:
     // ------------------- Constructor -------------------
     VFS();
@@ -60,24 +56,24 @@ public:
      * @param what   The filesystem to mount.
      * @return nonzero on success; 0 and sets errno on failure.
      */
-    int mount_fs(Path where, Path device, FS *what);
+    int mount_fs(Path where, Path device, FS* what);
 
     // ------------------- Regular Methods -------------------
-    int open(const char *path, int oflag, ...);
+    int open(const char* path, int oflag, ...);
     int close(int fildes);
 
-    uint64_t pread(int fildes, void *buf, uint64_t nbyte, uint64_t offset);
-    uint64_t read(int fildes, void *buf, uint64_t nbyte);
+    uint64_t pread(int fildes, void* buf, uint64_t nbyte, uint64_t offset);
+    uint64_t read(int fildes, void* buf, uint64_t nbyte);
 
-    uint64_t pwrite(int fildes, const void *buf, uint64_t nbyte, uint64_t offset);
-    uint64_t write(int fildes, const void *buf, uint64_t nbyte);
+    uint64_t pwrite(int fildes, const void* buf, uint64_t nbyte, uint64_t offset);
+    uint64_t write(int fildes, const void* buf, uint64_t nbyte);
 
 private:
     // ------------------- Regular Methods -------------------
-    bool get_mounted_fs(Path, MountedFS *); // Gives the MountedFS object that holds this path; Returns false if there is not such mounted FS.
-    int allocate_descriptor();              // Return -1 if there is no a free descriptor
-    void free_descriptor(int desc);         // <desc> must be in use; panics else.
-    bool is_legal_descriptor(int desc);     // Checks if this descriptor is in range and in use.
+    bool get_mounted_fs(Path, MountedFS*); // Gives the MountedFS object that holds this path; Returns false if there is not such mounted FS.
+    int allocate_descriptor(); // Return -1 if there is no a free descriptor
+    void free_descriptor(int desc); // <desc> must be in use; panics else.
+    bool is_legal_descriptor(int desc); // Checks if this descriptor is in range and in use.
 
     /**
      * @brief This is the main io() function. It handles reading and writing.
@@ -89,10 +85,10 @@ private:
      * @param operation Do you want to read or write?
      * @return uint64_t How many bytes read/written or -1 if error.
      */
-    uint64_t io(int desct, const void *buf, uint64_t nbyte, uint64_t offset, vfs_operation operation);
+    uint64_t io(int desct, const void* buf, uint64_t nbyte, uint64_t offset, vfs_operation operation);
 
     // ------------------- Member Variables -------------------
-    Vector<MountedFS> mounted_fss;                 // All of the currently mounted file systems
+    Vector<MountedFS> mounted_fss; // All of the currently mounted file systems
     FileDesc file_descriptors[VFS_OPEN_FILES_MAX]; // All of the file descriptors
 };
 
