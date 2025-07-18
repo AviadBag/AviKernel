@@ -57,6 +57,14 @@ debug: ${ISO}
 	@${VM} ${VM_FLAGS} ${VM_DEBUG_FLAGS}
 	@echo "QEMU        $^"
 
+# Configure network card to use IP 192.168.1.2, 255.255.255.0
+network: ${KERNEL} ${CONFIG}/grub.cfg
+	mkdir -p srv/tftp
+	i686-elf-grub-mknetdir --net-directory=srv/tftp --subdir=boot/grub
+	cp ${CONFIG}/grub.cfg srv/tftp/boot/grub/grub.cfg
+	cp ${KERNEL} srv/tftp/boot
+	sudo dnsmasq --no-daemon --conf-file=dnsmasq.conf
+
 ${ISO}: ${KERNEL} ${CONFIG}/grub.cfg
 	@mkdir -p isodir/boot/grub
 	@cp ${KERNEL} isodir/boot/kernel.bin
@@ -109,4 +117,6 @@ clean:
 	@find . -type f -name '*.ob' -delete
 	@echo "RM ${ISO}"
 	@rm -f ${ISO}
+	@echo "RM srv"
+	@rm -rf srv
 

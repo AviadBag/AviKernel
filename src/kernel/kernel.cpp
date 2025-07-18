@@ -116,7 +116,7 @@ void setup_drivers(multiboot_info_t *multiboot_info)
     {
         for (uint32_t y = 0; y < video_driver->get_screen_height(); y++)
         {
-            video_driver->put_pixel(x, y, x % 128, y % 128, (x + y) % 256);
+            video_driver->put_pixel(x, y, x % 256, y % 256, (x + y) % 256);
         }
     }
 }
