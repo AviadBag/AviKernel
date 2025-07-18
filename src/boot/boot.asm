@@ -1,10 +1,17 @@
 ; Declare constants for the multiboot header.
-MBALIGN  equ  1 << 0            ; align loaded modules on page boundaries
-MEMINFO  equ  1 << 1            ; provide memory map
-FLAGS    equ  MBALIGN | MEMINFO ; this is the Multiboot 'flag' field
-MAGIC    equ  0x1BADB002        ; 'magic number' lets bootloader find the header
-CHECKSUM equ -(MAGIC + FLAGS)   ; checksum of above, to prove we are multiboot
- 
+MBALIGN  equ  1 << 0                      ; align loaded modules on page boundaries
+MEMINFO  equ  1 << 1                      ; provide memory map
+VIDINFO  equ  1 << 2                      ; we will be passing information about current video mode
+FLAGS    equ  MBALIGN | MEMINFO | VIDINFO ; this is the Multiboot 'flag' field
+MAGIC    equ  0x1BADB002                  ; 'magic number' lets bootloader find the header
+CHECKSUM equ -(MAGIC + FLAGS)             ; checksum of above, to prove we are multiboot
+
+; Video settings
+VID_MODTYPE equ 0    ; Linear graphics mode
+VID_WIDTH   equ 1024 ; Prefered resolution of 1024x768
+VID_HEIGHT  equ 768
+VID_DEPTH   equ 0    ; Number of bits per pixel, no preference
+
 KERNEL_VIRTUAL_BASE_ADDR equ 0xC0000000
 KERNEL_VIRTUAL_BASE_PAGE equ (KERNEL_VIRTUAL_BASE_ADDR >> 22)
 
@@ -18,6 +25,12 @@ align 4
 	dd MAGIC
 	dd FLAGS
 	dd CHECKSUM
+	times 5 dd 0 ; We do not provide header address fields
+	dd VID_MODTYPE
+	dd VID_WIDTH
+	dd VID_HEIGHT
+	dd VID_DEPTH
+
  
 ; The multiboot standard does not define the value of the stack pointer register
 ; (esp) and it is up to the kernel to provide a stack. This allocates room for a
