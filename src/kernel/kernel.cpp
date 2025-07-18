@@ -5,6 +5,7 @@
 #include "drivers_manager/drivers/pci/pci_driver.h"
 #include "drivers_manager/drivers/pic/pic_driver.h"
 #include "drivers_manager/drivers/storage/storage_driver.h"
+#include "drivers_manager/drivers/video/video_driver.h"
 #include "drivers_manager/drivers_manager.h"
 
 #include "drivers/screen/text_output.h"
@@ -49,7 +50,7 @@ void setup_memory_managment(multiboot_info_t *multiboot_info)
     Heap::initialize();
 }
 
-void setup_drivers()
+void setup_drivers(multiboot_info_t *multiboot_info)
 {
     DriversManager::get_instance()->initialize();
 
@@ -104,6 +105,20 @@ void setup_drivers()
     if (!keyboard_driver->exist())
         panic("No keyboard connected. Press F10 to continue.");
     keyboard_driver->setup_driver_and_device();
+
+    VideoDriver *video_driver = (VideoDriver *)DriversManager::get_instance()->get_driver(DRIVERS_MANAGER_VIDEO_DRIVER);
+    video_driver->set_multiboot_info(multiboot_info); // Must be called before anything
+    if (!video_driver->exist())
+        panic("No suitable video driver...");
+    video_driver->setup_driver_and_device();
+
+    for (uint32_t x = 0; x < video_driver->get_screen_width(); x++)
+    {
+        for (uint32_t y = 0; y < video_driver->get_screen_height(); y++)
+        {
+            video_driver->put_pixel(x, y, x % 128, y % 128, (x + y) % 256);
+        }
+    }
 }
 
 void setup_interrupts()
@@ -240,13 +255,7 @@ extern "C" void kernel_main(multiboot_info_t *multiboot_info)
     setup_memory_managment(multiboot_info);
     setup_interrupts();
     setup_exceptions_handlers();
-    setup_drivers();
-
-    // Map memory video to 0xC0400000
-    uint64_t framebuffer_size = multiboot_info->framebuffer_pitch * multiboot_info->framebuffer_height;
-    // This formula gives you (framebuffer_size / VMMGR_PAGE_SIZE) rounded UP.
-    size_t framebuffer_frames = (framebuffer_size + VMMGR_PAGE_SIZE - 1) / VMMGR_PAGE_SIZE;
-    VirtualMgr::map_range((virtual_addr)0xC0400000, (physical_addr)multiboot_info->framebuffer_addr, framebuffer_frames, true);
+    setup_drivers(multiboot_info);
 
 #ifdef TEST
     Tester::test();
