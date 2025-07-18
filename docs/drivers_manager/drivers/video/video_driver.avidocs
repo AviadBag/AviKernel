@@ -1,0 +1,1 @@
+This is the basic video driver, based on the VESA specs. Keep in mind - before calling ANY function, set_multiboot_info must be called!!
