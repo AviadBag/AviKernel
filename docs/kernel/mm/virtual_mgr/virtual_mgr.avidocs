@@ -20,8 +20,9 @@ And honestly, I don't remember why it's called page_*e*table.
 
 
 A map of the virtual memory:
-|first 4 MB|       - identity mapping (for drivers etc.)
-...                - free space
-|0xC0000000 - 4MB| - kernel
-...                - free space
-|last 4KB|         - page_etable
+|first 4 MB|              - identity mapping (for drivers etc.)
+...                       - free space
+|0xC0000000 - 0xC0400000| - kernel (4 MB)
+|0xC0400000 - 0xC0C00000| - video memory (8 MB)
+|0xC0C00000 - last 4 KB | - heap
+|last 4KB|                - page_etable

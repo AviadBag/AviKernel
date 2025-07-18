@@ -1,4 +1,4 @@
-The heap starts right after the kernel.
+The heap starts right after the video memory, at 0xC0C00000.
 
 The memory space is divided into holes and allocated spaces. Every hole starts with a header of type heap_hole_header,
 every allocated space starts with a size_t indicating it's size.
